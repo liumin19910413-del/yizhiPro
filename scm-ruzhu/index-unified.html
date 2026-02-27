@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店商供应链系统 - 统一入口</title>
+    <link rel="stylesheet" href="shared/styles.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* 顶部导航栏 */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 2000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .top-navbar .logo {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .top-navbar .system-tabs {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .top-navbar .tab-btn {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .top-navbar .tab-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .top-navbar .tab-btn.active {
+            background: white;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        /* 主内容区域 */
+        .main-wrapper {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+        }
+        
+        /* 欢迎页面 */
+        .welcome-page {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .welcome-content {
+            text-align: center;
+        }
+        
+        .welcome-content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .welcome-content p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        
+        .welcome-cards {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        .welcome-card {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 16px;
+            width: 280px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .welcome-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        
+        .welcome-card .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-card h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-card p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* 系统容器 */
+        .system-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .system-container.active {
+            display: block;
+        }
+        
+        /* MG系统样式 */
+        #mg-system .sidebar { background: linear-gradient(180deg, #2d3436 0%, #1e272e 100%); }
+        #mg-system .nav-item.active { border-left-color: #6c5ce7; }
+        #mg-system .btn-primary { background: #6c5ce7; }
+        #mg-system .btn-primary:hover { background: #5b4cdb; }
+        
+        /* Lite系统样式 */
+        #lite-system .sidebar { background: linear-gradient(180deg, #0f4c75 0%, #1b262c 100%); }
+        #lite-system .nav-item.active { border-left-color: #3282b8; }
+        #lite-system .btn-primary { background: #3282b8; }
+        #lite-system .btn-primary:hover { background: #2a6f9e; }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar">
+        <div class="logo">
+            <span>🏪</span>
+            <span>店商供应链系统</span>
+        </div>
+        <div class="system-tabs">
+            <button class="tab-btn" onclick="switchSystem('mg')">🖥️ MG管理后台</button>
+            <button class="tab-btn" onclick="switchSystem('lite')">📱 Lite商户后台</button>
+            <button class="tab-btn" onclick="backToHome()">🏠 返回首页</button>
+        </div>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-wrapper">
+        <!-- 欢迎页面 -->
+        <div id="welcome-page" class="welcome-page">
+            <div class="welcome-content">
+                <h1>🛒 欢迎使用</h1>
+                <p>店商供应链系统 - 双系统联动Demo</p>
+                <div class="welcome-cards">
+                    <div class="welcome-card" onclick="switchSystem('mg')">
+                        <div class="icon">🖥️</div>
+                        <h3>MG管理后台</h3>
+                        <p>商户审核、分润管理、产品维护、商品组合、预收款管理、订单处理等功能</p>
+                    </div>
+                    <div class="welcome-card" onclick="switchSystem('lite')">
+                        <div class="icon">📱</div>
+                        <h3>Lite商户后台</h3>
+                        <p>商家入驻申请、商品浏览、订单管理、保证金充值、财务对账等功能</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MG系统容器 -->
+        <div id="mg-system" class="system-container"></div>
+        
+        <!-- Lite系统容器 -->
+        <div id="lite-system" class="system-container"></div>
+    </div>
+    
+    <script>
+        let currentSystem = null;
+        let mgLoaded = false;
+        let liteLoaded = false;
+        
+        // 切换系统
+        function switchSystem(system) {
+            console.log('切换到系统:', system);
+            
+            // 隐藏欢迎页面
+            document.getElementById('welcome-page').style.display = 'none';
+            
+            // 更新顶部按钮状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(system === 'mg' ? 'MG' : 'Lite')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 隐藏所有系统容器
+            document.querySelectorAll('.system-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            // 显示目标系统
+            const targetContainer = document.getElementById(system + '-system');
+            targetContainer.classList.add('active');
+            
+            // 加载系统内容（如果还没加载）
+            if (system === 'mg' && !mgLoaded) {
+                loadMGSystem();
+                mgLoaded = true;
+            } else if (system === 'lite' && !liteLoaded) {
+                loadLiteSystem();
+                liteLoaded = true;
+            }
+            
+            currentSystem = system;
+        }
+        
+        // 返回首页
+        function backToHome() {
+            document.getElementById('welcome-page').style.display = 'flex';
+            document.querySelectorAll('.system-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            currentSystem = null;
+        }
+        
+        // 加载MG系统
+        function loadMGSystem() {
+            const container = document.getElementById('mg-system');
+            
+            // 创建系统结构
+            container.innerHTML = `
+                <div class="app-container">
+                    <aside class="sidebar">
+                        <div class="sidebar-header">
+                            <h1>MG管理后台</h1>
+                            <div class="subtitle">供应链平台管理</div>
+                        </div>
+                        <nav class="nav-menu" id="mg-nav-menu"></nav>
+                    </aside>
+                    <main class="main-content">
+                        <div id="mg-page-content"></div>
+                    </main>
+                </div>
+                <div class="modal-overlay" id="mg-modal-overlay">
+                    <div class="modal" id="mg-modal" style="max-width: 800px;">
+                        <div class="modal-header">
+                            <h3 class="modal-title" id="mg-modal-title">弹窗标题</h3>
+                            <button class="modal-close" onclick="closeMGModal()">&times;</button>
+                        </div>
+                        <div class="modal-body" id="mg-modal-body"></div>
+                        <div class="modal-footer" id="mg-modal-footer"></div>
+                    </div>
+                </div>
+                <div class="toast" id="mg-toast"></div>
+            `;
+            
+            // 加载MG系统的JS
+            loadScript('shared/data.js', () => {
+                loadScript('mg/app.js', () => {
+                    console.log('MG系统加载完成');
+                });
+            });
+        }
+        
+        // 加载Lite系统
+        function loadLiteSystem() {
+            const container = document.getElementById('lite-system');
+            
+            // 创建系统结构
+            container.innerHTML = `
+                <div class="app-container">
+                    <aside class="sidebar">
+                        <div class="sidebar-header">
+                            <h1>Lite商户后台</h1>
+                            <div class="subtitle">店商供应链</div>
+                        </div>
+                        <nav class="nav-menu" id="lite-nav-menu"></nav>
+                    </aside>
+                    <main class="main-content">
+                        <div id="lite-page-content"></div>
+                    </main>
+                </div>
+                <div class="modal-overlay" id="lite-modal-overlay">
+                    <div class="modal" id="lite-modal">
+                        <div class="modal-header">
+                            <h3 class="modal-title" id="lite-modal-title">弹窗标题</h3>
+                            <button class="modal-close" onclick="closeLiteModal()">&times;</button>
+                        </div>
+                        <div class="modal-body" id="lite-modal-body"></div>
+                        <div class="modal-footer" id="lite-modal-footer"></div>
+                    </div>
+                </div>
+                <div class="toast" id="lite-toast"></div>
+            `;
+            
+            // 加载Lite系统的JS（data.js已经加载过了）
+            loadScript('lite/app.js', () => {
+                console.log('Lite系统加载完成');
+            });
+        }
+        
+        // 动态加载脚本
+        function loadScript(src, callback) {
+            // 检查是否已经加载
+            const existingScript = document.querySelector(`script[src="${src}"]`);
+            if (existingScript) {
+                if (callback) callback();
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = () => {
+                console.log('脚本加载成功:', src);
+                if (callback) callback();
+            };
+            script.onerror = () => {
+                console.error('脚本加载失败:', src);
+            };
+            document.body.appendChild(script);
+        }
+        
+        // 关闭模态框的辅助函数
+        function closeMGModal() {
+            if (typeof closeModal === 'function') {
+                closeModal();
+            }
+        }
+        
+        function closeLiteModal() {
+            if (typeof closeModal === 'function') {
+                closeModal();
+            }
+        }
+        
+        console.log('统一入口页面加载完成');
+    </script>
+</body>
+</html>

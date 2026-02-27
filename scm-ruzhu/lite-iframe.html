@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lite商户后台 - 店商供应链</title>
+    <link rel="stylesheet" href="shared/styles.css">
+    <style>
+        .sidebar { background: linear-gradient(180deg, #0f4c75 0%, #1b262c 100%); }
+        .nav-item.active { border-left-color: #3282b8; }
+        .btn-primary { background: #3282b8; }
+        .btn-primary:hover { background: #2a6f9e; }
+        
+        /* 申请流程步骤 */
+        .apply-steps { display: flex; justify-content: center; margin-bottom: 30px; padding: 20px; background: #fff; border-radius: 8px; }
+        .step { display: flex; align-items: center; gap: 10px; }
+        .step-num { width: 32px; height: 32px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+        .step.active .step-num { background: #3282b8; color: #fff; }
+        .step.done .step-num { background: #52c41a; color: #fff; }
+        .step-text { font-size: 14px; color: #666; }
+        .step.active .step-text, .step.done .step-text { color: #333; font-weight: 500; }
+        .step-line { width: 60px; height: 2px; background: #e8e8e8; margin: 0 15px; }
+        .step.done + .step-line { background: #52c41a; }
+        
+        /* 协议签署 */
+        .contract-list { display: grid; gap: 15px; }
+        .contract-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: #f9f9f9; border-radius: 8px; border: 1px solid #e8e8e8; }
+        .contract-item.signed { border-color: #52c41a; background: #f6ffed; }
+        .contract-info h4 { font-size: 15px; margin-bottom: 6px; }
+        .contract-info p { font-size: 13px; color: #666; }
+        
+        /* 商品卡片 - 只读展示 */
+        .goods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .goods-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .goods-card img { width: 100%; height: 200px; object-fit: cover; }
+        .goods-card .info { padding: 15px; }
+        .goods-card .spu-id { font-size: 12px; color: #999; margin-bottom: 5px; }
+        .goods-card .name { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
+        .goods-card .price { color: #ff4d4f; font-size: 20px; font-weight: 600; }
+        .goods-card .profit-box { margin-top: 12px; padding: 12px; background: #f6ffed; border-radius: 6px; border: 1px solid #b7eb8f; }
+        .goods-card .profit-label { font-size: 12px; color: #52c41a; margin-bottom: 4px; }
+        .goods-card .profit-value { font-size: 18px; font-weight: 600; color: #52c41a; }
+        .goods-card .update-time { font-size: 12px; color: #999; margin-top: 10px; }
+        
+        /* 保证金概览 */
+        .deposit-overview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+        .deposit-item { text-align: center; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .deposit-item .amount { font-size: 24px; font-weight: 600; color: #1a1a2e; }
+        .deposit-item .label { font-size: 13px; color: #666; margin-top: 5px; }
+        .deposit-item.available .amount { color: #52c41a; }
+        .deposit-item.frozen .amount { color: #faad14; }
+        .deposit-item.settled .amount { color: #3282b8; }
+        .deposit-item.need-withdraw .amount { color: #ff4d4f; }
+        
+        /* 充值方式选择 */
+        .pay-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 15px 0; }
+        .pay-method { padding: 15px; border: 2px solid #e8e8e8; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .pay-method:hover { border-color: #3282b8; }
+        .pay-method.selected { border-color: #3282b8; background: #e6f7ff; }
+        .pay-method.disabled { opacity: 0.5; cursor: not-allowed; }
+        .pay-method .icon { font-size: 24px; margin-bottom: 8px; }
+        .pay-method .name { font-size: 14px; }
+        
+        /* 订单状态标记 */
+        .order-status-tip { padding: 10px 15px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; }
+        .order-status-tip.warning { background: #fff7e6; border: 1px solid #ffd591; color: #d46b08; }
+        .order-status-tip.success { background: #f6ffed; border: 1px solid #b7eb8f; color: #389e0d; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Lite商户后台</h1>
+                <div class="subtitle">店商供应链</div>
+            </div>
+            <nav class="nav-menu" id="nav-menu">
+                <!-- 导航菜单由JS动态生成 -->
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div id="page-content"></div>
+        </main>
+    </div>
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">弹窗标题</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+            <div class="modal-footer" id="modal-footer"></div>
+        </div>
+    </div>
+    <div class="toast" id="toast"></div>
+    <script src="shared/data.js"></script>
+    <script src="lite/app.js"></script>
+</body>
+</html>

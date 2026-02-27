@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据同步测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .btn { padding: 8px 16px; margin: 5px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn:hover { background: #40a9ff; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #f6ffed; border: 1px solid #b7eb8f; color: #52c41a; }
+        .error { background: #fff2f0; border: 1px solid #ffccc7; color: #ff4d4f; }
+        .info { background: #e6f7ff; border: 1px solid #91d5ff; color: #1890ff; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>数据同步测试页面</h1>
+        
+        <div class="section">
+            <h2>测试操作</h2>
+            <button class="btn" onclick="createTestApplication()">创建测试申请</button>
+            <button class="btn" onclick="refreshData()">刷新数据</button>
+            <button class="btn" onclick="clearTestData()">清理测试数据</button>
+            <div id="status"></div>
+        </div>
+        
+        <div class="section">
+            <h2>当前申请数据</h2>
+            <div id="applications-list"></div>
+        </div>
+        
+        <div class="section">
+            <h2>操作链接</h2>
+            <p>
+                <a href="lite/index.html" target="_blank">打开 Lite端（商户后台）</a> | 
+                <a href="mg/index.html" target="_blank">打开 MG端（管理后台）</a>
+            </p>
+            <p style="color: #666; font-size: 14px;">
+                建议：在两个标签页中分别打开lite端和mg端，然后在lite端创建申请，观察mg端是否能实时看到新申请。
+            </p>
+        </div>
+    </div>
+
+    <script src="shared/data.js"></script>
+    <script>
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function createTestApplication() {
+            const testApp = {
+                id: 'APP' + Date.now().toString().slice(-9),
+                merchantId: 'YZF202501002', // 使用越秀店的商户号
+                applicantName: '测试申请人',
+                applicantPhone: '13800000000',
+                brandMerchantId: 'YZF202501004',
+                brandRatio: 10,
+                status: 'pending',
+                createTime: new Date().toLocaleString('zh-CN'),
+                auditTime: null,
+                signTime: null,
+                merchantRatioRange: null,
+                platformRatioRange: null,
+                operationRatioRange: null,
+                merchantRatio: null,
+                platformRatio: null,
+                operationRatio: null,
+                auditor: null,
+                auditRemark: null,
+                contracts: [
+                    { type: 'platform', name: '店商供应链合作协议-供应链平台', signed: false, signTime: null },
+                    { type: 'operation', name: '店商供应链合作协议-私域运营平台', signed: false, signTime: null },
+                    { type: 'brand', name: '店商供应链合作协议-品牌总部', signed: false, signTime: null }
+                ]
+            };
+
+            DataStore.add('applications', testApp);
+            showStatus(`✅ 测试申请已创建：${testApp.id}`, 'success');
+            refreshData();
+        }
+
+        function refreshData() {
+            const apps = DataStore.get('applications');
+            const listDiv = document.getElementById('applications-list');
+            
+            if (apps.length === 0) {
+                listDiv.innerHTML = '<p style="color: #999;">暂无申请数据</p>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>申请ID</th>
+                            <th>商户号</th>
+                            <th>申请人</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            apps.forEach(app => {
+                const statusMap = {
+                    'pending': '待审核',
+                    'pending_sign': '待签署',
+                    'signed': '已合作',
+                    'rejected': '已拒绝'
+                };
+                
+                html += `
+                    <tr>
+                        <td>${app.id}</td>
+                        <td>${app.merchantId}</td>
+                        <td>${app.applicantName}</td>
+                        <td>${statusMap[app.status] || app.status}</td>
+                        <td>${app.createTime}</td>
+                        <td>
+                            ${app.status === 'pending' ? `<button class="btn" onclick="approveTestApp('${app.id}')">审核通过</button>` : ''}
+                            <button class="btn" onclick="deleteTestApp('${app.id}')" style="background: #ff4d4f;">删除</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            listDiv.innerHTML = html;
+            
+            showStatus(`📊 数据已刷新，共 ${apps.length} 条申请记录`, 'info');
+        }
+
+        function approveTestApp(appId) {
+            DataStore.update('applications', appId, {
+                status: 'pending_sign',
+                auditTime: new Date().toLocaleString('zh-CN'),
+                auditor: '测试审核员',
+                auditRemark: '测试审核通过',
+                merchantRatioRange: '8-12',
+                platformRatioRange: '68-72',
+                operationRatioRange: '18-22',
+                merchantRatio: 10,
+                platformRatio: 70,
+                operationRatio: 20
+            });
+            showStatus(`✅ 申请 ${appId} 已审核通过`, 'success');
+            refreshData();
+        }
+
+        function deleteTestApp(appId) {
+            if (confirm('确定要删除这条申请记录吗？')) {
+                DataStore.delete('applications', appId);
+                showStatus(`🗑️ 申请 ${appId} 已删除`, 'info');
+                refreshData();
+            }
+        }
+
+        function clearTestData() {
+            if (confirm('确定要清理所有测试数据并重置为初始状态吗？')) {
+                DataStore.reset();
+                showStatus('🔄 测试数据已清理，已重置为初始状态', 'info');
+                refreshData();
+            }
+        }
+
+        // 监听数据变化
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'applications') {
+                showStatus('📡 检测到数据变化，自动刷新...', 'info');
+                setTimeout(refreshData, 100);
+            }
+        });
+
+        // 页面加载时刷新数据
+        document.addEventListener('DOMContentLoaded', refreshData);
+    </script>
+</body>
+</html>
