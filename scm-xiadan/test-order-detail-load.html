@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Order Detail Load</title>
+</head>
+<body>
+    <h1>Testing order-detail.js load</h1>
+    <div id="test"></div>
+
+    <script src="../shared/data.js"></script>
+    <script src="../shared/settlement-calculator.js"></script>
+    <script src="../shared/payment-status-calculator.js"></script>
+    <script src="../shared/amount-formatter.js"></script>
+    <script src="./financial-settlement-v2/order-detail.js"></script>
+    
+    <script>
+        console.log('Testing if renderOrderDetail is defined:', typeof renderOrderDetail);
+        if (typeof renderOrderDetail === 'function') {
+            document.getElementById('test').innerHTML = '<p style="color: green;">✓ renderOrderDetail is defined!</p>';
+        } else {
+            document.getElementById('test').innerHTML = '<p style="color: red;">✗ renderOrderDetail is NOT defined!</p>';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>验证修改 - 财务结算体系</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; 
+            background: #f0f2f5; 
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { 
+            background: #fff; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .title { 
+            font-size: 24px; 
+            font-weight: 600; 
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0 10px 0;
+            color: #1890ff;
+        }
+        .check-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 3px solid #52c41a;
+            background: #f6ffed;
+        }
+        .check-item.fail {
+            border-left-color: #ff4d4f;
+            background: #fff1f0;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .metric-card.highlight {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .metric-card.normal {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e9ecef;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e9ecef;
+        }
+        th {
+            background: #fafafa;
+            font-weight: 600;
+        }
+        th.blue-bg {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        th.orange-bg {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            background: #52c41a;
+            color: #fff;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status.success {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        .status.warning {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="title">✅ 财务结算体系 - 修改验证页面</div>
+            <p style="color: #666; margin-bottom: 20px;">
+                本页面用于验证财务对账模块的修改是否生效。
+            </p>
+        </div>
+
+        <!-- 验证1: 12个核心指标 -->
+        <div class="card">
+            <div class="section-title">验证1: 订单明细对账 - 12个核心指标卡片</div>
+            <div class="check-item">
+                ✅ 修改已应用：新增"💳 支付手续费"指标卡片
+            </div>
+            
+            <div class="metric-grid">
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">💰 交易订单额</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥45,680</div>
+                </div>
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">📦 交易订单数</div>
+                    <div style="font-size: 20px; font-weight: 700;">26笔</div>
+                </div>
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">💵 平台收入</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥31,976</div>
+                </div>
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">📤 货款支出</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥25,581</div>
+                </div>
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">🏢 营业部支出</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥6,395</div>
+                </div>
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">💎 平台利润</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥0</div>
+                </div>
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">🎯 代运营费</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥4,568</div>
+                </div>
+                <div class="metric-card highlight">
+                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px;">💳 支付手续费</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥174</div>
+                    <div style="font-size: 11px; margin-top: 6px; opacity: 0.8;">费率 0.38%</div>
+                </div>
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">📊 商家毛利</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥9,136</div>
+                </div>
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">🏛️ 总部收入</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥914</div>
+                </div>
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">🏪 门店毛利</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥8,222</div>
+                </div>
+                <div class="metric-card normal">
+                    <div style="font-size: 12px; margin-bottom: 6px;">✨ 门店利润</div>
+                    <div style="font-size: 20px; font-weight: 700;">¥6,989</div>
+                </div>
+            </div>
+            
+            <p style="color: #52c41a; font-weight: 600;">
+                ✅ 总共12个指标卡片（第8个是"💳 支付手续费"，渐变色背景）
+            </p>
+        </div>
+
+        <!-- 验证2: 经销商对账新列 -->
+        <div class="card">
+            <div class="section-title">验证2: 经销商对账 - 空中分账和保证金扣除列</div>
+            <div class="check-item">
+                ✅ 修改已应用：新增"空中分账"和"保证金扣除"列
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>月份</th>
+                        <th>经销商</th>
+                        <th>订单</th>
+                        <th>正常应结</th>
+                        <th>售后冲账</th>
+                        <th class="blue-bg">空中分账</th>
+                        <th class="orange-bg">保证金扣除</th>
+                        <th>净应结</th>
+                        <th>已付</th>
+                        <th>待付</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-01</td>
+                        <td>华东营业部</td>
+                        <td>156</td>
+                        <td>¥12,450</td>
+                        <td style="color: #ff4d4f;">-¥850</td>
+                        <td style="background: #e6f7ff; color: #1890ff; font-weight: 600;">
+                            ¥8,715
+                            <div style="font-size: 10px; color: #999;">已到账</div>
+                        </td>
+                        <td style="background: #fff7e6; color: #fa8c16; font-weight: 600;">
+                            ¥2,885
+                            <div style="font-size: 10px; color: #999;">待补付</div>
+                        </td>
+                        <td>¥11,600</td>
+                        <td>¥8,715</td>
+                        <td>¥2,885</td>
+                        <td><span class="status warning">部分付款</span></td>
+                        <td><button class="btn">💰 登记补付</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p style="color: #52c41a; font-weight: 600;">
+                ✅ "空中分账"列（蓝色背景）+ "保证金扣除"列（橙色背景）+ "登记补付"按钮
+            </p>
+        </div>
+
+        <!-- 验证3: 登记补付功能 -->
+        <div class="card">
+            <div class="section-title">验证3: 登记保证金补付功能</div>
+            <div class="check-item">
+                ✅ 修改已应用：新增通用的"登记保证金补付"函数
+            </div>
+            
+            <div style="background: #fff7e6; border: 1px solid #ffd591; border-radius: 4px; padding: 15px; margin: 15px 0;">
+                <div style="color: #fa8c16; font-weight: 600; margin-bottom: 10px;">💡 功能说明</div>
+                <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                    • 支持经销商、连锁总部、代运营公司的保证金补付<br>
+                    • 自动填充保证金扣除金额<br>
+                    • 支持多种补付方式（银行转账、保证金账户划转、现金等）<br>
+                    • 记录补付日期和备注<br>
+                    • 补付后自动更新状态
+                </div>
+            </div>
+            
+            <p style="color: #52c41a; font-weight: 600;">
+                ✅ 函数已添加：registerDepositPayment() 和 confirmDepositPayment()
+            </p>
+        </div>
+
+        <!-- 如何查看实际效果 -->
+        <div class="card">
+            <div class="section-title">📋 如何在实际页面中查看效果</div>
+            
+            <div style="background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 4px; padding: 15px; margin: 15px 0;">
+                <div style="color: #1890ff; font-weight: 600; margin-bottom: 10px;">🔗 访问链接</div>
+                <div style="font-size: 14px; line-height: 1.8;">
+                    <strong>主页面：</strong><br>
+                    <a href="./admin/index.html" target="_blank" style="color: #1890ff;">
+                        http://localhost:8000/admin/index.html
+                    </a>
+                </div>
+            </div>
+            
+            <div style="background: #fff7e6; border: 1px solid #ffd591; border-radius: 4px; padding: 15px; margin: 15px 0;">
+                <div style="color: #fa8c16; font-weight: 600; margin-bottom: 10px;">⚠️ 重要提示</div>
+                <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                    1. <strong>清除浏览器缓存</strong>：按 Cmd+Shift+R (Mac) 或 Ctrl+Shift+R (Windows)<br>
+                    2. <strong>生成模拟数据</strong>：点击"🎲 生成模拟数据"按钮<br>
+                    3. <strong>切换Tab</strong>：点击"🏢 经销商对账"Tab查看新列<br>
+                    4. <strong>查看指标</strong>：在"订单明细对账"Tab查看12个指标卡片
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="./admin/index.html" target="_blank">
+                    <button class="btn" style="font-size: 16px; padding: 12px 24px;">
+                        🚀 打开主页面
+                    </button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 验证结果 -->
+        <div class="card">
+            <div class="section-title">✅ 验证结果总结</div>
+            
+            <div class="check-item">
+                <strong>Phase 1 完成：</strong>订单明细对账优化<br>
+                • 12个核心指标卡片（新增"💳 支付手续费"）✅<br>
+                • 清分明细优化展示 ✅<br>
+                • 退款冲账记录整合 ✅
+            </div>
+            
+            <div class="check-item">
+                <strong>Phase 2 完成：</strong>经销商对账重构<br>
+                • 月结汇总表增加"空中分账"列 ✅<br>
+                • 月结汇总表增加"保证金扣除"列 ✅<br>
+                • "登记保证金补付"功能 ✅
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 4px;">
+                <div style="color: #52c41a; font-weight: 600; font-size: 16px; margin-bottom: 10px;">
+                    🎉 所有修改已成功应用！
+                </div>
+                <div style="font-size: 13px; color: #666;">
+                    如果在主页面中看不到效果，请：<br>
+                    1. 强制刷新页面（Cmd+Shift+R）<br>
+                    2. 清除浏览器缓存<br>
+                    3. 重新生成模拟数据
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

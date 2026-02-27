@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速检查 - 财务对账修改</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .check-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .check-item h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .status.success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .status.error { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+        .status.pending { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        button {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        button:hover { background: #40a9ff; }
+        button.success { background: #52c41a; }
+        button.success:hover { background: #73d13d; }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .result.success { background: #f6ffed; border: 1px solid #b7eb8f; }
+        .result.error { background: #fff2f0; border: 1px solid #ffccc7; }
+        .code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 财务对账修改快速检查</h1>
+    
+    <div class="check-item">
+        <h2>检查1: 文件修改是否存在 <span id="status1" class="status pending">检查中...</span></h2>
+        <p>检查 <code class="code">prototype/admin/index.html</code> 是否包含修改内容</p>
+        <button onclick="checkFile()">开始检查</button>
+        <div id="result1"></div>
+    </div>
+    
+    <div class="check-item">
+        <h2>检查2: 服务器是否运行 <span id="status2" class="status pending">检查中...</span></h2>
+        <p>检查本地服务器 <code class="code">http://localhost:8000</code> 是否可访问</p>
+        <button onclick="checkServer()">开始检查</button>
+        <div id="result2"></div>
+    </div>
+    
+    <div class="check-item">
+        <h2>检查3: 页面是否加载最新版本 <span id="status3" class="status pending">待检查</span></h2>
+        <p>检查浏览器是否缓存了旧版本</p>
+        <button onclick="openPage()">打开页面</button>
+        <button class="success" onclick="clearCache()">清除缓存并打开</button>
+        <div id="result3"></div>
+    </div>
+    
+    <div class="check-item">
+        <h2>📋 验证清单</h2>
+        <ol style="line-height: 2;">
+            <li>✅ 访问 <a href="http://localhost:8000/admin/index.html" target="_blank">http://localhost:8000/admin/index.html</a></li>
+            <li>✅ 点击左侧菜单"财务对账"</li>
+            <li>✅ <strong style="color: #ff4d4f;">点击"🎲 生成模拟数据"按钮</strong>（重要！）</li>
+            <li>✅ 在"订单明细对账"Tab查看是否有12个指标卡片</li>
+            <li>✅ 切换到"🏢 经销商对账"Tab查看是否有"空中分账"和"保证金扣除"列</li>
+        </ol>
+    </div>
+    
+    <div class="check-item">
+        <h2>🎯 预期效果</h2>
+        <h3>订单明细对账 - 应该看到12个指标卡片：</h3>
+        <ol>
+            <li>💰 交易订单额</li>
+            <li>📦 交易订单数</li>
+            <li>💵 平台收入</li>
+            <li>📤 货款支出</li>
+            <li>🏢 营业部支出</li>
+            <li>💎 平台利润</li>
+            <li>🎯 代运营费</li>
+            <li><strong style="color: #ff4d4f;">💳 支付手续费</strong> ← 新增（渐变色背景）</li>
+            <li>📊 商家毛利</li>
+            <li>🏛️ 总部收入</li>
+            <li>🏪 门店毛利</li>
+            <li>✨ 门店利润</li>
+        </ol>
+        
+        <h3 style="margin-top: 20px;">经销商对账 - 应该看到新增列：</h3>
+        <ul>
+            <li><strong style="color: #1890ff;">空中分账</strong>（蓝色背景）- 显示"已到账"</li>
+            <li><strong style="color: #fa8c16;">保证金扣除</strong>（橙色背景）- 显示"待补付"</li>
+            <li><strong style="color: #52c41a;">💰 登记补付</strong>按钮（绿色）</li>
+        </ul>
+    </div>
+    
+    <div class="check-item">
+        <h2>❓ 常见问题</h2>
+        <h3>Q: 看不到12个指标卡片？</h3>
+        <p><strong>A:</strong> 按 <code class="code">Cmd+Shift+R</code> (Mac) 或 <code class="code">Ctrl+Shift+R</code> (Windows) 强制刷新</p>
+        
+        <h3 style="margin-top: 15px;">Q: 经销商对账显示"暂无数据"？</h3>
+        <p><strong>A:</strong> 必须先点击"🎲 生成模拟数据"按钮！</p>
+        
+        <h3 style="margin-top: 15px;">Q: 点击按钮没反应？</h3>
+        <p><strong>A:</strong> 按F12打开开发者工具，查看Console是否有错误</p>
+    </div>
+    
+    <script>
+        function checkFile() {
+            const status = document.getElementById('status1');
+            const result = document.getElementById('result1');
+            
+            status.textContent = '检查中...';
+            status.className = 'status pending';
+            
+            // 使用fetch检查文件内容
+            fetch('/admin/index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const hasPaymentFee = html.includes('💳 支付手续费');
+                    const hasAirSplit = html.includes('空中分账');
+                    const hasDepositDeduct = html.includes('保证金扣除');
+                    
+                    if (hasPaymentFee && hasAirSplit && hasDepositDeduct) {
+                        status.textContent = '✓ 通过';
+                        status.className = 'status success';
+                        result.className = 'result success';
+                        result.innerHTML = `
+                            <strong>✓ 文件修改已存在</strong><br>
+                            ✓ 找到"💳 支付手续费"<br>
+                            ✓ 找到"空中分账"<br>
+                            ✓ 找到"保证金扣除"<br>
+                            <br>
+                            文件已正确修改，如果页面看不到效果，请清除浏览器缓存。
+                        `;
+                    } else {
+                        status.textContent = '✗ 失败';
+                        status.className = 'status error';
+                        result.className = 'result error';
+                        result.innerHTML = `
+                            <strong>✗ 文件修改不完整</strong><br>
+                            ${hasPaymentFee ? '✓' : '✗'} "💳 支付手续费"<br>
+                            ${hasAirSplit ? '✓' : '✗'} "空中分账"<br>
+                            ${hasDepositDeduct ? '✓' : '✗'} "保证金扣除"<br>
+                            <br>
+                            请检查文件是否正确保存。
+                        `;
+                    }
+                })
+                .catch(error => {
+                    status.textContent = '✗ 错误';
+                    status.className = 'status error';
+                    result.className = 'result error';
+                    result.innerHTML = `<strong>✗ 无法读取文件</strong><br>${error.message}`;
+                });
+        }
+        
+        function checkServer() {
+            const status = document.getElementById('status2');
+            const result = document.getElementById('result2');
+            
+            status.textContent = '检查中...';
+            status.className = 'status pending';
+            
+            fetch('/admin/index.html')
+                .then(response => {
+                    if (response.ok) {
+                        status.textContent = '✓ 运行中';
+                        status.className = 'status success';
+                        result.className = 'result success';
+                        result.innerHTML = `
+                            <strong>✓ 服务器正常运行</strong><br>
+                            地址: http://localhost:8000<br>
+                            状态: ${response.status} ${response.statusText}
+                        `;
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                })
+                .catch(error => {
+                    status.textContent = '✗ 未运行';
+                    status.className = 'status error';
+                    result.className = 'result error';
+                    result.innerHTML = `
+                        <strong>✗ 服务器未运行</strong><br>
+                        ${error.message}<br>
+                        <br>
+                        请在终端执行：<br>
+                        <code>cd prototype && python3 -m http.server 8000</code>
+                    `;
+                });
+        }
+        
+        function openPage() {
+            window.open('http://localhost:8000/admin/index.html', '_blank');
+            document.getElementById('result3').innerHTML = `
+                <div class="result success">
+                    已在新标签页打开页面。<br>
+                    <br>
+                    <strong>重要提示：</strong><br>
+                    1. 点击"🎲 生成模拟数据"按钮<br>
+                    2. 等待数据生成完成<br>
+                    3. 查看12个指标卡片<br>
+                    4. 切换到"经销商对账"Tab查看新增列
+                </div>
+            `;
+        }
+        
+        function clearCache() {
+            alert('请按以下步骤清除缓存：\n\n1. 打开页面后按 F12 打开开发者工具\n2. 右键点击刷新按钮\n3. 选择"清空缓存并硬性重新加载"\n\n或者：\nMac: Command + Shift + R\nWindows: Ctrl + Shift + R');
+            window.open('http://localhost:8000/admin/index.html', '_blank');
+        }
+        
+        // 页面加载时自动检查
+        window.onload = function() {
+            checkFile();
+            checkServer();
+        };
+    </script>
+</body>
+</html>

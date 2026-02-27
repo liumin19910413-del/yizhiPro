@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Function Test</title>
+</head>
+<body>
+    <h1>Testing Functions</h1>
+    <div id="output"></div>
+    
+    <script src="shared/data.js"></script>
+    <script src="shared/settlement-calculator.js"></script>
+    <script src="shared/payment-status-calculator.js"></script>
+    <script src="shared/amount-formatter.js"></script>
+    <script src="shared/detail-panel.js"></script>
+    <script src="shared/supplier-reconciliation.js"></script>
+    <script src="shared/distributor-reconciliation.js"></script>
+    <script src="shared/headquarter-reconciliation.js"></script>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        try {
+            output.innerHTML += '<p>✅ All scripts loaded successfully</p>';
+            
+            // Test if functions exist
+            if (typeof renderSourceProducts !== 'undefined') {
+                output.innerHTML += '<p>❌ renderSourceProducts should not be defined yet</p>';
+            } else {
+                output.innerHTML += '<p>✅ renderSourceProducts not defined (expected)</p>';
+            }
+            
+            // Test data loading
+            if (typeof DB !== 'undefined') {
+                output.innerHTML += '<p>✅ DB object exists</p>';
+                output.innerHTML += '<p>Products count: ' + (DB.products ? DB.products.length : 0) + '</p>';
+                output.innerHTML += '<p>Source Products count: ' + (DB.sourceProducts ? DB.sourceProducts.length : 0) + '</p>';
+            } else {
+                output.innerHTML += '<p>❌ DB object not found</p>';
+            }
+            
+        } catch (error) {
+            output.innerHTML += '<p style="color: red;">❌ Error: ' + error.message + '</p>';
+            console.error(error);
+        }
+    </script>
+</body>
+</html>
