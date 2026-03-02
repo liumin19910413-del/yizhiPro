@@ -114,7 +114,7 @@ const AFTERSALE_CONFIG = {
     
     // 功能开关
     features: {
-        enableExchange: true,                // 支持换货
+        enableExchange: false,                // 支持换货（本期暂不支持）
         enableRefundOnlyAfterShip: true,     // 已发货支持仅退款（协商无需退货）
         autoApproveEnabled: true,            // 超时自动审核
         qualityCheckRequired: true           // 退货需质检

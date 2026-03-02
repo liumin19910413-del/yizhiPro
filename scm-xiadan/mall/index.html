@@ -587,7 +587,7 @@ function getPageSpec(page) {
         },
         selectAfterSaleType: {
             title: '选择售后类型',
-            description: '选择合适的售后类型（仅退款/退货退款/换货）',
+            description: '选择合适的售后类型（仅退款/退货退款）',
             features: [
                 '三种售后类型卡片',
                 '类型说明和适用场景',
@@ -755,7 +755,7 @@ function renderHome(el) {
                 <div class="action" onclick="togglePortalSwitch()" style="position: relative;">🔀
                     <div id="portalSwitchMenu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 10px; background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 140px; z-index: 1000;">
                         <a href="../admin/index.html" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #f0f0f0; font-size: 13px;">⚙️ 平台后台</a>
-                        <a href="../merchant/index.html" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; font-size: 13px;">🏪 商户后台</a>
+                        <a href="../merchant-vue/dist/index.html" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; font-size: 13px;">🏪 商户后台</a>
                     </div>
                 </div>
                 <div class="action" onclick="showDataMenu()" style="position: relative;">⚙️
@@ -5084,7 +5084,7 @@ function selectPackage(index) {
 </script>
 
 <script>
-// 申请售后页面 - 支持仅退款、退货退款、换货
+// 申请售后页面 - 支持仅退款、退货退款（全额）
 let selectedASItems = {}; // 存储选中的商品和数量
 
 function renderAfterSale(el) {
@@ -5111,8 +5111,8 @@ function renderAfterSale(el) {
             <!-- 当前状态提示 -->
             <div style="background: ${isPendingShip ? '#fff7e6' : isShipped ? '#e6f7ff' : '#f6ffed'}; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; color: ${isPendingShip ? '#fa8c16' : isShipped ? '#1890ff' : '#52c41a'};">
                 ${isPendingShip ? '⏳ 订单待发货，可申请全额退款' : ''}
-                ${isShipped ? '🚚 订单已发货，可申请仅退款、退货退款或换货' : ''}
-                ${isDelivered ? '✅ 订单已签收，可申请仅退款、退货退款或换货' : ''}
+                ${isShipped ? '🚚 订单已发货，可申请仅退款或退货退款' : ''}
+                ${isDelivered ? '✅ 订单已签收，可申请仅退款或退货退款' : ''}
             </div>
             
             <!-- 售后类型选择 -->
@@ -5137,12 +5137,6 @@ function renderAfterSale(el) {
                             <input type="radio" name="asType" value="return_refund" style="display: none;">
                             <div style="font-size: 18px; margin-bottom: 3px;">📦</div>
                             <div style="font-size: 12px; font-weight: 600;">退货退款</div>
-                            <div style="font-size: 10px; color: #999; margin-top: 2px;">需寄回</div>
-                        </label>
-                        <label id="exchangeLabel" onclick="selectASType('exchange')" style="flex: 1; padding: 12px 8px; border: 2px solid #eee; border-radius: 8px; text-align: center; cursor: pointer;">
-                            <input type="radio" name="asType" value="exchange" style="display: none;">
-                            <div style="font-size: 18px; margin-bottom: 3px;">🔄</div>
-                            <div style="font-size: 12px; font-weight: 600;">换货</div>
                             <div style="font-size: 10px; color: #999; margin-top: 2px;">需寄回</div>
                         </label>
                     `}
@@ -6091,26 +6085,6 @@ function renderSelectAfterSaleType(el) {
                 </div>
             </div>
             
-            <!-- 换货 -->
-            <div onclick="confirmAfterSaleType('exchange')" style="background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 15px; cursor: pointer; border: 2px solid #eee; transition: all 0.2s;">
-                <div style="display: flex; align-items: flex-start; gap: 15px;">
-                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #4facfe, #00f2fe); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">🔄</div>
-                    <div style="flex: 1;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <span style="font-size: 16px; font-weight: 600; color: #333;">换货</span>
-                            <span style="background: #1890ff; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 10px;">支持部分</span>
-                        </div>
-                        <div style="font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 10px;">
-                            • 支持部分商品换货<br>
-                            • 需要寄回商品，确认收货后重新发货<br>
-                            • 等价换货，不涉及退款
-                        </div>
-                        <div style="font-size: 12px; color: #1890ff;">
-                            <span style="font-weight: 600;">适用场景：</span>商品有瑕疵、尺寸不合适等需要更换
-                        </div>
-                    </div>
-                </div>
-            </div>
             `}
         </div>
     `;
@@ -6887,6 +6861,27 @@ function doSwitchUser(userId) {
 // 初始化
 loadData();
 render();
+
+// 页面可见性变化时自动刷新数据（解决平台后台发货后商城未更新的问题）
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        // 页面重新可见时，重新加载全局数据和用户数据
+        loadData();
+        loadUserData(currentUserId);
+        // 刷新当前页面
+        if (currentPage === 'orders') {
+            renderOrders(document.getElementById('orderList'));
+        } else if (currentPage === 'orderDetail') {
+            renderOrderDetail();
+        } else if (currentPage === 'aftersales') {
+            renderAfterSales();
+        } else if (currentPage === 'aftersaleDetail') {
+            renderAfterSaleDetail();
+        } else {
+            render();
+        }
+    }
+});
 </script>
 </body>
 </html>
