@@ -12165,11 +12165,24 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 延迟加载数据，让页面先显示出来
     setTimeout(() => {
+        // 先加载已有数据
+        loadData();
+
         // 生成模拟订单数据（只在第一次或数据为空时生成）
         generateMockOrders();
-        
+
+        // 确保有售后数据
+        if (!DB.afterSales || DB.afterSales.length === 0) {
+            console.log('🔄 售后数据为空，重新生成...');
+            generateAfterSalesData(DB.orders);
+        }
+
+        // 保存数据
+        saveData();
+
         console.log(`⚡ 数据加载完成，耗时: ${Date.now() - initStartTime}ms`);
-        
+        console.log(`📊 数据统计: ${DB.orders?.length || 0} 订单, ${DB.afterSales?.length || 0} 售后单`);
+
         // 渲染页面
         render();
     }, 0);
