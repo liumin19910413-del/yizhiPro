@@ -5863,108 +5863,432 @@ function setOrderTimestamps(order, scenario, baseTime) {
 
 /**
  * 生成售后数据
+ *
+ * 售后状态说明：
+ * - pending: 待审核 - 用户提交售后申请，等待平台客服审核
+ * - approved: 审核通过 - 售后申请审核通过（中间状态）
+ * - waiting_return: 待寄回 - 审核通过，等待用户填写退货物流
+ * - returning: 退货中 - 用户已寄出商品，物流运输中
+ * - received: 已收货 - 平台已收到退货，等待确认退款/换货发货
+ * - reshipping: 换货发货中 - 换货商品已发出
+ * - completed: 已完成 - 售后流程全部完成
+ * - rejected: 已拒绝 - 售后申请被平台拒绝
+ *
+ * 售后类型说明：
+ * - refund_only: 仅退款 - 不退货，只申请退款
+ * - return_refund: 退货退款 - 退货并申请退款
+ * - exchange: 换货 - 更换同款商品（本期暂不支持）
  */
 function generateAfterSalesData(orders) {
     console.log('🔄 生成售后数据...');
-    
+
     // 清空现有售后数据
     DB.afterSales = [];
-    
-    // 为已完成和已发货的订单生成售后
-    const eligibleOrders = orders.filter(o => ['completed', 'shipped', 'delivered'].includes(o.status));
-    
-    // 生成各种状态的售后数据
-    const afterSaleStatuses = [
-        'pending',           // 待审核
-        'approved',          // 审核通过  
-        'waiting_return',    // 待寄回
-        'returning',         // 退货中
-        'received',          // 已收货
-        'reshipping',        // 重新发货
-        'completed',         // 已完成
-        'rejected'           // 已拒绝
+
+    // 模拟门店列表
+    const mockStores = [
+        { id: 'STORE001', name: '北京朝阳店' },
+        { id: 'STORE002', name: '上海浦东店' },
+        { id: 'STORE003', name: '广州天河店' },
+        { id: 'STORE004', name: '深圳福田店' },
+        { id: 'STORE005', name: '杭州西湖店' }
     ];
-    
-    const afterSaleTypes = ['refund_only', 'return_refund', 'exchange'];
-    const reasons = ['quality_issue', 'not_as_described', 'damaged', 'wrong_item', 'no_longer_needed'];
-    
-    // 为每种状态生成2-3个售后单
-    afterSaleStatuses.forEach((status, statusIndex) => {
-        const countForStatus = Math.min(3, eligibleOrders.length);
-        
-        for (let i = 0; i < countForStatus; i++) {
-            const orderIndex = (statusIndex * countForStatus + i) % eligibleOrders.length;
-            const order = eligibleOrders[orderIndex];
-            
-            if (!order || !order.items || order.items.length === 0) continue;
-            
-            const afterSaleType = afterSaleTypes[i % afterSaleTypes.length];
-            const reason = reasons[i % reasons.length];
-            
-            // 选择订单中的商品
-            const selectedItem = order.items[Math.floor(Math.random() * order.items.length)];
-            const refundQty = Math.min(selectedItem.qty, Math.floor(Math.random() * selectedItem.qty) + 1);
-            
-            const afterSaleItem = {
-                productId: selectedItem.productId,
-                name: selectedItem.name,
-                spec: selectedItem.spec,
-                price: selectedItem.price,
-                qty: refundQty,
-                img: selectedItem.img
-            };
-            
-            const refundAmount = afterSaleType === 'exchange' ? 0 : selectedItem.price * refundQty;
-            
-            // 计算创建时间（最近30天内）
-            const daysAgo = Math.floor(Math.random() * 30);
-            const createTime = new Date(Date.now() - daysAgo * 24 * 3600000);
-            
-            // 判断是否需要退回物流（退货退款和换货类型，且状态为退货中、已收货、重新发货、已完成）
-            const needsReturnLogistics = (afterSaleType === 'return_refund' || afterSaleType === 'exchange') && 
-                                        ['returning', 'received', 'reshipping', 'completed'].includes(status);
-            
-            // 判断是否需要换货物流（换货类型，且状态为重新发货、已完成）
-            const needsExchangeLogistics = afterSaleType === 'exchange' && 
-                                          ['reshipping', 'completed'].includes(status);
-            
-            const afterSale = {
-                id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
-                orderId: order.id,
-                subOrderId: order.subOrderIds ? order.subOrderIds[0] : null,
-                userId: order.userId,
-                storeId: order.storeId,
-                type: afterSaleType,
-                status: status,
-                reason: reason,
-                description: `${getAfterSaleTypeText(afterSaleType)}测试 - ${getReasonText(reason)}`,
-                items: [afterSaleItem],
-                itemsAmount: selectedItem.price * refundQty,
-                discountAmount: Math.round(selectedItem.price * refundQty * 0.1 * 100) / 100, // 模拟10%优惠
-                refundAmount: refundAmount,
-                refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
-                refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
-                refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
-                images: [
-                    'https://picsum.photos/800/600?random=' + (i * 3 + 1),
-                    'https://picsum.photos/800/600?random=' + (i * 3 + 2),
-                    'https://picsum.photos/800/600?random=' + (i * 3 + 3)
-                ].slice(0, Math.floor(Math.random() * 3) + 1), // 随机1-3张真实占位图
-                createTime: createTime.toISOString(),
-                updateTime: new Date(createTime.getTime() + Math.random() * 24 * 3600000).toISOString(),
-                // 退回物流信息（用户寄回商品）
-                returnExpressCompany: needsReturnLogistics ? ['顺丰速运', '中通快递', '圆通速递', '韵达快递'][i % 4] : null,
-                returnTrackingNo: needsReturnLogistics ? ['SF', 'ZTO', 'YTO', 'YD'][i % 4] + Math.random().toString().substr(2, 10) : null,
-                // 换货物流信息（平台发货给用户）
-                exchangeExpressCompany: needsExchangeLogistics ? ['顺丰速运', '京东快递', '邮政EMS'][i % 3] : null,
-                exchangeTrackingNo: needsExchangeLogistics ? ['SF', 'JD', 'EMS'][i % 3] + Math.random().toString().substr(2, 10) : null,
-                returnAddress: (afterSaleType === 'return_refund' || afterSaleType === 'exchange') ? '北京市朝阳区建国路88号退货仓库' : null
-            };
-            
-            DB.afterSales.push(afterSale);
-        }
-    });
-    
+
+    // 模拟用户列表
+    const mockUsers = [
+        { id: 'U001', name: '张三' },
+        { id: 'U002', name: '李四' },
+        { id: 'U003', name: '王五' },
+        { id: 'U004', name: '赵六' },
+        { id: 'U005', name: '钱七' }
+    ];
+
+    // 模拟商品列表
+    const mockProducts = [
+        { id: 'P001', name: '玻尿酸精华液', spec: '30ml', price: 299 },
+        { id: 'P002', name: '胶原蛋白面膜', spec: '5片装', price: 159 },
+        { id: 'P003', name: '烟酰胺身体乳', spec: '200ml', price: 89 },
+        { id: 'P004', name: '氨基酸洁面乳', spec: '100g', price: 69 },
+        { id: 'P005', name: '烟酰胺精华液', spec: '30ml', price: 199 }
+    ];
+
+    // 售后原因配置
+    const reasonConfigs = [
+        { code: 'quality_issue', label: '商品质量问题', freightResponsible: 'supplier' },
+        { code: 'not_as_described', label: '商品与描述不符', freightResponsible: 'supplier' },
+        { code: 'damaged', label: '收到商品破损', freightResponsible: 'supplier' },
+        { code: 'wrong_item', label: '发错货/漏发', freightResponsible: 'supplier' },
+        { code: 'no_longer_needed', label: '不想要了', freightResponsible: 'buyer' },
+        { code: 'other', label: '其他原因', freightResponsible: 'buyer' }
+    ];
+
+    // 快递公司
+    const expressCompanies = ['顺丰速运', '中通快递', '圆通速递', '韵达快递', '京东快递'];
+    const expressPrefixes = ['SF', 'ZTO', 'YTO', 'YD', 'JD'];
+
+    // 创建模拟订单信息
+    function createMockOrderInfo(index) {
+        const store = mockStores[index % mockStores.length];
+        const user = mockUsers[index % mockUsers.length];
+        const orderDate = new Date(Date.now() - (index + 1) * 24 * 3600000);
+        const orderId = 'SO' + orderDate.getFullYear().toString() +
+            (orderDate.getMonth() + 1).toString().padStart(2, '0') +
+            orderDate.getDate().toString().padStart(2, '0') +
+            (1000 + index).toString().padStart(4, '0');
+
+        return {
+            id: orderId,
+            userId: user.id,
+            storeId: store.id,
+            storeName: store.name,
+            userName: user.name,
+            createTime: orderDate.toISOString()
+        };
+    }
+
+    // 创建模拟售后商品
+    function createMockAfterSaleItem(productIndex) {
+        const product = mockProducts[productIndex % mockProducts.length];
+        return {
+            productId: product.id,
+            name: product.name,
+            spec: product.spec,
+            price: product.price,
+            qty: 1,
+            img: '📦'
+        };
+    }
+
+    let asIndex = 0;
+
+    // ==================== 1. 待审核状态（pending）====================
+    console.log('📋 生成待审核状态数据...');
+    for (let i = 0; i < 5; i++) {
+        const orderInfo = createMockOrderInfo(asIndex);
+        const product = mockProducts[i % mockProducts.length];
+        const reason = reasonConfigs[i % reasonConfigs.length];
+        const itemsAmount = product.price;
+        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
+        const freightRefund = i === 0 ? 10 : 0; // 第一个是待发货状态，有运费退款
+        const refundAmount = itemsAmount + freightRefund - discountAmount;
+
+        const afterSale = {
+            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
+            orderId: orderInfo.id,
+            subOrderId: orderInfo.id + '-1',
+            userId: orderInfo.userId,
+            storeId: orderInfo.storeId,
+            storeName: orderInfo.storeName,
+            userName: orderInfo.userName,
+            type: i % 2 === 0 ? 'refund_only' : 'return_refund',
+            status: 'pending',
+            reason: reason.label,
+            reasonCode: reason.code,
+            description: `【测试数据】待审核-售后申请${i + 1}`,
+            items: [createMockAfterSaleItem(i)],
+            itemsAmount: itemsAmount,
+            discountAmount: discountAmount,
+            freightRefund: freightRefund,
+            refundAmount: refundAmount,
+            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
+            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
+            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
+            freightResponsibility: reason.freightResponsible,
+            images: ['https://picsum.photos/800/600?random=' + asIndex],
+            createTime: new Date(Date.now() - (i + 1) * 24 * 3600000).toISOString(),
+            updateTime: new Date(Date.now() - (i + 1) * 24 * 3600000 + 3600000).toISOString(),
+            auditTime: null,
+            returnExpressCompany: null,
+            returnTrackingNo: null,
+            returnTime: null,
+            returnAddress: null,
+            receiveTime: null,
+            qcPassed: false,
+            refundTime: null,
+            completeTime: null,
+            rejectReason: null
+        };
+
+        DB.afterSales.push(afterSale);
+        asIndex++;
+    }
+
+    // ==================== 2. 待寄回状态（waiting_return）====================
+    console.log('📤 生成待寄回状态数据...');
+    for (let i = 0; i < 3; i++) {
+        const orderInfo = createMockOrderInfo(asIndex);
+        const product = mockProducts[i % mockProducts.length];
+        const reason = reasonConfigs[i % reasonConfigs.length];
+        const itemsAmount = product.price;
+        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
+        const refundAmount = itemsAmount - discountAmount;
+        const createTime = new Date(Date.now() - (5 + i) * 24 * 3600000);
+
+        const afterSale = {
+            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
+            orderId: orderInfo.id,
+            subOrderId: orderInfo.id + '-1',
+            userId: orderInfo.userId,
+            storeId: orderInfo.storeId,
+            storeName: orderInfo.storeName,
+            userName: orderInfo.userName,
+            type: 'return_refund',
+            status: 'waiting_return',
+            reason: reason.label,
+            reasonCode: reason.code,
+            description: `【测试数据】待寄回-退货退款${i + 1}`,
+            items: [createMockAfterSaleItem(i)],
+            itemsAmount: itemsAmount,
+            discountAmount: discountAmount,
+            freightRefund: 0,
+            refundAmount: refundAmount,
+            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
+            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
+            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
+            freightResponsibility: reason.freightResponsible,
+            images: ['https://picsum.photos/800/600?random=' + asIndex],
+            createTime: createTime.toISOString(),
+            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
+            auditTime: new Date(createTime.getTime() + 2 * 3600000).toISOString(),
+            auditRemark: '审核通过，请寄回商品',
+            returnExpressCompany: null,
+            returnTrackingNo: null,
+            returnTime: null,
+            returnAddress: '北京市朝阳区建国路88号退货仓库',
+            receiveTime: null,
+            qcPassed: false,
+            refundTime: null,
+            completeTime: null,
+            rejectReason: null
+        };
+
+        DB.afterSales.push(afterSale);
+        asIndex++;
+    }
+
+    // ==================== 3. 退货中状态（returning）====================
+    console.log('🚛 生成退货中状态数据...');
+    for (let i = 0; i < 3; i++) {
+        const orderInfo = createMockOrderInfo(asIndex);
+        const product = mockProducts[i % mockProducts.length];
+        const reason = reasonConfigs[i % reasonConfigs.length];
+        const itemsAmount = product.price;
+        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
+        const refundAmount = itemsAmount - discountAmount;
+        const createTime = new Date(Date.now() - (8 + i) * 24 * 3600000);
+
+        const afterSale = {
+            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
+            orderId: orderInfo.id,
+            subOrderId: orderInfo.id + '-1',
+            userId: orderInfo.userId,
+            storeId: orderInfo.storeId,
+            storeName: orderInfo.storeName,
+            userName: orderInfo.userName,
+            type: 'return_refund',
+            status: 'returning',
+            reason: reason.label,
+            reasonCode: reason.code,
+            description: `【测试数据】退货中-物流运输${i + 1}`,
+            items: [createMockAfterSaleItem(i)],
+            itemsAmount: itemsAmount,
+            discountAmount: discountAmount,
+            freightRefund: 0,
+            refundAmount: refundAmount,
+            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
+            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
+            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
+            freightResponsibility: reason.freightResponsible,
+            images: ['https://picsum.photos/800/600?random=' + asIndex],
+            createTime: createTime.toISOString(),
+            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
+            auditTime: new Date(createTime.getTime() + 2 * 3600000).toISOString(),
+            auditRemark: '审核通过',
+            returnExpressCompany: expressCompanies[i % expressCompanies.length],
+            returnTrackingNo: expressPrefixes[i % expressPrefixes.length] + String(Date.now()).slice(-10),
+            returnTime: new Date(createTime.getTime() + 24 * 3600000).toISOString(),
+            returnAddress: '北京市朝阳区建国路88号退货仓库',
+            receiveTime: null,
+            qcPassed: false,
+            refundTime: null,
+            completeTime: null,
+            rejectReason: null
+        };
+
+        DB.afterSales.push(afterSale);
+        asIndex++;
+    }
+
+    // ==================== 4. 已收货状态（received）====================
+    console.log('📥 生成已收货状态数据...');
+    for (let i = 0; i < 3; i++) {
+        const orderInfo = createMockOrderInfo(asIndex);
+        const product = mockProducts[i % mockProducts.length];
+        const reason = reasonConfigs[i % reasonConfigs.length];
+        const itemsAmount = product.price;
+        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
+        const refundAmount = itemsAmount - discountAmount;
+        const createTime = new Date(Date.now() - (12 + i) * 24 * 3600000);
+
+        const afterSale = {
+            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
+            orderId: orderInfo.id,
+            subOrderId: orderInfo.id + '-1',
+            userId: orderInfo.userId,
+            storeId: orderInfo.storeId,
+            storeName: orderInfo.storeName,
+            userName: orderInfo.userName,
+            type: i < 2 ? 'return_refund' : 'exchange',
+            status: 'received',
+            reason: reason.label,
+            reasonCode: reason.code,
+            description: `【测试数据】已收货-待确认${i + 1}`,
+            items: [createMockAfterSaleItem(i)],
+            itemsAmount: itemsAmount,
+            discountAmount: discountAmount,
+            freightRefund: 0,
+            refundAmount: refundAmount,
+            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
+            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
+            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
+            freightResponsibility: reason.freightResponsible,
+            images: ['https://picsum.photos/800/600?random=' + asIndex],
+            createTime: createTime.toISOString(),
+            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
+            auditTime: new Date(createTime.getTime() + 2 * 3600000).toISOString(),
+            auditRemark: '审核通过',
+            returnExpressCompany: expressCompanies[i % expressCompanies.length],
+            returnTrackingNo: expressPrefixes[i % expressPrefixes.length] + String(Date.now()).slice(-10),
+            returnTime: new Date(createTime.getTime() + 24 * 3600000).toISOString(),
+            returnAddress: '北京市朝阳区建国路88号退货仓库',
+            receiveTime: new Date(createTime.getTime() + 72 * 3600000).toISOString(),
+            qcPassed: true,
+            qcRemark: '质检通过，商品状态良好',
+            refundTime: null,
+            completeTime: null,
+            rejectReason: null
+        };
+
+        DB.afterSales.push(afterSale);
+        asIndex++;
+    }
+
+    // ==================== 5. 已完成状态（completed）====================
+    console.log('✅ 生成已完成状态数据...');
+    for (let i = 0; i < 5; i++) {
+        const orderInfo = createMockOrderInfo(asIndex);
+        const product = mockProducts[i % mockProducts.length];
+        const reason = reasonConfigs[i % reasonConfigs.length];
+        const itemsAmount = product.price;
+        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
+        const freightRefund = i === 0 ? 10 : 0;
+        const refundAmount = itemsAmount + freightRefund - discountAmount;
+        const createTime = new Date(Date.now() - (15 + i) * 24 * 3600000);
+
+        const isReturnRefund = i % 2 === 0;
+
+        const afterSale = {
+            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
+            orderId: orderInfo.id,
+            subOrderId: orderInfo.id + '-1',
+            userId: orderInfo.userId,
+            storeId: orderInfo.storeId,
+            storeName: orderInfo.storeName,
+            userName: orderInfo.userName,
+            type: isReturnRefund ? 'return_refund' : 'refund_only',
+            status: 'completed',
+            reason: reason.label,
+            reasonCode: reason.code,
+            description: `【测试数据】已完成-售后${i + 1}`,
+            items: [createMockAfterSaleItem(i)],
+            itemsAmount: itemsAmount,
+            discountAmount: discountAmount,
+            freightRefund: freightRefund,
+            refundAmount: refundAmount,
+            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
+            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
+            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
+            freightResponsibility: reason.freightResponsible,
+            images: ['https://picsum.photos/800/600?random=' + asIndex],
+            createTime: createTime.toISOString(),
+            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
+            auditTime: new Date(createTime.getTime() + 2 * 3600000).toISOString(),
+            auditRemark: '审核通过',
+            returnExpressCompany: isReturnRefund ? expressCompanies[i % expressCompanies.length] : null,
+            returnTrackingNo: isReturnRefund ? expressPrefixes[i % expressPrefixes.length] + String(Date.now()).slice(-10) : null,
+            returnTime: isReturnRefund ? new Date(createTime.getTime() + 24 * 3600000).toISOString() : null,
+            returnAddress: isReturnRefund ? '北京市朝阳区建国路88号退货仓库' : null,
+            receiveTime: isReturnRefund ? new Date(createTime.getTime() + 72 * 3600000).toISOString() : null,
+            qcPassed: isReturnRefund,
+            qcRemark: isReturnRefund ? '质检通过' : null,
+            refundTime: new Date(createTime.getTime() + 96 * 3600000).toISOString(),
+            completeTime: new Date(createTime.getTime() + 100 * 3600000).toISOString(),
+            rejectReason: null
+        };
+
+        DB.afterSales.push(afterSale);
+        asIndex++;
+    }
+
+    // ==================== 6. 已拒绝状态（rejected）====================
+    console.log('❌ 生成已拒绝状态数据...');
+    for (let i = 0; i < 3; i++) {
+        const orderInfo = createMockOrderInfo(asIndex);
+        const product = mockProducts[i % mockProducts.length];
+        const reason = reasonConfigs[4 + (i % 2)]; // 买家责任原因
+        const itemsAmount = product.price;
+        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
+        const refundAmount = itemsAmount - discountAmount;
+        const createTime = new Date(Date.now() - (20 + i) * 24 * 3600000);
+
+        const rejectReasons = [
+            '商品已拆封使用，不符合退货条件',
+            '超过售后申请时效（确认收货后15天）',
+            '未提供有效质量问题证明材料'
+        ];
+
+        const afterSale = {
+            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
+            orderId: orderInfo.id,
+            subOrderId: orderInfo.id + '-1',
+            userId: orderInfo.userId,
+            storeId: orderInfo.storeId,
+            storeName: orderInfo.storeName,
+            userName: orderInfo.userName,
+            type: 'refund_only',
+            status: 'rejected',
+            reason: reason.label,
+            reasonCode: reason.code,
+            description: `【测试数据】已拒绝-售后${i + 1}`,
+            items: [createMockAfterSaleItem(i)],
+            itemsAmount: itemsAmount,
+            discountAmount: discountAmount,
+            freightRefund: 0,
+            refundAmount: refundAmount,
+            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
+            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
+            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
+            freightResponsibility: reason.freightResponsible,
+            images: ['https://picsum.photos/800/600?random=' + asIndex],
+            createTime: createTime.toISOString(),
+            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
+            auditTime: new Date(createTime.getTime() + 2 * 3600000).toISOString(),
+            auditRemark: '审核拒绝',
+            returnExpressCompany: null,
+            returnTrackingNo: null,
+            returnTime: null,
+            returnAddress: null,
+            receiveTime: null,
+            qcPassed: false,
+            refundTime: null,
+            completeTime: null,
+            rejectReason: rejectReasons[i % rejectReasons.length]
+        };
+
+        DB.afterSales.push(afterSale);
+        asIndex++;
+    }
+
     console.log(`✅ 生成了 ${DB.afterSales.length} 个售后单，涵盖所有状态`);
 }
 

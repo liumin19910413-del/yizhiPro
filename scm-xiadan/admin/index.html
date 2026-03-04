@@ -668,15 +668,21 @@ function generateMockOrders() {
         console.log('✅ 模拟数据已存在（会话缓存），跳过生成');
         return;
     }
-    
+
+    window._mockOrdersGenerated = true;
+
     // 检查是否已有足够的订单数据（持久化数据）
     if (DB.orders && DB.orders.length >= 100) {
         console.log(`✅ 已有 ${DB.orders.length} 个订单，跳过生成模拟数据`);
-        window._mockOrdersGenerated = true;
+
+        // 即使跳过订单生成，也要重新生成售后数据
+        console.log('🔄 开始生成售后数据...');
+        if (typeof generateAfterSalesData === 'function') {
+            generateAfterSalesData(DB.orders);
+            console.log(`✅ 售后数据生成完成，共 ${DB.afterSales ? DB.afterSales.length : 0} 个售后单`);
+        }
         return;
     }
-    
-    window._mockOrdersGenerated = true;
     
     console.log('🔄 开始生成模拟订单数据...');
     const startTime = Date.now();
@@ -918,6 +924,15 @@ function generateMockOrders() {
         }[status] || status;
         console.log(`   - ${statusText}: ${count} 个订单`);
     });
+
+    // 生成售后数据
+    console.log('\n🔄 开始生成售后数据...');
+    if (typeof generateAfterSalesData === 'function') {
+        generateAfterSalesData(DB.orders);
+        console.log(`✅ 售后数据生成完成，共 ${DB.afterSales ? DB.afterSales.length : 0} 个售后单`);
+    } else {
+        console.warn('⚠️ generateAfterSalesData 函数未定义，跳过售后数据生成');
+    }
 }
 function closeModal() {
     document.getElementById('modal').classList.remove('show');
@@ -3563,16 +3578,17 @@ function renderAfterSale(el) {
             <div style="flex: 3; display: flex; flex-direction: column; background: #fff; border-radius: 8px; padding: 20px; overflow: hidden;">
                 <!-- 搜索栏 -->
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0;">
-                    <input type="text" id="asSearchInput" placeholder="搜索售后单号/订单号/物流单号" value="${asSearchKeyword || ''}" 
+                    <input type="text" id="asSearchInput" placeholder="搜索售后单号/订单号/物流单号" value="${asSearchKeyword || ''}"
                         onkeyup="if(event.key==='Enter') searchAfterSales()"
                         style="padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; width: 280px;">
                     <button onclick="searchAfterSales()" class="btn btn-primary" style="padding: 8px 16px;">🔍 搜索</button>
                     <button onclick="clearASSearch()" class="btn btn-default" style="padding: 8px 16px;">清空</button>
+                    <button onclick="openASReferenceModal()" class="btn btn-info" style="padding: 8px 16px; background: #722ed1; border-color: #722ed1;">📋 业务规则参考</button>
                     <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 13px; color: #666;">
                             共 <span style="color: #1890ff; font-weight: 600;">${totalRecords}</span> 条记录
                         </div>
-                        <select id="asPageSizeSelect" value="${asPageSize}" onchange="changeASPageSize()" 
+                        <select id="asPageSizeSelect" value="${asPageSize}" onchange="changeASPageSize()"
                             style="padding: 6px 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px;">
                             <option value="10" ${asPageSize === 10 ? 'selected' : ''}>10条/页</option>
                             <option value="20" ${asPageSize === 20 ? 'selected' : ''}>20条/页</option>
@@ -3803,7 +3819,318 @@ function renderAfterSale(el) {
         modalHtml = renderASDetailModal();
     }
 
-    el.innerHTML = html + modalHtml;
+    // 渲染业务规则和测试数据参考弹窗
+    let referenceModalHtml = '';
+    if (showASReferenceModal) {
+        referenceModalHtml = renderASReferenceModal();
+    }
+
+    el.innerHTML = html + modalHtml + referenceModalHtml;
+}
+
+// 是否显示业务规则参考弹窗
+let showASReferenceModal = false;
+
+// 渲染业务规则和测试数据参考弹窗
+function renderASReferenceModal() {
+    const config = PAGE_CONFIG.aftersale;
+    if (!config) return '';
+
+    return `
+        <div class="modal-overlay" onclick="closeASReferenceModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center;">
+            <div class="modal-content" onclick="event.stopPropagation()" style="width: 90%; max-width: 1200px; max-height: 90vh; background: #fff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column;">
+                <!-- 头部 -->
+                <div style="padding: 20px 24px; border-bottom: 1px solid #e8e8e8; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+                    <div>
+                        <div style="font-size: 18px; font-weight: 600; color: #333;">📋 售后管理 - 业务规则与测试数据参考</div>
+                        <div style="font-size: 13px; color: #999; margin-top: 4px;">供开发和测试人员参考使用</div>
+                    </div>
+                    <button onclick="closeASReferenceModal()" class="btn btn-default" style="padding: 8px 16px;">✕ 关闭</button>
+                </div>
+
+                <!-- 内容区域 -->
+                <div style="flex: 1; overflow-y: auto; padding: 24px;">
+                    <!-- Tab切换 -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;">
+                        <button onclick="switchASReferenceTab('statusMachine')" class="btn ${asReferenceTab === 'statusMachine' ? 'btn-primary' : 'btn-default'}" style="padding: 10px 20px;">🔄 状态机定义</button>
+                        <button onclick="switchASReferenceTab('afterSaleTypes')" class="btn ${asReferenceTab === 'afterSaleTypes' ? 'btn-primary' : 'btn-default'}" style="padding: 10px 20px;">📦 售后类型</button>
+                        <button onclick="switchASReferenceTab('rules')" class="btn ${asReferenceTab === 'rules' ? 'btn-primary' : 'btn-default'}" style="padding: 10px 20px;">📜 业务规则</button>
+                        <button onclick="switchASReferenceTab('testData')" class="btn ${asReferenceTab === 'testData' ? 'btn-primary' : 'btn-default'}" style="padding: 10px 20px;">🧪 测试数据</button>
+                    </div>
+
+                    <!-- Tab内容 -->
+                    <div id="asReferenceContent">
+                        ${renderASReferenceContent()}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 当前参考弹窗的Tab
+let asReferenceTab = 'statusMachine';
+
+// 切换参考弹窗Tab
+function switchASReferenceTab(tab) {
+    asReferenceTab = tab;
+    const contentEl = document.getElementById('asReferenceContent');
+    if (contentEl) {
+        contentEl.innerHTML = renderASReferenceContent();
+    }
+    // 更新按钮状态
+    const buttons = document.querySelectorAll('#asReferenceContent').parentElement.previousElementSibling.querySelectorAll('button');
+    buttons.forEach(btn => {
+        if (btn.textContent.includes(tab === 'statusMachine' ? '状态机' : tab === 'afterSaleTypes' ? '售后类型' : tab === 'rules' ? '业务规则' : '测试数据')) {
+            btn.className = 'btn btn-primary';
+        } else {
+            btn.className = 'btn btn-default';
+        }
+    });
+    render();
+}
+
+// 渲染参考内容
+function renderASReferenceContent() {
+    const config = PAGE_CONFIG.aftersale;
+    if (!config) return '';
+
+    switch(asReferenceTab) {
+        case 'statusMachine':
+            return renderASStatusMachineContent(config);
+        case 'afterSaleTypes':
+            return renderASTypesContent(config);
+        case 'rules':
+            return renderASRulesContent(config);
+        case 'testData':
+            return renderASTestDataContent(config);
+        default:
+            return '';
+    }
+}
+
+// 渲染状态机定义
+function renderASStatusMachineContent(config) {
+    const statusMachine = config.statusMachine;
+    if (!statusMachine) return '<div style="color: #999;">暂无状态机定义</div>';
+
+    let html = `
+        <div style="margin-bottom: 20px;">
+            <div style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 15px;">📌 售后状态流转说明</div>
+            <div style="background: #f6ffed; padding: 15px; border-radius: 8px; border: 1px solid #b7eb8f; margin-bottom: 20px;">
+                <div style="font-size: 13px; color: #52c41a; font-weight: 500; margin-bottom: 8px;">💡 状态流转核心规则：</div>
+                <div style="font-size: 13px; color: #666; line-height: 1.8;">
+                    pending（待审核）→ approved/rejected（通过/拒绝）<br>
+                    approved（审核通过）→ waiting_return（退货退款/换货）/ completed（仅退款）<br>
+                    waiting_return（待寄回）→ returning（退货中）<br>
+                    returning（退货中）→ received（已收货）<br>
+                    received（已收货）→ completed（退货退款）/ reshipping（换货）<br>
+                    reshipping（换货发货中）→ completed（已完成）
+                </div>
+            </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <thead>
+                <tr style="background: #fafafa;">
+                    <th style="padding: 12px 15px; text-align: left; border: 1px solid #e8e8e8; width: 100px;">状态码</th>
+                    <th style="padding: 12px 15px; text-align: left; border: 1px solid #e8e8e8; width: 100px;">状态名称</th>
+                    <th style="padding: 12px 15px; text-align: left; border: 1px solid #e8e8e8;">状态说明</th>
+                    <th style="padding: 12px 15px; text-align: left; border: 1px solid #e8e8e8; width: 150px;">可执行操作</th>
+                    <th style="padding: 12px 15px; text-align: left; border: 1px solid #e8e8e8; width: 120px;">下一状态</th>
+                    <th style="padding: 12px 15px; text-align: left; border: 1px solid #e8e8e8; width: 100px;">时效要求</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    Object.entries(statusMachine).forEach(([code, info]) => {
+        html += `
+            <tr>
+                <td style="padding: 10px 15px; border: 1px solid #e8e8e8; font-family: monospace; color: #1890ff;">${code}</td>
+                <td style="padding: 10px 15px; border: 1px solid #e8e8e8;">
+                    <span style="background: ${info.bg}; color: ${info.color}; padding: 4px 10px; border-radius: 4px; font-weight: 500;">${info.text}</span>
+                </td>
+                <td style="padding: 10px 15px; border: 1px solid #e8e8e8; color: #666;">${info.description}</td>
+                <td style="padding: 10px 15px; border: 1px solid #e8e8e8;">
+                    ${(info.operations || []).map(op => `<div style="margin-bottom: 4px;">• ${op}</div>`).join('') || '<span style="color: #999;">无</span>'}
+                </td>
+                <td style="padding: 10px 15px; border: 1px solid #e8e8e8;">
+                    ${(info.nextStates || []).length > 0 ?
+                        info.nextStates.map(s => `<span style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; margin-right: 4px; font-size: 11px;">${s}</span>`).join('') :
+                        '<span style="color: #999;">终态</span>'
+                    }
+                </td>
+                <td style="padding: 10px 15px; border: 1px solid #e8e8e8; font-size: 12px; color: #fa8c16;">${info.timeout || '-'}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+    return html;
+}
+
+// 渲染售后类型
+function renderASTypesContent(config) {
+    const types = config.afterSaleTypes;
+    if (!types) return '<div style="color: #999;">暂无售后类型定义</div>';
+
+    let html = '<div style="display: grid; gap: 20px;">';
+
+    Object.entries(types).forEach(([code, info]) => {
+        html += `
+            <div style="background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px 20px; color: #fff;">
+                    <div style="font-size: 16px; font-weight: 600;">${info.text}</div>
+                    <div style="font-size: 12px; opacity: 0.9; margin-top: 4px;">${code}</div>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 13px; color: #999; margin-bottom: 5px;">📝 类型说明</div>
+                        <div style="font-size: 14px; color: #333;">${info.description}</div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 13px; color: #999; margin-bottom: 5px;">📋 适用订单状态</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            ${(info.applicableOrders || []).map(s => `<span style="background: #e6f7ff; color: #1890ff; padding: 4px 10px; border-radius: 4px; font-size: 12px;">${s}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 13px; color: #999; margin-bottom: 5px;">🔄 处理流程</div>
+                        <div style="background: #f5f5f5; padding: 12px 15px; border-radius: 6px; font-size: 13px; color: #666;">${info.flow}</div>
+                    </div>
+
+                    ${info.refundRule ? `
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 13px; color: #999; margin-bottom: 5px;">💰 退款规则</div>
+                        <div style="background: #fffbe6; padding: 12px 15px; border-radius: 6px; border-left: 3px solid #faad14;">
+                            ${Object.entries(info.refundRule).map(([k, v]) => `<div style="font-size: 13px; margin-bottom: 4px;"><strong>${k}:</strong> ${v}</div>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${info.freightRule ? `
+                    <div>
+                        <div style="font-size: 13px; color: #999; margin-bottom: 5px;">🚚 运费规则</div>
+                        <div style="background: #e6fffb; padding: 12px 15px; border-radius: 6px; font-size: 13px; color: #08979c;">${info.freightRule}</div>
+                    </div>
+                    ` : ''}
+
+                    ${info.note ? `
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #e8e8e8;">
+                        <span style="font-size: 12px; color: #ff4d4f;">⚠️ ${info.note}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    return html;
+}
+
+// 渲染业务规则
+function renderASRulesContent(config) {
+    const rules = config.rules;
+    if (!rules) return '<div style="color: #999;">暂无业务规则</div>';
+
+    let html = '<div style="display: grid; gap: 15px;">';
+
+    rules.forEach(rule => {
+        if (rule.startsWith('<span class="spec-highlight">')) {
+            // 标题行
+            html += `
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #e8e8e8;">
+                    <div style="font-size: 15px; font-weight: 600; color: #1890ff;">${rule.replace(/<[^>]*>/g, '')}</div>
+                </div>
+            `;
+        } else if (rule.trim() === '') {
+            // 空行
+            html += '<div style="height: 10px;"></div>';
+        } else {
+            // 普通规则行
+            html += `<div style="font-size: 13px; color: #666; padding-left: 15px; line-height: 1.8;">${rule}</div>`;
+        }
+    });
+
+    html += '</div>';
+    return html;
+}
+
+// 渲染测试数据
+function renderASTestDataContent(config) {
+    const testData = config.testData;
+    if (!testData) return '<div style="color: #999;">暂无测试数据</div>';
+
+    let html = '<div style="display: grid; gap: 25px;">';
+
+    Object.entries(testData).forEach(([status, data]) => {
+        const statusInfo = config.statusMachine?.[status] || {};
+        html += `
+            <div style="background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden;">
+                <div style="background: ${statusInfo.bg || '#f5f5f5'}; padding: 12px 20px; border-bottom: 1px solid #e8e8e8;">
+                    <div style="font-size: 15px; font-weight: 600; color: ${statusInfo.color || '#333'};">${data.title}</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 4px;">${data.description}</div>
+                </div>
+                <div style="padding: 15px 20px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                        <thead>
+                            <tr style="background: #fafafa;">
+                                <th style="padding: 8px 10px; text-align: left; border: 1px solid #e8e8e8;">售后单号</th>
+                                <th style="padding: 8px 10px; text-align: left; border: 1px solid #e8e8e8;">订单号</th>
+                                <th style="padding: 8px 10px; text-align: left; border: 1px solid #e8e8e8;">类型</th>
+                                <th style="padding: 8px 10px; text-align: left; border: 1px solid #e8e8e8;">原因</th>
+                                <th style="padding: 8px 10px; text-align: right; border: 1px solid #e8e8e8;">退款金额</th>
+                                <th style="padding: 8px 10px; text-align: left; border: 1px solid #e8e8e8;">门店</th>
+                                <th style="padding: 8px 10px; text-align: left; border: 1px solid #e8e8e8;">备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${(data.examples || []).map(ex => `
+                                <tr>
+                                    <td style="padding: 8px 10px; border: 1px solid #e8e8e8; font-family: monospace; color: #1890ff;">${ex.id}</td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e8e8e8; font-family: monospace;">${ex.orderId}</td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e8e8e8;">
+                                        <span style="background: ${ex.type === 'refund_only' ? '#fff7e6' : ex.type === 'return_refund' ? '#e6f7ff' : '#f6ffed'}; color: ${ex.type === 'refund_only' ? '#fa8c16' : ex.type === 'return_refund' ? '#1890ff' : '#52c41a'}; padding: 2px 6px; border-radius: 3px; font-size: 11px;">
+                                            ${ex.type === 'refund_only' ? '仅退款' : ex.type === 'return_refund' ? '退货退款' : '换货'}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e8e8e8;">${ex.reason}</td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e8e8e8; text-align: right; color: #ff4d4f; font-weight: 500;">¥${(ex.refundAmount || 0).toFixed(2)}</td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e8e8e8;">${ex.storeName}</td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e8e8e8; color: #999; font-size: 11px;">${ex.note || '-'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    return html;
+}
+
+// 打开业务规则参考弹窗
+function openASReferenceModal() {
+    showASReferenceModal = true;
+    asReferenceTab = 'statusMachine';
+    render();
+}
+
+// 关闭业务规则参考弹窗
+function closeASReferenceModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    showASReferenceModal = false;
+    render();
 }
 
 // 渲染右侧售后详情弹窗
@@ -10983,9 +11310,9 @@ function getAdminPageSpec(page) {
         },
         aftersale: {
             title: '售后管理',
-            description: '处理和审核售后申请',
+            description: '处理和审核售后申请，支持仅退款、退货退款、换货三种售后类型',
             features: [
-                '售后单列表（状态筛选）',
+                '售后单列表（状态筛选、类型筛选）',
                 '售后审核（通过/拒绝）',
                 '退款处理（自动触发）',
                 '换货发货（物流录入）',
@@ -10998,20 +11325,335 @@ function getAdminPageSpec(page) {
                 '确认收货 → 确认退货收货，触发退款',
                 '换货发货 → 填写换货物流信息'
             ],
-            states: ['待审核', '待寄回', '退货中', '已收货', '换货发货中', '已完成', '已拒绝'],
+            states: ['待审核', '审核通过', '待寄回', '退货中', '已收货', '换货发货中', '已完成', '已拒绝'],
+            // ==================== 售后状态机定义 ====================
+            statusMachine: {
+                'pending': {
+                    text: '待审核',
+                    color: '#faad14',
+                    bg: '#fffbe6',
+                    nextStates: ['approved', 'rejected'],
+                    description: '用户提交售后申请，等待平台客服审核',
+                    operations: ['审核通过', '审核拒绝'],
+                    timeout: '48小时未处理自动通过（可配置）'
+                },
+                'approved': {
+                    text: '审核通过',
+                    color: '#52c41a',
+                    bg: '#f6ffed',
+                    nextStates: ['waiting_return', 'completed'],
+                    description: '售后申请审核通过，根据售后类型进入不同流程',
+                    operations: ['仅退款→直接完成', '退货退款/换货→待寄回'],
+                    note: '审核通过后的中间状态，用于过渡'
+                },
+                'waiting_return': {
+                    text: '待寄回',
+                    color: '#1890ff',
+                    bg: '#e6f7ff',
+                    nextStates: ['returning'],
+                    description: '审核通过，等待用户填写退货物流信息',
+                    operations: ['用户填写物流单号后→退货中'],
+                    timeout: '7天未填写自动关闭'
+                },
+                'returning': {
+                    text: '退货中',
+                    color: '#722ed1',
+                    bg: '#f9f0ff',
+                    nextStates: ['received'],
+                    description: '用户已寄出商品，物流运输中',
+                    operations: ['确认收货→已收货'],
+                    note: '可查看物流轨迹'
+                },
+                'received': {
+                    text: '已收货',
+                    color: '#13c2c2',
+                    bg: '#e6fffb',
+                    nextStates: ['completed', 'reshipping'],
+                    description: '平台已收到退货，进行质检入库',
+                    operations: ['退货退款→确认退款', '换货→换货发货'],
+                    note: '可修改退款金额'
+                },
+                'reshipping': {
+                    text: '换货发货中',
+                    color: '#1890ff',
+                    bg: '#e6f7ff',
+                    nextStates: ['completed'],
+                    description: '换货商品已发出，等待用户确认收货',
+                    operations: ['用户确认收货→已完成'],
+                    note: '仅换货类型存在此状态'
+                },
+                'completed': {
+                    text: '已完成',
+                    color: '#52c41a',
+                    bg: '#f6ffed',
+                    nextStates: [],
+                    description: '售后流程全部完成',
+                    operations: [],
+                    note: '终态，不可变更'
+                },
+                'rejected': {
+                    text: '已拒绝',
+                    color: '#ff4d4f',
+                    bg: '#fff1f0',
+                    nextStates: [],
+                    description: '售后申请被平台拒绝',
+                    operations: [],
+                    note: '终态，用户可重新申请'
+                }
+            },
+            // ==================== 售后类型定义 ====================
+            afterSaleTypes: {
+                'refund_only': {
+                    text: '仅退款',
+                    description: '不退货，只申请退款',
+                    applicableOrders: ['pending_ship（待发货）', 'shipped/delivered（已发货/已收货）'],
+                    flow: '用户申请 → 系统强制全选 → 平台审核 → 退款 → 完成',
+                    refundRule: {
+                        '待发货': '商品金额 + 运费 - 优惠分摊',
+                        '已发货/已收货': '商品金额 - 优惠分摊（运费不退）'
+                    }
+                },
+                'return_refund': {
+                    text: '退货退款',
+                    description: '退货并申请退款',
+                    applicableOrders: ['shipped/delivered（已发货/已收货）'],
+                    flow: '用户申请 → 系统强制全选 → 平台审核 → 用户寄回 → 平台收货质检 → 退款 → 完成',
+                    refundRule: {
+                        '已发货/已收货': '商品金额 - 优惠分摊（运费不退）'
+                    },
+                    freightRule: '退货运费根据责任判定：供应商责任→供应商承担，买家责任→买家承担'
+                },
+                'exchange': {
+                    text: '换货',
+                    description: '更换同款商品（暂不支持）',
+                    applicableOrders: ['shipped/delivered（已发货/已收货）'],
+                    flow: '用户申请 → 平台审核 → 用户寄回 → 平台收货 → 换货发货 → 用户收货 → 完成',
+                    note: '本期暂不支持换货功能'
+                }
+            },
+            // ==================== 业务处理规则 ====================
             rules: [
-                '<span class="spec-highlight">审核流程</span>：用户申请 → 平台审核 → 通过/拒绝',
-                '<span class="spec-highlight">运费责任判定</span>：',
-                '• 供应商责任：商品质量问题、发错货、与描述不符、破损 → 补贴运费',
-                '• 买家责任：不想要了、买错了、尺码选错、七天无理由 → 用户自付',
-                '<span class="spec-highlight">运费补贴</span>：供应商责任时，补贴金额记录在freightCompensation字段',
-                '<span class="spec-highlight">退款处理</span>：确认收货后自动触发退款，生成冲账记录',
-                '<span class="spec-highlight">退款金额计算</span>：',
-                '• 待发货：商品金额 + 运费 - 优惠分摊',
-                '• 已发货：商品金额 - 优惠分摊（运费不退）',
-                '<span class="spec-highlight">冲账记录</span>：退款时生成负数清分记录，关联原订单和售后单',
-                '审核时效：48小时内处理，超时自动通过（可配置）'
-            ]
+                '<span class="spec-highlight">【状态流转规则】</span>',
+                '• pending（待审核）→ approved/rejected（通过/拒绝）',
+                '• approved（审核通过）→ waiting_return（退货退款/换货）/ completed（仅退款）',
+                '• waiting_return（待寄回）→ returning（退货中）',
+                '• returning（退货中）→ received（已收货）',
+                '• received（已收货）→ completed（退货退款）/ reshipping（换货）',
+                '• reshipping（换货发货中）→ completed（已完成）',
+                '',
+                '<span class="spec-highlight">【审核规则】</span>',
+                '• 所有售后申请必须经过平台审核',
+                '• 审核时效：48小时内处理，超时自动通过（可配置）',
+                '• 审核时可修改退款金额（仅支持减少）',
+                '• 拒绝时必须填写拒绝原因',
+                '',
+                '<span class="spec-highlight">【商品选择规则】</span>',
+                '• 系统强制全选：所有商品自动选中，不可部分退款',
+                '• 暂不支持部分退款/部分换货',
+                '',
+                '<span class="spec-highlight">【退款金额计算】</span>',
+                '• 待发货状态：退款金额 = 商品金额 + 运费 - 优惠分摊',
+                '• 已发货/已收货状态：退款金额 = 商品金额 - 优惠分摊（运费不退）',
+                '• 退款按原支付方式原路返回',
+                '',
+                '<span class="spec-highlight">【运费责任判定】</span>',
+                '• 供应商责任：商品质量问题、发错货、与描述不符、破损 → 退回运费由供应商承担',
+                '• 买家责任：不想要了、买错了、七天无理由 → 退回运费由买家承担',
+                '• 运费补贴金额记录在freightCompensation字段',
+                '',
+                '<span class="spec-highlight">【退款清分处理】</span>',
+                '• 冻结中状态：从冻结金额扣除（取消空中分账）',
+                '• 已结算状态：从各方账户扣除，生成负数清分记录',
+                '• 清分退款明细：平台货款、代运营费、连锁总部费、推广佣金、门店毛利',
+                '',
+                '<span class="spec-highlight">【时效要求】</span>',
+                '• 审核时效：48小时',
+                '• 用户填写物流时效：7天',
+                '• 退款到账时效：1-3个工作日',
+                '• 售后期：确认收货后15天内可申请'
+            ],
+            // ==================== 测试数据示例 ====================
+            testData: {
+                pending: {
+                    title: '待审核状态测试数据',
+                    description: '用户刚提交售后申请，等待平台客服审核',
+                    examples: [
+                        {
+                            id: 'AS000001',
+                            orderId: 'SO20240115001',
+                            type: 'refund_only',
+                            reason: 'quality_issue',
+                            itemsAmount: 299.00,
+                            freightRefund: 10.00,
+                            discountAmount: 29.90,
+                            refundAmount: 279.10,
+                            createTime: '2024-01-20 14:30:00',
+                            storeName: '杭州西湖店',
+                            userName: '张三'
+                        },
+                        {
+                            id: 'AS000002',
+                            orderId: 'SO20240116002',
+                            type: 'return_refund',
+                            reason: 'not_as_described',
+                            itemsAmount: 599.00,
+                            discountAmount: 59.90,
+                            refundAmount: 539.10,
+                            createTime: '2024-01-20 15:45:00',
+                            storeName: '上海浦东店',
+                            userName: '李四'
+                        },
+                        {
+                            id: 'AS000003',
+                            orderId: 'SO20240117003',
+                            type: 'refund_only',
+                            reason: 'no_longer_needed',
+                            orderStatus: 'pending_ship',
+                            itemsAmount: 159.00,
+                            freightRefund: 8.00,
+                            discountAmount: 15.90,
+                            refundAmount: 151.10,
+                            createTime: '2024-01-20 16:20:00',
+                            storeName: '广州天河店',
+                            userName: '王五',
+                            note: '待发货状态-极速退款场景'
+                        }
+                    ]
+                },
+                waiting_return: {
+                    title: '待寄回状态测试数据',
+                    description: '审核通过，等待用户填写退货物流信息',
+                    examples: [
+                        {
+                            id: 'AS000010',
+                            orderId: 'SO20240110001',
+                            type: 'return_refund',
+                            reason: 'quality_issue',
+                            itemsAmount: 459.00,
+                            discountAmount: 45.90,
+                            refundAmount: 413.10,
+                            createTime: '2024-01-18 10:00:00',
+                            auditTime: '2024-01-18 14:30:00',
+                            returnAddress: '北京市朝阳区建国路88号退货仓库',
+                            storeName: '南京鼓楼店',
+                            userName: '赵六',
+                            timeoutDays: 5,
+                            note: '用户需在7天内填写物流信息'
+                        }
+                    ]
+                },
+                returning: {
+                    title: '退货中状态测试数据',
+                    description: '用户已填写物流单号，商品运输中',
+                    examples: [
+                        {
+                            id: 'AS000020',
+                            orderId: 'SO20240108002',
+                            type: 'return_refund',
+                            reason: 'damaged',
+                            itemsAmount: 329.00,
+                            discountAmount: 32.90,
+                            refundAmount: 296.10,
+                            createTime: '2024-01-15 09:00:00',
+                            auditTime: '2024-01-15 11:00:00',
+                            returnExpressCompany: '顺丰速运',
+                            returnTrackingNo: 'SF1234567890',
+                            returnTime: '2024-01-16 10:30:00',
+                            storeName: '成都武侯店',
+                            userName: '钱七',
+                            logisticsStatus: '运输中',
+                            note: '可查看物流轨迹'
+                        }
+                    ]
+                },
+                received: {
+                    title: '已收货状态测试数据',
+                    description: '平台已收到退货，等待确认退款或换货发货',
+                    examples: [
+                        {
+                            id: 'AS000030',
+                            orderId: 'SO20240105003',
+                            type: 'return_refund',
+                            reason: 'wrong_item',
+                            itemsAmount: 199.00,
+                            discountAmount: 19.90,
+                            refundAmount: 179.10,
+                            createTime: '2024-01-12 08:00:00',
+                            auditTime: '2024-01-12 10:00:00',
+                            returnTime: '2024-01-13 09:00:00',
+                            receiveTime: '2024-01-15 14:00:00',
+                            qcResult: '质检通过，商品完好',
+                            storeName: '武汉江汉店',
+                            userName: '孙八',
+                            note: '平台可修改退款金额后确认退款'
+                        }
+                    ]
+                },
+                completed: {
+                    title: '已完成状态测试数据',
+                    description: '售后流程全部完成',
+                    examples: [
+                        {
+                            id: 'AS000040',
+                            orderId: 'SO20240101001',
+                            type: 'refund_only',
+                            reason: 'quality_issue',
+                            itemsAmount: 259.00,
+                            discountAmount: 25.90,
+                            refundAmount: 233.10,
+                            refundCashAmount: 163.17,
+                            refundPointsAmount: 46.62,
+                            refundCardAmount: 23.31,
+                            createTime: '2024-01-05 10:00:00',
+                            auditTime: '2024-01-05 14:00:00',
+                            refundTime: '2024-01-05 14:30:00',
+                            completeTime: '2024-01-05 15:00:00',
+                            storeName: '深圳福田店',
+                            userName: '周九',
+                            note: '退款已原路返回用户账户'
+                        },
+                        {
+                            id: 'AS000041',
+                            orderId: 'SO20240102002',
+                            type: 'return_refund',
+                            reason: 'not_as_described',
+                            itemsAmount: 399.00,
+                            discountAmount: 39.90,
+                            refundAmount: 359.10,
+                            createTime: '2024-01-08 09:00:00',
+                            auditTime: '2024-01-08 11:00:00',
+                            returnTime: '2024-01-09 10:00:00',
+                            receiveTime: '2024-01-11 15:00:00',
+                            refundTime: '2024-01-11 16:00:00',
+                            completeTime: '2024-01-11 17:00:00',
+                            storeName: '杭州西湖店',
+                            userName: '吴十',
+                            note: '完整退货退款流程'
+                        }
+                    ]
+                },
+                rejected: {
+                    title: '已拒绝状态测试数据',
+                    description: '售后申请被平台拒绝',
+                    examples: [
+                        {
+                            id: 'AS000050',
+                            orderId: 'SO20240103003',
+                            type: 'refund_only',
+                            reason: 'no_longer_needed',
+                            itemsAmount: 189.00,
+                            discountAmount: 18.90,
+                            refundAmount: 170.10,
+                            createTime: '2024-01-10 16:00:00',
+                            auditTime: '2024-01-10 17:30:00',
+                            rejectReason: '商品已拆封使用，不符合退货条件',
+                            storeName: '北京朝阳店',
+                            userName: '郑十一',
+                            note: '用户可查看拒绝原因，如有异议可重新申请'
+                        }
+                    ]
+                }
+            }
         },
         sourceProducts: {
             title: '基础商品管理',
