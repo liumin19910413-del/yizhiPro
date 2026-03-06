@@ -88,7 +88,7 @@ const AFTERSALE_CONFIG = {
         exchangeAutoConfirmDays: 7,   // 换货自动确认（换货发货后自动确认收货天数）
         reviewDeadlineDays: 3         // 审核处理时效（预计审核处理时间，工作日）
     },
-    
+
     // 运费规则
     freight: {
         pendingShipRefundFreight: true,      // 待发货是否退运费
@@ -96,7 +96,7 @@ const AFTERSALE_CONFIG = {
         fixedCompensationAmount: 12,         // 固定补贴金额（元）
         maxCompensationAmount: 30            // 最高补贴金额（元，先付后补模式）
     },
-    
+
     // 售后原因分类（决定运费责任）
     reasons: {
         supplier: [                          // 供应商责任（运费由供应商承担）
@@ -111,7 +111,7 @@ const AFTERSALE_CONFIG = {
             '其他原因'
         ]
     },
-    
+
     // 功能开关
     features: {
         enableExchange: false,                // 支持换货（本期暂不支持）
@@ -119,7 +119,7 @@ const AFTERSALE_CONFIG = {
         autoApproveEnabled: true,            // 超时自动审核
         qualityCheckRequired: true           // 退货需质检
     },
-    
+
     // 结算规则
     settlement: {
         delayDays: 7,                        // 结算延迟天数（确认收货后多久结算）
@@ -135,15 +135,15 @@ const CLEARING_CONFIG = {
     platformRate: 0.70,           // 平台货款（贸易公司代收）70%
     operationRate: 0.10,          // 代运营公司 10%
     merchantRate: 0.20,           // 商家毛利 20%（门店+连锁总部共享）
-    
+
     // 平台内部分配比例（合计100%）
     tradingCompanyRate: 0.80,     // 贸易公司 80%
     distributorRate: 0.20,        // 经销商 20%（线下结算）
-    
+
     // 推广员佣金比例（从门店毛利中扣，V2.0变更）
     directCommissionRate: 0.10,   // 直推 10%
     indirectCommissionRate: 0.05, // 间推 5%
-    
+
     // 费率
     paymentFeeRate: 0.0038,       // 支付手续费率 0.38%
     merchantCashRetainRate: 0.10  // 商家现金保留比例 10%
@@ -781,33 +781,33 @@ const FREIGHT_TEMPLATES = {
 const DB = {
     // 门店列表
     stores: JSON.parse(JSON.stringify(TEST_STORES)),
-    
+
     // 当前门店
     currentStore: JSON.parse(JSON.stringify(TEST_STORES['STORE001'])),
-    
+
     // 用户信息 - 默认使用账号1
     user: JSON.parse(JSON.stringify(TEST_USERS['U001'])),
-    
+
     // 商家信息
     merchants: [
         { id: 'M001', name: '美妆旗舰店', brand: '伊智精选', marginRate: 15, settlementCycle: 'monthly', status: 'active' },
         { id: 'M002', name: '护肤专营店', brand: '美妆世界', marginRate: 12, settlementCycle: 'biweekly', status: 'active' },
         { id: 'M003', name: '彩妆体验店', brand: '护肤专家', marginRate: 10, settlementCycle: 'monthly', status: 'active' }
     ],
-    
+
     // 供应商信息（V2.0：移除运费模板引用，运费模板改为商品级别配置）
     suppliers: [
         { id: 'S001', name: '韩国美妆供应商', contact: '金经理', phone: '010-1234-5678' },
         { id: 'S002', name: '日本护肤供应商', contact: '山田', phone: '010-2345-6789' },
         { id: 'S003', name: '法国香水供应商', contact: 'Pierre', phone: '010-3456-7890' }
     ],
-    
+
     // 旧版运费模板（保留兼容，后续废弃）
     freightTemplates: JSON.parse(JSON.stringify(FREIGHT_TEMPLATES)),
-    
+
     // 运费模板变更日志
     freightTemplateLogs: [],
-    
+
     // 原商品库（供应链侧的最小发货单位）
     sourceProducts: [
         { id: 'SP001', name: '韩国面膜单片', unit: '片', supplierId: 'S001', supplierProductCode: 'KR-MASK-001', supplyPrice: 7, img: '🧴', status: 'active' },
@@ -817,62 +817,62 @@ const DB = {
         { id: 'SP005', name: '日本防晒霜60ml', unit: '瓶', supplierId: 'S002', supplierProductCode: 'JP-SUN-001', supplyPrice: 115, img: '☀️', status: 'active' },
         { id: 'SP006', name: '卫生巾A', unit: '包', supplierId: 'S001', supplierProductCode: 'KR-PAD-001', supplyPrice: 15, img: '📦', status: 'active' }
     ],
-    
+
     // 运费模板列表（V2.0）
     freightTemplatesV2: JSON.parse(JSON.stringify(FREIGHT_TEMPLATES_V2)),
-    
+
     // 不可发货地区模板列表
     noDeliveryTemplates: JSON.parse(JSON.stringify(NO_DELIVERY_TEMPLATES)),
-    
+
     // 商城商品列表（面向消费者的SKU，可由多个原商品组成）
     products: [
         // 供应链商品 - 带原商品关联和运费模板
-        { 
-            id: 'P001', name: '韩国进口面膜套装', spec: '补水保湿/10片装', price: 99, supplyPrice: 70, img: '🧴', 
+        {
+            id: 'P001', name: '韩国进口面膜套装', spec: '补水保湿/10片装', price: 99, supplyPrice: 70, img: '🧴',
             type: 'supply', supplierId: 'S001', stock: 100, sales: 2341,
             freightTemplateId: 'FT001',      // 运费模板
             noDeliveryTemplateId: 'ND001',   // 不可发货地区模板
             sourceProducts: [{ sourceProductId: 'SP001', quantity: 10 }]
         },
-        { 
-            id: 'P002', name: '日本护肤精华液', spec: '美白淡斑/30ml', price: 159, supplyPrice: 110, img: '✨', 
+        {
+            id: 'P002', name: '日本护肤精华液', spec: '美白淡斑/30ml', price: 159, supplyPrice: 110, img: '✨',
             type: 'supply', supplierId: 'S002', stock: 50, sales: 1892,
             freightTemplateId: 'FT003',      // 基础运费模板（5元）
             noDeliveryTemplateId: 'ND001',
             sourceProducts: [{ sourceProductId: 'SP002', quantity: 1 }]
         },
-        { 
-            id: 'P003', name: '法国香水小样', spec: '花香调/5ml', price: 89, supplyPrice: 60, img: '🌸', 
+        {
+            id: 'P003', name: '法国香水小样', spec: '花香调/5ml', price: 89, supplyPrice: 60, img: '🌸',
             type: 'supply', supplierId: 'S003', stock: 30, sales: 3456,
             freightTemplateId: 'FT003',      // 基础运费模板（5元）
             noDeliveryTemplateId: 'ND002',   // 特殊商品不发货地区（含海南）
             sourceProducts: [{ sourceProductId: 'SP003', quantity: 1 }]
         },
-        { 
-            id: 'P004', name: '韩国气垫BB霜', spec: '自然色/15g', price: 128, supplyPrice: 85, img: '💄', 
+        {
+            id: 'P004', name: '韩国气垫BB霜', spec: '自然色/15g', price: 128, supplyPrice: 85, img: '💄',
             type: 'supply', supplierId: 'S001', stock: 80, sales: 1567,
             freightTemplateId: 'FT003',      // 基础运费模板（5元）
             noDeliveryTemplateId: 'ND001',
             sourceProducts: [{ sourceProductId: 'SP004', quantity: 1 }]
         },
-        { 
-            id: 'P005', name: '日本防晒霜', spec: 'SPF50/60ml', price: 168, supplyPrice: 115, img: '☀️', 
+        {
+            id: 'P005', name: '日本防晒霜', spec: 'SPF50/60ml', price: 168, supplyPrice: 115, img: '☀️',
             type: 'supply', supplierId: 'S002', stock: 60, sales: 2103,
             freightTemplateId: 'FT001',
             noDeliveryTemplateId: 'ND001',
             sourceProducts: [{ sourceProductId: 'SP005', quantity: 1 }]
         },
         // 组合包装示例：卫生巾×2包
-        { 
-            id: 'P006', name: '卫生巾A×2包装', spec: '日用/2包', price: 35, supplyPrice: 30, img: '📦', 
+        {
+            id: 'P006', name: '卫生巾A×2包装', spec: '日用/2包', price: 35, supplyPrice: 30, img: '📦',
             type: 'supply', supplierId: 'S001', stock: 50, sales: 890,
             freightTemplateId: 'FT001',
             noDeliveryTemplateId: 'ND001',
             sourceProducts: [{ sourceProductId: 'SP006', quantity: 2 }]
         },
         // 组合包装示例：卫生巾×3包
-        { 
-            id: 'P007', name: '卫生巾A×3包装', spec: '日用/3包', price: 50, supplyPrice: 45, img: '📦', 
+        {
+            id: 'P007', name: '卫生巾A×3包装', spec: '日用/3包', price: 50, supplyPrice: 45, img: '📦',
             type: 'supply', supplierId: 'S001', stock: 40, sales: 650,
             freightTemplateId: 'FT001',
             noDeliveryTemplateId: 'ND001',
@@ -883,22 +883,22 @@ const DB = {
         { id: 'P102', name: '自营品牌爽肤水', spec: '补水保湿/200ml', price: 88, img: '💧', type: 'self', stock: 150, sales: 4321 },
         { id: 'P103', name: '自营品牌面霜', spec: '滋润修护/50g', price: 128, img: '🫧', type: 'self', stock: 100, sales: 3210 }
     ],
-    
+
     // 原商品ID计数器
     sourceProductIdCounter: 6,
 
     // 购物车
     cart: [],
-    
+
     // 订单列表 (含运费字段: totalFreight)
     orders: [],
-    
+
     // 子订单列表 (含运费字段: freight, freightSnapshot)
     subOrders: [],
-    
+
     // 售后单列表
     afterSales: [],
-    
+
     // 营业部配置
     departments: [
         { id: 'DEPT001', name: '99区营业部', region: '99区', lakalaMerchantNo: 'LKL99001', commissionRate: 0.05, status: 'active', createTime: '2026-01-01' },
@@ -906,7 +906,7 @@ const DB = {
         { id: 'DEPT003', name: '1区营业部', region: '1区', lakalaMerchantNo: 'LKL01001', commissionRate: 0.045, status: 'active', createTime: '2026-01-01' },
         { id: 'DEPT004', name: '2区营业部', region: '2区', lakalaMerchantNo: 'LKL02001', commissionRate: 0.04, status: 'active', createTime: '2026-01-01' }
     ],
-    
+
     // 平台配置
     platformConfig: {
         channelFeeRate: 0.0038,      // 渠道费率 0.38%
@@ -921,10 +921,10 @@ const DB = {
         defaultRemoteAreas: PLATFORM_REMOTE_AREAS,  // 平台默认偏远地区
         defaultNoDeliveryAreas: DEFAULT_NO_DELIVERY_AREAS  // 平台默认不发货地区
     },
-    
+
     // 售后配置
     afterSaleConfig: JSON.parse(JSON.stringify(AFTERSALE_CONFIG)),
-    
+
     // 订单ID计数器
     orderIdCounter: 1000,
     subOrderIdCounter: 1,
@@ -944,44 +944,44 @@ const DB = {
  */
 function calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter = true, hasIndirectPromoter = true, headquarterShareRate = 0) {
     const config = CLEARING_CONFIG;
-    
+
     // 计算支付手续费（仅对现金部分）
     const paymentFee = Math.round(cashPaid * config.paymentFeeRate * 100) / 100;
-    
+
     // 基础金额 = 商品金额 - 支付手续费
     const baseAmount = Math.round((itemAmount - paymentFee) * 100) / 100;
-    
+
     // ========== 第一层：对商家分账（SPU级别配置）==========
     const platformAmount = Math.round(baseAmount * config.platformRate * 100) / 100;
     const operationAmount = Math.round(baseAmount * config.operationRate * 100) / 100;
     const merchantProfit = Math.round(baseAmount * config.merchantRate * 100) / 100;  // 商家毛利20%
-    
+
     // 平台内部分配（做账用）
     const tradingCompanyAmount = Math.round(platformAmount * config.tradingCompanyRate * 100) / 100;
     const distributorAmount = Math.round(platformAmount * config.distributorRate * 100) / 100;
-    
+
     // ========== 第二层：商家毛利的二次分配（品牌级别配置）==========
     // V2.0: 连锁总部从商家毛利中按品牌配置比例分配
     const headquarterAmount = Math.round(merchantProfit * headquarterShareRate * 100) / 100;
     const storeProfit = Math.round(merchantProfit * (1 - headquarterShareRate) * 100) / 100;  // 门店毛利
-    
+
     // ========== 第三层：推广员佣金（从门店毛利扣，V2.0变更）==========
     // V2.0: 推广员佣金从门店毛利中扣除，不影响连锁总部
     const directCommission = hasDirectPromoter ? Math.round(storeProfit * config.directCommissionRate * 100) / 100 : 0;
     const indirectCommission = hasIndirectPromoter ? Math.round(storeProfit * config.indirectCommissionRate * 100) / 100 : 0;
     const storeNetProfit = Math.round((storeProfit - directCommission - indirectCommission) * 100) / 100;  // 门店净利润
-    
+
     // 兼容旧字段：merchantNetProfit = storeNetProfit
     const merchantNetProfit = storeNetProfit;
-    
+
     // 计算现金分配
     const merchantCashRetain = Math.round(cashPaid * config.merchantCashRetainRate * 100) / 100;
     let remainingCash = Math.round((cashPaid - paymentFee - merchantCashRetain) * 100) / 100;
-    
+
     // 调试信息
     console.log(`清分计算调试 - 商品金额: ${itemAmount}, 现金支付: ${cashPaid}, 支付手续费: ${paymentFee}, 商家保留: ${merchantCashRetain}, 可分账现金: ${remainingCash}`);
     console.log(`需要分账 - 平台货款: ${platformAmount}, 代运营: ${operationAmount}, 连锁总部: ${headquarterAmount}, 直推: ${directCommission}, 间推: ${indirectCommission}`);
-    
+
     // 按优先级分配现金：连锁总部 → 代运营 → 平台货款 → 直推 → 间推
     const clearingDetails = {
         headquarter: { amount: headquarterAmount, method: CLEARING_METHOD.DEPOSIT, splitAmount: 0, depositAmount: headquarterAmount },
@@ -990,7 +990,7 @@ function calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter = true, h
         directPromoter: { amount: directCommission, method: CLEARING_METHOD.BALANCE, splitAmount: 0, balanceAmount: directCommission },
         indirectPromoter: { amount: indirectCommission, method: CLEARING_METHOD.BALANCE, splitAmount: 0, balanceAmount: indirectCommission }
     };
-    
+
     // 1. 连锁总部（仅当有配置时）
     if (headquarterAmount > 0 && remainingCash >= headquarterAmount) {
         clearingDetails.headquarter.method = CLEARING_METHOD.SPLIT_ACCOUNT;
@@ -998,7 +998,7 @@ function calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter = true, h
         clearingDetails.headquarter.depositAmount = 0;
         remainingCash = Math.round((remainingCash - headquarterAmount) * 100) / 100;
     }
-    
+
     // 2. 代运营
     if (remainingCash >= operationAmount) {
         clearingDetails.operation.method = CLEARING_METHOD.SPLIT_ACCOUNT;
@@ -1006,7 +1006,7 @@ function calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter = true, h
         clearingDetails.operation.depositAmount = 0;
         remainingCash = Math.round((remainingCash - operationAmount) * 100) / 100;
     }
-    
+
     // 3. 平台货款
     if (remainingCash >= platformAmount) {
         clearingDetails.platform.method = CLEARING_METHOD.SPLIT_ACCOUNT;
@@ -1014,7 +1014,7 @@ function calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter = true, h
         clearingDetails.platform.depositAmount = 0;
         remainingCash = Math.round((remainingCash - platformAmount) * 100) / 100;
     }
-    
+
     // 4. 直推佣金
     if (hasDirectPromoter && remainingCash >= directCommission) {
         clearingDetails.directPromoter.method = CLEARING_METHOD.SPLIT_ACCOUNT;
@@ -1022,7 +1022,7 @@ function calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter = true, h
         clearingDetails.directPromoter.balanceAmount = 0;
         remainingCash = Math.round((remainingCash - directCommission) * 100) / 100;
     }
-    
+
     // 5. 间推佣金
     if (hasIndirectPromoter && remainingCash >= indirectCommission) {
         clearingDetails.indirectPromoter.method = CLEARING_METHOD.SPLIT_ACCOUNT;
@@ -1030,14 +1030,14 @@ function calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter = true, h
         clearingDetails.indirectPromoter.balanceAmount = 0;
         remainingCash = Math.round((remainingCash - indirectCommission) * 100) / 100;
     }
-    
+
     // 计算保证金扣除总额
     const totalDepositDeduct = Math.round((
         clearingDetails.headquarter.depositAmount +
         clearingDetails.operation.depositAmount +
         clearingDetails.platform.depositAmount
     ) * 100) / 100;
-    
+
     // 计算空中分账总额
     const totalSplitAmount = Math.round((
         clearingDetails.headquarter.splitAmount +
@@ -1046,39 +1046,39 @@ function calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter = true, h
         clearingDetails.directPromoter.splitAmount +
         clearingDetails.indirectPromoter.splitAmount
     ) * 100) / 100;
-    
+
     return {
         // 基础信息
         itemAmount,
         cashPaid,
         paymentFee,
         baseAmount,
-        
+
         // 第一层：各方应得
         platformAmount,           // 平台货款（贸易公司代收）70%
         tradingCompanyAmount,     // 贸易公司实得（做账）
         distributorAmount,        // 经销商应得（做账，线下结算）
         operationAmount,          // 代运营 10%
         merchantProfit,           // 商家毛利 20%
-        
+
         // 第二层：商家毛利分配（V2.0新增）
         headquarterAmount,        // 连锁总部（从商家毛利中按品牌配置比例）
         headquarterShareRate,     // 连锁总部分成比例
         storeProfit,              // 门店毛利（商家毛利 - 连锁总部）
-        
+
         // 第三层：推广员佣金（从门店毛利扣）
         directCommission,         // 直推佣金
         indirectCommission,       // 间推佣金
         storeNetProfit,           // 门店净利润（门店毛利 - 推广员佣金）
         merchantNetProfit,        // 兼容旧字段，等于门店净利润
-        
+
         // 商家现金
         merchantCashRetain,       // 商家保留现金
         merchantActualCash: Math.round((merchantCashRetain + remainingCash) * 100) / 100,  // 商家实收现金
-        
+
         // 清分明细
         clearingDetails,
-        
+
         // 汇总
         totalDepositDeduct,       // 保证金扣除总额
         totalSplitAmount,         // 空中分账总额
@@ -1086,7 +1086,7 @@ function calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter = true, h
             clearingDetails.directPromoter.balanceAmount +
             clearingDetails.indirectPromoter.balanceAmount
         ) * 100) / 100,           // 推广员余额账户总额
-        
+
         // 版本标记
         clearingVersion: '2.0'
     };
@@ -1101,11 +1101,11 @@ function calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter = true, h
 function calculateSubOrderClearing(subOrder, storeId = null) {
     const itemAmount = subOrder.amount || 0;
     const cashPaid = subOrder.cashPaid || 0;
-    
+
     // 模拟推广员（实际应从订单关联的推广员数据获取）
     const hasDirectPromoter = true;
     const hasIndirectPromoter = true;
-    
+
     // V2.0: 获取门店的连锁总部分成比例
     let headquarterShareRate = 0;
     if (storeId) {
@@ -1118,7 +1118,7 @@ function calculateSubOrderClearing(subOrder, storeId = null) {
             headquarterShareRate = brandConfig.headquarterShareRate || 0;
         }
     }
-    
+
     return calculateItemClearing(itemAmount, cashPaid, hasDirectPromoter, hasIndirectPromoter, headquarterShareRate);
 }
 
@@ -1134,7 +1134,7 @@ function calculateSubOrderClearing(subOrder, storeId = null) {
 function calculateSkuClearing(item, skuCashPaid, skuMemberDiscount = 0, storeId = null, hasDirectPromoter = true, hasIndirectPromoter = true) {
     const skuOriginalAmount = item.price * item.qty;  // 原价
     const skuPayableAmount = skuOriginalAmount - skuMemberDiscount;  // 应付金额（扣除会员优惠）
-    
+
     // V2.0: 获取门店的连锁总部分成比例
     let headquarterShareRate = 0;
     if (storeId) {
@@ -1146,7 +1146,7 @@ function calculateSkuClearing(item, skuCashPaid, skuMemberDiscount = 0, storeId 
             headquarterShareRate = brandConfig.headquarterShareRate || 0;
         }
     }
-    
+
     // 使用应付金额进行清分计算
     return calculateItemClearing(skuPayableAmount, skuCashPaid, hasDirectPromoter, hasIndirectPromoter, headquarterShareRate);
 }
@@ -1160,25 +1160,25 @@ function generateSubOrderClearingData(subOrder, storeId = null) {
     if (!subOrder.items || subOrder.items.length === 0) {
         return null;
     }
-    
+
     // 计算子订单商品总金额（用于分摊现金支付）
     const subOrderTotal = subOrder.items.reduce((sum, item) => sum + item.price * item.qty, 0);
     const totalCashPaid = subOrder.cashPaid || 0;
-    
+
     // 模拟推广员（实际应从订单关联的推广员数据获取）
     const hasDirectPromoter = true;
     const hasIndirectPromoter = true;
-    
+
     // 为每个 SKU 计算清分数据
     const skuClearings = [];
     subOrder.items.forEach((item, index) => {
         const skuAmount = item.price * item.qty;
         const skuRatio = subOrderTotal > 0 ? skuAmount / subOrderTotal : 0;
         const skuCashPaid = Math.round(totalCashPaid * skuRatio * 100) / 100;
-        
+
         // 计算该 SKU 的清分数据
         const clearing = calculateSkuClearing(item, skuCashPaid, 0, storeId, hasDirectPromoter, hasIndirectPromoter);
-        
+
         // 保存清分数据到 SKU 商品项
         item.clearing = {
             // 基础信息
@@ -1186,29 +1186,29 @@ function generateSubOrderClearingData(subOrder, storeId = null) {
             cashPaid: clearing.cashPaid,
             paymentFee: clearing.paymentFee,
             baseAmount: clearing.baseAmount,
-            
+
             // 第一层：各方应得
             platformAmount: clearing.platformAmount,
             tradingCompanyAmount: clearing.tradingCompanyAmount,
             distributorAmount: clearing.distributorAmount,
             operationAmount: clearing.operationAmount,
             merchantProfit: clearing.merchantProfit,
-            
+
             // 第二层：商家毛利分配（V2.0新增）
             headquarterAmount: clearing.headquarterAmount,
             headquarterShareRate: clearing.headquarterShareRate,
             storeProfit: clearing.storeProfit,
-            
+
             // 第三层：推广员佣金
             directCommission: clearing.directCommission,
             indirectCommission: clearing.indirectCommission,
             storeNetProfit: clearing.storeNetProfit,
             merchantNetProfit: clearing.merchantNetProfit,
-            
+
             // 商家现金
             merchantCashRetain: clearing.merchantCashRetain,
             merchantActualCash: clearing.merchantActualCash,
-            
+
             // 清分明细（记录每方的结算方式）
             details: {
                 headquarter: clearing.clearingDetails.headquarter,
@@ -1217,21 +1217,21 @@ function generateSubOrderClearingData(subOrder, storeId = null) {
                 directPromoter: clearing.clearingDetails.directPromoter,
                 indirectPromoter: clearing.clearingDetails.indirectPromoter
             },
-            
+
             // 汇总
             totalDepositDeduct: clearing.totalDepositDeduct,
             totalSplitAmount: clearing.totalSplitAmount,
             totalPromoterBalance: clearing.totalPromoterBalance,
-            
+
             // 状态
             status: 'frozen',  // frozen=冻结, settled=已结算
             clearingVersion: '2.0',
             createTime: new Date().toISOString()
         };
-        
+
         skuClearings.push(clearing);
     });
-    
+
     // 汇总子订单级别的清分数据（用于兼容旧代码和统计）
     const subOrderClearing = {
         // 基础信息
@@ -1239,61 +1239,61 @@ function generateSubOrderClearingData(subOrder, storeId = null) {
         cashPaid: totalCashPaid,
         paymentFee: skuClearings.reduce((sum, c) => sum + c.paymentFee, 0),
         baseAmount: skuClearings.reduce((sum, c) => sum + c.baseAmount, 0),
-        
+
         // 第一层：各方应得（汇总）
         platformAmount: skuClearings.reduce((sum, c) => sum + c.platformAmount, 0),
         tradingCompanyAmount: skuClearings.reduce((sum, c) => sum + c.tradingCompanyAmount, 0),
         distributorAmount: skuClearings.reduce((sum, c) => sum + c.distributorAmount, 0),
         operationAmount: skuClearings.reduce((sum, c) => sum + c.operationAmount, 0),
         merchantProfit: skuClearings.reduce((sum, c) => sum + c.merchantProfit, 0),
-        
+
         // 第二层：商家毛利分配（V2.0新增）
         headquarterAmount: skuClearings.reduce((sum, c) => sum + c.headquarterAmount, 0),
         headquarterShareRate: skuClearings[0]?.headquarterShareRate || 0,
         storeProfit: skuClearings.reduce((sum, c) => sum + c.storeProfit, 0),
-        
+
         // 第三层：推广员佣金
         directCommission: skuClearings.reduce((sum, c) => sum + c.directCommission, 0),
         indirectCommission: skuClearings.reduce((sum, c) => sum + c.indirectCommission, 0),
         storeNetProfit: skuClearings.reduce((sum, c) => sum + c.storeNetProfit, 0),
         merchantNetProfit: skuClearings.reduce((sum, c) => sum + c.merchantNetProfit, 0),
-        
+
         // 商家现金
         merchantCashRetain: skuClearings.reduce((sum, c) => sum + c.merchantCashRetain, 0),
         merchantActualCash: skuClearings.reduce((sum, c) => sum + c.merchantActualCash, 0),
-        
+
         // 汇总
         totalDepositDeduct: skuClearings.reduce((sum, c) => sum + c.totalDepositDeduct, 0),
         totalSplitAmount: skuClearings.reduce((sum, c) => sum + c.totalSplitAmount, 0),
         totalPromoterBalance: skuClearings.reduce((sum, c) => sum + c.totalPromoterBalance, 0),
-        
+
         // 状态
         status: 'frozen',
         clearingVersion: '2.0',
         createTime: new Date().toISOString(),
-        
+
         // SKU 数量
         skuCount: subOrder.items.length
     };
-    
+
     // 四舍五入处理
     Object.keys(subOrderClearing).forEach(key => {
         if (typeof subOrderClearing[key] === 'number' && key !== 'skuCount') {
             subOrderClearing[key] = Math.round(subOrderClearing[key] * 100) / 100;
         }
     });
-    
+
     // 保存子订单级别汇总（兼容旧代码）
     subOrder.clearing = subOrderClearing;
-    
+
     return subOrderClearing;
 }
 
 // 生成订单号
 function generateOrderId() {
     const date = new Date();
-    const dateStr = date.getFullYear().toString() + 
-        (date.getMonth() + 1).toString().padStart(2, '0') + 
+    const dateStr = date.getFullYear().toString() +
+        (date.getMonth() + 1).toString().padStart(2, '0') +
         date.getDate().toString().padStart(2, '0');
     DB.orderIdCounter++;
     return dateStr + DB.orderIdCounter.toString().padStart(8, '0');
@@ -1308,8 +1308,8 @@ function generateSubOrderId(parentOrderId) {
 // 生成售后单号
 function generateAfterSaleId() {
     const date = new Date();
-    const dateStr = date.getFullYear().toString() + 
-        (date.getMonth() + 1).toString().padStart(2, '0') + 
+    const dateStr = date.getFullYear().toString() +
+        (date.getMonth() + 1).toString().padStart(2, '0') +
         date.getDate().toString().padStart(2, '0');
     DB.afterSaleIdCounter++;
     return 'AS' + dateStr + DB.afterSaleIdCounter.toString().padStart(5, '0');
@@ -1319,7 +1319,7 @@ function generateAfterSaleId() {
 function addToCart(productId, qty = 1) {
     const product = DB.products.find(p => p.id === productId);
     if (!product) return false;
-    
+
     const existingItem = DB.cart.find(item => item.productId === productId);
     if (existingItem) {
         existingItem.qty = Math.min(existingItem.qty + qty, product.stock);
@@ -1372,18 +1372,18 @@ function getCartItems() {
 // 输出: [{sourceProductId, sourceProductName, unit, quantity, supplierProductCode}] 原商品列表
 function expandToSourceProducts(orderItems) {
     const sourceProductMap = {};
-    
+
     orderItems.forEach(item => {
         const product = DB.products.find(p => p.id === item.productId);
         if (!product || !product.sourceProducts) return;
-        
+
         product.sourceProducts.forEach(sp => {
             const sourceProduct = DB.sourceProducts.find(s => s.id === sp.sourceProductId);
             if (!sourceProduct) return;
-            
+
             const key = sp.sourceProductId;
             const expandedQty = sp.quantity * item.qty;
-            
+
             if (sourceProductMap[key]) {
                 sourceProductMap[key].quantity += expandedQty;
             } else {
@@ -1400,7 +1400,7 @@ function expandToSourceProducts(orderItems) {
             }
         });
     });
-    
+
     return Object.values(sourceProductMap);
 }
 
@@ -1415,7 +1415,7 @@ function calculateOptimalPayment(totalAmount) {
     const user = DB.user;
     const maxPointsDeduct = Math.min(user.points / 100, totalAmount); // 积分可抵扣金额
     const afterPointsAmount = totalAmount - maxPointsDeduct;
-    
+
     // 方案1: 全积分 (如果积分足够)
     if (user.points / 100 >= totalAmount) {
         return {
@@ -1427,7 +1427,7 @@ function calculateOptimalPayment(totalAmount) {
             cashAmount: 0
         };
     }
-    
+
     // 方案2: 全卡金 (如果卡金足够)
     if (user.cardBalance >= totalAmount) {
         return {
@@ -1439,7 +1439,7 @@ function calculateOptimalPayment(totalAmount) {
             cashAmount: 0
         };
     }
-    
+
     // 方案3: 积分+卡金 (如果卡金能覆盖积分抵扣后的剩余)
     if (user.cardBalance >= afterPointsAmount && maxPointsDeduct > 0) {
         return {
@@ -1451,7 +1451,7 @@ function calculateOptimalPayment(totalAmount) {
             cashAmount: 0
         };
     }
-    
+
     // 方案4: 积分+现金
     if (maxPointsDeduct > 0) {
         return {
@@ -1463,7 +1463,7 @@ function calculateOptimalPayment(totalAmount) {
             cashAmount: afterPointsAmount
         };
     }
-    
+
     // 方案5: 全现金
     return {
         type: 'cash_only',
@@ -1481,7 +1481,7 @@ function getAvailablePaymentPlans(totalAmount) {
     const plans = [];
     const maxPointsDeduct = Math.min(user.points / 100, totalAmount);
     const afterPointsAmount = totalAmount - maxPointsDeduct;
-    
+
     // 全现金
     plans.push({
         type: 'cash_only',
@@ -1492,7 +1492,7 @@ function getAvailablePaymentPlans(totalAmount) {
         cashAmount: totalAmount,
         available: true
     });
-    
+
     // 全积分
     plans.push({
         type: 'points_only',
@@ -1503,7 +1503,7 @@ function getAvailablePaymentPlans(totalAmount) {
         cashAmount: 0,
         available: user.points / 100 >= totalAmount
     });
-    
+
     // 全卡金
     plans.push({
         type: 'card_only',
@@ -1514,7 +1514,7 @@ function getAvailablePaymentPlans(totalAmount) {
         cashAmount: 0,
         available: user.cardBalance >= totalAmount
     });
-    
+
     // 积分+卡金
     if (maxPointsDeduct > 0 && maxPointsDeduct < totalAmount) {
         plans.push({
@@ -1527,7 +1527,7 @@ function getAvailablePaymentPlans(totalAmount) {
             available: user.cardBalance >= afterPointsAmount
         });
     }
-    
+
     // 积分+现金
     if (maxPointsDeduct > 0 && maxPointsDeduct < totalAmount) {
         plans.push({
@@ -1540,7 +1540,7 @@ function getAvailablePaymentPlans(totalAmount) {
             available: true
         });
     }
-    
+
     return plans;
 }
 
@@ -1549,27 +1549,27 @@ function getAvailablePaymentPlans(totalAmount) {
 function createOrder(addressId, paymentPlan, cartType, isPaid = true) {
     const address = DB.user.addresses.find(a => a.id === addressId);
     if (!address) return { success: false, error: '请选择收货地址' };
-    
+
     // 获取选中的购物车商品
-    const selectedItems = getCartItems().filter(item => 
+    const selectedItems = getCartItems().filter(item =>
         item.selected && item.product && item.product.type === cartType
     );
-    
+
     if (selectedItems.length === 0) {
         return { success: false, error: '请选择商品' };
     }
-    
+
     // 计算订单总金额
     const totalAmount = selectedItems.reduce((sum, item) => sum + item.product.price * item.qty, 0);
-    
+
     // 获取运费信息（从paymentPlan中获取）
     const freightResult = paymentPlan.freightResult || { totalFreight: 0, supplierFreights: [] };
     const totalFreight = freightResult.totalFreight || 0;
-    
+
     // 生成主订单
     const orderId = generateOrderId();
     const now = new Date();
-    
+
     const order = {
         id: orderId,
         userId: DB.user.id,
@@ -1611,7 +1611,7 @@ function createOrder(addressId, paymentPlan, cartType, isPaid = true) {
         payTime: isPaid ? now.toISOString() : null,
         updateTime: now.toISOString()
     };
-    
+
     // 只有已支付的订单才立即拆单
     if (isPaid) {
         // 自动拆单逻辑 (按供应商拆分)
@@ -1624,28 +1624,28 @@ function createOrder(addressId, paymentPlan, cartType, isPaid = true) {
                 }
                 supplierGroups[supplierId].push(item);
             });
-            
+
             // 计算总商品金额（不含运费），用于分摊支付金额
             const totalProductAmount = selectedItems.reduce((sum, item) => sum + item.product.price * item.qty, 0);
-            
+
             // 为每个供应商创建子订单
             const supplierIds = Object.keys(supplierGroups);
             supplierIds.forEach((supplierId, index) => {
                 const items = supplierGroups[supplierId];
                 const supplier = DB.suppliers.find(s => s.id === supplierId);
                 const subOrderId = generateSubOrderId(orderId);
-                
+
                 const subAmount = items.reduce((sum, item) => sum + item.product.price * item.qty, 0);
                 const supplyAmount = items.reduce((sum, item) => sum + item.product.supplyPrice * item.qty, 0);
-                
+
                 // 获取该供应商的运费信息
                 const supplierFreightInfo = freightResult.supplierFreights.find(sf => sf.supplierId === supplierId);
                 const subFreight = supplierFreightInfo ? supplierFreightInfo.freight : 0;
-                
+
                 // 按子订单金额占比分摊支付金额
                 const ratio = totalProductAmount > 0 ? subAmount / totalProductAmount : (1 / supplierIds.length);
                 const isLast = index === supplierIds.length - 1;
-                
+
                 // 计算分摊的支付金额（最后一个子订单用减法确保总和正确）
                 let subPointsDeduct, subCardDeduct, subCashPaid, subCouponDeduct;
                 if (isLast) {
@@ -1665,7 +1665,7 @@ function createOrder(addressId, paymentPlan, cartType, isPaid = true) {
                     subCashPaid = Math.round((paymentPlan.cashAmount || 0) * ratio * 100) / 100;
                     subCouponDeduct = Math.round((paymentPlan.couponDeduct || 0) * ratio * 100) / 100;
                 }
-                
+
                 // 生成运费快照（锁定运费信息，后续规则变更不影响已生成订单）
                 const freightSnapshot = createFreightSnapshot(
                     subOrderId,
@@ -1674,7 +1674,7 @@ function createOrder(addressId, paymentPlan, cartType, isPaid = true) {
                     subAmount,
                     subFreight
                 );
-                
+
                 const subOrder = {
                     id: subOrderId,
                     parentOrderId: orderId,
@@ -1707,10 +1707,10 @@ function createOrder(addressId, paymentPlan, cartType, isPaid = true) {
                     shipTime: null,
                     deliverTime: null
                 };
-                
+
                 // 生成清分数据（V2.0: 传入storeId用于获取品牌配置）
                 generateSubOrderClearingData(subOrder, order.storeId);
-                
+
                 DB.subOrders.push(subOrder);
                 order.subOrderIds.push(subOrderId);
             });
@@ -1740,19 +1740,19 @@ function createOrder(addressId, paymentPlan, cartType, isPaid = true) {
                 shipTime: null,
                 deliverTime: null
             };
-            
+
             // 生成清分数据（V2.0: 传入storeId用于获取品牌配置）
             generateSubOrderClearingData(subOrder, order.storeId);
-            
+
             DB.subOrders.push(subOrder);
             order.subOrderIds.push(subOrderId);
         }
-        
+
         // 已支付订单：扣除用户积分和卡金
         DB.user.points -= paymentPlan.pointsUsed;
         DB.user.cardBalance -= paymentPlan.cardUsed;
     }
-    
+
     // 扣减库存（无论是否支付都要扣减，防止超卖）
     selectedItems.forEach(item => {
         const product = DB.products.find(p => p.id === item.productId);
@@ -1761,15 +1761,15 @@ function createOrder(addressId, paymentPlan, cartType, isPaid = true) {
             product.sales += item.qty;
         }
     });
-    
+
     // 从购物车移除已购买商品
     selectedItems.forEach(item => {
         removeFromCart(item.productId);
     });
-    
+
     DB.orders.push(order);
     saveData();
-    
+
     return { success: true, orderId: orderId, order: order };
 }
 
@@ -1778,14 +1778,14 @@ function createOrder(addressId, paymentPlan, cartType, isPaid = true) {
 function shipSubOrder(subOrderId, expressCompany, trackingNo, packageItems = null) {
     const subOrder = DB.subOrders.find(so => so.id === subOrderId);
     if (!subOrder) return { success: false, error: '子订单不存在' };
-    
+
     // 初始化packages数组（兼容旧数据）
     if (!subOrder.packages) {
         subOrder.packages = [];
     }
-    
+
     const now = new Date().toISOString();
-    
+
     // 计算已发货的商品数量
     const shippedQty = {};
     subOrder.packages.forEach(pkg => {
@@ -1793,7 +1793,7 @@ function shipSubOrder(subOrderId, expressCompany, trackingNo, packageItems = nul
             shippedQty[item.productId] = (shippedQty[item.productId] || 0) + item.qty;
         });
     });
-    
+
     // 确定本次发货的商品
     let itemsToShip = [];
     if (packageItems && packageItems.length > 0) {
@@ -1824,14 +1824,14 @@ function shipSubOrder(subOrderId, expressCompany, trackingNo, packageItems = nul
             };
         }).filter(i => i.qty > 0);
     }
-    
+
     if (itemsToShip.length === 0) {
         return { success: false, error: '没有可发货的商品' };
     }
-    
+
     // 将商城商品拆解为基础商品（供应链发货商品）
     const sourceItems = expandToSourceProducts(itemsToShip);
-    
+
     // 创建新包裹
     const packageId = `${subOrderId}-PKG${(subOrder.packages.length + 1).toString().padStart(2, '0')}`;
     const newPackage = {
@@ -1843,23 +1843,23 @@ function shipSubOrder(subOrderId, expressCompany, trackingNo, packageItems = nul
         shipTime: now,
         status: 'shipped'  // shipped, delivered
     };
-    
+
     subOrder.packages.push(newPackage);
-    
+
     // 兼容旧字段（记录最后一次发货信息）
     subOrder.expressCompany = expressCompany;
     subOrder.trackingNo = trackingNo;
     if (!subOrder.shipTime) {
         subOrder.shipTime = now;
     }
-    
+
     // 更新子订单状态
     updateSubOrderShipStatus(subOrder);
-    
+
     // 更新主订单状态
     updateParentOrderStatus(subOrder.parentOrderId);
     saveData();
-    
+
     return { success: true, packageId: packageId, package: newPackage };
 }
 
@@ -1869,7 +1869,7 @@ function updateSubOrderShipStatus(subOrder) {
         subOrder.status = 'pending_ship';
         return;
     }
-    
+
     // 计算已发货数量
     const shippedQty = {};
     const deliveredQty = {};
@@ -1881,17 +1881,17 @@ function updateSubOrderShipStatus(subOrder) {
             }
         });
     });
-    
+
     // 检查是否全部发货
-    const allShipped = subOrder.items.every(item => 
+    const allShipped = subOrder.items.every(item =>
         (shippedQty[item.productId] || 0) >= item.qty
     );
-    
+
     // 检查是否全部签收
-    const allDelivered = subOrder.items.every(item => 
+    const allDelivered = subOrder.items.every(item =>
         (deliveredQty[item.productId] || 0) >= item.qty
     );
-    
+
     if (allDelivered) {
         subOrder.status = 'delivered';
         if (!subOrder.deliverTime) {
@@ -1910,7 +1910,7 @@ function updateSubOrderShipStatus(subOrder) {
 function getUnshippedItems(subOrderId) {
     const subOrder = DB.subOrders.find(so => so.id === subOrderId);
     if (!subOrder) return [];
-    
+
     // 计算已发货数量
     const shippedQty = {};
     (subOrder.packages || []).forEach(pkg => {
@@ -1918,7 +1918,7 @@ function getUnshippedItems(subOrderId) {
             shippedQty[item.productId] = (shippedQty[item.productId] || 0) + item.qty;
         });
     });
-    
+
     // 返回未发货商品
     return subOrder.items.map(item => ({
         ...item,
@@ -1932,14 +1932,14 @@ function getUnshippedItems(subOrderId) {
 function confirmReceive(subOrderId, packageId = null) {
     const subOrder = DB.subOrders.find(so => so.id === subOrderId);
     if (!subOrder) return { success: false, error: '子订单不存在' };
-    
+
     const now = new Date().toISOString();
-    
+
     // 初始化packages（兼容旧数据）
     if (!subOrder.packages) {
         subOrder.packages = [];
     }
-    
+
     // 如果有旧数据但没有packages，创建一个兼容包裹
     if (subOrder.packages.length === 0 && subOrder.trackingNo) {
         subOrder.packages.push({
@@ -1951,7 +1951,7 @@ function confirmReceive(subOrderId, packageId = null) {
             status: 'shipped'
         });
     }
-    
+
     if (packageId) {
         // 确认指定包裹
         const pkg = subOrder.packages.find(p => p.id === packageId);
@@ -1967,14 +1967,14 @@ function confirmReceive(subOrderId, packageId = null) {
             }
         });
     }
-    
+
     // 更新子订单状态
     updateSubOrderShipStatus(subOrder);
-    
+
     // 更新主订单状态
     updateParentOrderStatus(subOrder.parentOrderId);
     saveData();
-    
+
     return { success: true };
 }
 
@@ -1982,15 +1982,15 @@ function confirmReceive(subOrderId, packageId = null) {
 function updateParentOrderStatus(orderId) {
     const order = DB.orders.find(o => o.id === orderId);
     if (!order) return;
-    
+
     const subOrders = DB.subOrders.filter(so => so.parentOrderId === orderId);
-    
+
     const allDelivered = subOrders.every(so => so.status === 'delivered');
     const allShipped = subOrders.every(so => so.status === 'shipped' || so.status === 'delivered');
-    const someShipped = subOrders.some(so => 
+    const someShipped = subOrders.some(so =>
         so.status === 'shipped' || so.status === 'delivered' || so.status === 'partial_shipped'
     );
-    
+
     if (allDelivered) {
         order.status = 'completed';
     } else if (allShipped) {
@@ -1998,7 +1998,7 @@ function updateParentOrderStatus(orderId) {
     } else if (someShipped) {
         order.status = 'partial_shipped';
     }
-    
+
     order.updateTime = new Date().toISOString();
 }
 
@@ -2007,34 +2007,34 @@ function updateParentOrderStatus(orderId) {
 function instantRefund(subOrderId) {
     const subOrder = DB.subOrders.find(so => so.id === subOrderId);
     if (!subOrder) return { success: false, error: '子订单不存在' };
-    
+
     const order = DB.orders.find(o => o.id === subOrder.parentOrderId);
     if (!order) return { success: false, error: '订单不存在' };
-    
+
     // 只有待发货状态才能极速退款
     if (subOrder.status !== 'pending_ship') {
         return { success: false, error: '只有待发货订单才能申请极速退款' };
     }
-    
+
     // 检查是否已有进行中的售后
-    const existingAS = DB.afterSales.find(as => 
-        as.subOrderId === subOrderId && 
+    const existingAS = DB.afterSales.find(as =>
+        as.subOrderId === subOrderId &&
         !['completed', 'rejected'].includes(as.status)
     );
     if (existingAS) return { success: false, error: '该订单已有进行中的售后申请' };
-    
+
     // 计算全额退款金额（所有商品）
     const items = subOrder.items.map(item => ({
         productId: item.productId,
         qty: item.qty
     }));
-    
+
     const refundInfo = calculateFullRefundInfo(subOrder, items);
-    
+
     // 创建售后单（直接完成状态）
     const afterSaleId = generateAfterSaleId();
     const now = new Date().toISOString();
-    
+
     const afterSale = {
         id: afterSaleId,
         orderId: order.id,
@@ -2081,16 +2081,16 @@ function instantRefund(subOrderId) {
         createTime: now,
         updateTime: now
     };
-    
+
     DB.afterSales.push(afterSale);
-    
+
     // 执行退款
     executeRefund(afterSale);
-    
+
     // 更新子订单状态
     subOrder.status = 'refunded';
     subOrder.refundTime = now;
-    
+
     // 恢复库存
     subOrder.items.forEach(item => {
         const product = DB.products.find(p => p.id === item.productId);
@@ -2099,20 +2099,20 @@ function instantRefund(subOrderId) {
             product.sales -= item.qty;
         }
     });
-    
+
     // 更新父订单状态
     const allSubOrders = DB.subOrders.filter(so => so.parentOrderId === order.id);
     const allRefunded = allSubOrders.every(so => so.status === 'refunded');
     if (allRefunded) {
         order.status = 'refunded';
     }
-    
+
     order.updateTime = now;
     saveData();
-    
-    return { 
-        success: true, 
-        afterSaleId: afterSaleId, 
+
+    return {
+        success: true,
+        afterSaleId: afterSaleId,
         afterSale: afterSale,
         refundInfo: refundInfo
     };
@@ -2139,23 +2139,23 @@ function getFreightResponsibility(reason) {
 function applyAfterSale(subOrderId, type, items, reason, description, refundInfo, images) {
     const subOrder = DB.subOrders.find(so => so.id === subOrderId);
     if (!subOrder) return { success: false, error: '子订单不存在' };
-    
+
     const order = DB.orders.find(o => o.id === subOrder.parentOrderId);
     if (!order) return { success: false, error: '订单不存在' };
-    
+
     // 检查是否已有进行中的售后
-    const existingAS = DB.afterSales.find(as => 
-        as.subOrderId === subOrderId && 
+    const existingAS = DB.afterSales.find(as =>
+        as.subOrderId === subOrderId &&
         !['completed', 'rejected'].includes(as.status)
     );
     if (existingAS) return { success: false, error: '该订单已有进行中的售后申请' };
-    
+
     // 判断是否为待发货状态（待发货状态退邮费）
     const isPendingShip = subOrder.status === 'pending_ship';
-    
+
     // 使用预计算的退款信息，或者重新计算
     let itemsAmount, discountAmount, refundAmount, refundPointsAmount, refundCardAmount, refundCashAmount, freightRefund;
-    
+
     if (refundInfo) {
         // 使用传入的预计算退款信息
         itemsAmount = refundInfo.itemsAmount || 0;
@@ -2171,45 +2171,45 @@ function applyAfterSale(subOrderId, type, items, reason, description, refundInfo
             const orderItem = subOrder.items.find(oi => oi.productId === item.productId);
             return sum + (orderItem ? orderItem.price * item.qty : 0);
         }, 0);
-        
+
         // 计算退款商品占子订单的比例
         const subOrderTotal = subOrder.amount || subOrder.items.reduce((sum, item) => sum + item.price * item.qty, 0);
         const ratio = subOrderTotal > 0 ? itemsAmount / subOrderTotal : 1;
-        
+
         // 待发货状态全额退邮费，已发货状态不退邮费
         freightRefund = 0;
         if (isPendingShip && type !== 'exchange') {
             // 待发货状态，按比例退邮费
             freightRefund = Math.round((subOrder.freight || 0) * ratio * 100) / 100;
         }
-        
+
         // 按比例计算各支付方式的退款金额（包含邮费）
         const totalRefundable = itemsAmount + freightRefund;
         const paymentTotal = (subOrder.pointsDeduct || 0) + (subOrder.cardDeduct || 0) + (subOrder.cashPaid || 0);
         const paymentRatio = paymentTotal > 0 ? totalRefundable / (subOrderTotal + (subOrder.freight || 0)) : ratio;
-        
+
         refundPointsAmount = type === 'exchange' ? 0 : Math.round((subOrder.pointsDeduct || 0) * paymentRatio * 100) / 100;
         refundCardAmount = type === 'exchange' ? 0 : Math.round((subOrder.cardDeduct || 0) * paymentRatio * 100) / 100;
         refundCashAmount = type === 'exchange' ? 0 : Math.round((subOrder.cashPaid || 0) * paymentRatio * 100) / 100;
-        
+
         // 计算优惠分摊
         const totalDiscount = (subOrder.couponDeduct || 0);
         discountAmount = Math.round(totalDiscount * ratio * 100) / 100;
-        
+
         // 实际退款金额
         refundAmount = type === 'exchange' ? 0 : (refundPointsAmount + refundCardAmount + refundCashAmount);
     }
-    
+
     // 判断运费责任方
     const reasonType = getFreightResponsibility(reason) === 'supplier' ? 'supplier' : 'buyer';
     const freightResponsibility = getFreightResponsibility(reason);
-    
+
     // 计算退款范围
     const totalItemQty = items.reduce((sum, item) => sum + item.qty, 0);
     const subOrderTotalQty = subOrder.items.reduce((sum, item) => sum + item.qty, 0);
     const isFullRefund = totalItemQty >= subOrderTotalQty;
     const scope = isFullRefund ? 'full' : (items.length < subOrder.items.length ? 'partial_sku' : 'partial_qty');
-    
+
     const afterSaleId = generateAfterSaleId();
     const afterSale = {
         id: afterSaleId,
@@ -2280,10 +2280,10 @@ function applyAfterSale(subOrderId, type, items, reason, description, refundInfo
         completeTime: null,
         updateTime: new Date().toISOString()
     };
-    
+
     DB.afterSales.push(afterSale);
     saveData();
-    
+
     return { success: true, afterSaleId: afterSaleId, afterSale: afterSale };
 }
 
@@ -2291,9 +2291,9 @@ function applyAfterSale(subOrderId, type, items, reason, description, refundInfo
 function reviewAfterSale(afterSaleId, approved, returnAddress, remark) {
     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
     if (!afterSale) return { success: false, error: '售后单不存在' };
-    
+
     const now = new Date().toISOString();
-    
+
     if (approved) {
         if (afterSale.type === 'refund_only') {
             // 仅退款：直接完成
@@ -2316,18 +2316,18 @@ function reviewAfterSale(afterSaleId, approved, returnAddress, remark) {
         afterSale.status = 'rejected';
         afterSale.rejectReason = remark || '';
     }
-    
+
     afterSale.reviewTime = now;
     afterSale.updateTime = now;
     saveData();
-    
+
     return { success: true };
 }
 
 // 处理退款 - 包含冲账记录和订单状态更新
 function processRefund(afterSale) {
     const now = new Date().toISOString();
-    
+
     // 退还积分
     if (afterSale.refundPointsAmount > 0) {
         DB.user.points += afterSale.refundPointsAmount * 100;
@@ -2338,11 +2338,11 @@ function processRefund(afterSale) {
     }
     // 现金退款 (模拟)
     console.log('现金退款:', afterSale.refundCashAmount);
-    
+
     // 记录退款时间
     afterSale.refundTime = now;
     afterSale.completeTime = now;
-    
+
     // V2.0: 更新 SKU 级别清分状态并生成冲账记录
     const subOrder = DB.subOrders.find(so => so.id === afterSale.subOrderId);
     if (subOrder && afterSale.items) {
@@ -2356,14 +2356,14 @@ function processRefund(afterSale) {
             indirectCommission: 0,
             refundRecords: []
         };
-        
+
         afterSale.items.forEach(refundItem => {
             const orderItem = subOrder.items.find(oi => oi.productId === refundItem.productId);
             if (orderItem && orderItem.clearing) {
                 // 计算退款比例
                 const qtyRatio = orderItem.qty > 0 ? refundItem.qty / orderItem.qty : 0;
                 const isFullRefund = qtyRatio >= 1;
-                
+
                 // 计算各方退款金额
                 const platformRefund = Math.round((orderItem.clearing.platformAmount || 0) * qtyRatio * 100) / 100;
                 const operationRefund = Math.round((orderItem.clearing.operationAmount || 0) * qtyRatio * 100) / 100;
@@ -2371,7 +2371,7 @@ function processRefund(afterSale) {
                 const storeProfitRefund = Math.round((orderItem.clearing.storeProfit || 0) * qtyRatio * 100) / 100;
                 const directCommissionRefund = Math.round((orderItem.clearing.directCommission || 0) * qtyRatio * 100) / 100;
                 const indirectCommissionRefund = Math.round((orderItem.clearing.indirectCommission || 0) * qtyRatio * 100) / 100;
-                
+
                 // 累加到总退款
                 clearingRefund.platformAmount += platformRefund;
                 clearingRefund.operationAmount += operationRefund;
@@ -2379,7 +2379,7 @@ function processRefund(afterSale) {
                 clearingRefund.storeProfit += storeProfitRefund;
                 clearingRefund.directCommission += directCommissionRefund;
                 clearingRefund.indirectCommission += indirectCommissionRefund;
-                
+
                 // 生成冲账记录
                 const refundRecord = {
                     id: `CLR_REF_${Date.now()}_${refundItem.productId}`,
@@ -2404,9 +2404,9 @@ function processRefund(afterSale) {
                     status: 'settled',
                     createTime: now
                 };
-                
+
                 clearingRefund.refundRecords.push(refundRecord);
-                
+
                 // 更新 SKU 清分状态
                 if (!orderItem.clearing.refundInfo) {
                     orderItem.clearing.refundInfo = {
@@ -2415,7 +2415,7 @@ function processRefund(afterSale) {
                         refundRecords: []
                     };
                 }
-                
+
                 orderItem.clearing.refundInfo.totalRefundQty += refundItem.qty;
                 orderItem.clearing.refundInfo.totalRefundRatio += qtyRatio;
                 orderItem.clearing.refundInfo.refundRecords.push({
@@ -2430,7 +2430,7 @@ function processRefund(afterSale) {
                     indirectCommissionRefund: indirectCommissionRefund,
                     refundTime: now
                 });
-                
+
                 // 更新 SKU 清分状态
                 if (orderItem.clearing.refundInfo.totalRefundRatio >= 1) {
                     orderItem.clearing.status = 'refunded';
@@ -2439,32 +2439,32 @@ function processRefund(afterSale) {
                 }
             }
         });
-        
+
         // 保存清分退款明细到售后单
         afterSale.clearingRefund = clearingRefund;
-        
+
         // 更新子订单汇总清分状态
         updateSubOrderClearingStatus(subOrder);
-        
+
         // 更新子订单状态（全额退款时）
         updateSubOrderStatusAfterRefund(subOrder, afterSale);
-        
+
         // 更新主订单状态
         updateMainOrderStatusAfterRefund(afterSale.orderId);
     }
-    
+
     saveData();
 }
 
 // 更新子订单状态（退款后）
 function updateSubOrderStatusAfterRefund(subOrder, afterSale) {
     if (!subOrder) return;
-    
+
     // 检查是否所有SKU都已退款
-    const allRefunded = subOrder.items.every(item => 
+    const allRefunded = subOrder.items.every(item =>
         item.clearing && item.clearing.status === 'refunded'
     );
-    
+
     if (allRefunded) {
         // 全额退款，更新子订单状态为 refunded
         subOrder.status = 'refunded';
@@ -2477,19 +2477,19 @@ function updateSubOrderStatusAfterRefund(subOrder, afterSale) {
 function updateMainOrderStatusAfterRefund(orderId) {
     const order = DB.orders.find(o => o.id === orderId);
     if (!order) return;
-    
+
     const subOrders = DB.subOrders.filter(so => so.parentOrderId === orderId);
     if (subOrders.length === 0) return;
-    
+
     // 统计子订单状态
     const allRefunded = subOrders.every(so => so.status === 'refunded');
     const hasRefunded = subOrders.some(so => so.status === 'refunded');
     const allDelivered = subOrders.every(so => so.status === 'delivered');
     const allShipped = subOrders.every(so => ['shipped', 'delivered'].includes(so.status));
     const hasShipped = subOrders.some(so => ['shipped', 'delivered', 'partial_shipped'].includes(so.status));
-    
+
     let newStatus = order.status;
-    
+
     if (allRefunded) {
         newStatus = 'refunded';           // 全部退款
     } else if (hasRefunded) {
@@ -2501,7 +2501,7 @@ function updateMainOrderStatusAfterRefund(orderId) {
     } else if (hasShipped) {
         newStatus = 'partial_shipped';    // 部分发货
     }
-    
+
     if (order.status !== newStatus) {
         order.status = newStatus;
         order.updateTime = new Date().toISOString();
@@ -2511,7 +2511,7 @@ function updateMainOrderStatusAfterRefund(orderId) {
 // V2.0: 更新子订单汇总清分状态
 function updateSubOrderClearingStatus(subOrder) {
     if (!subOrder || !subOrder.items || !subOrder.clearing) return;
-    
+
     // 统计各状态的 SKU 数量
     let frozenCount = 0, settledCount = 0, refundedCount = 0, partialRefundedCount = 0;
     subOrder.items.forEach(item => {
@@ -2524,9 +2524,9 @@ function updateSubOrderClearingStatus(subOrder) {
             }
         }
     });
-    
+
     const totalItems = subOrder.items.length;
-    
+
     // 确定子订单汇总状态
     if (refundedCount === totalItems) {
         subOrder.clearing.status = 'refunded';
@@ -2537,7 +2537,7 @@ function updateSubOrderClearingStatus(subOrder) {
     } else {
         subOrder.clearing.status = 'frozen';
     }
-    
+
     subOrder.clearing.updateTime = new Date().toISOString();
 }
 
@@ -2545,51 +2545,61 @@ function updateSubOrderClearingStatus(subOrder) {
 function submitReturnTracking(afterSaleId, expressCompany, trackingNo) {
     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
     if (!afterSale) return { success: false, error: '售后单不存在' };
-    
+
     if (afterSale.status !== 'waiting_return') {
         return { success: false, error: '当前状态不允许填写物流' };
     }
-    
+
     afterSale.returnExpressCompany = expressCompany || '顺丰快递';
     afterSale.returnTrackingNo = trackingNo;
     afterSale.returnTime = new Date().toISOString();
     afterSale.status = 'returning';
     afterSale.updateTime = new Date().toISOString();
     saveData();
-    
+
     return { success: true };
 }
 
 // 确认收货 (平台操作 - 退货退款/换货)
-function confirmReturnReceive(afterSaleId, accepted, remark) {
+function confirmReturnReceive(afterSaleId, qcResult, remark) {
     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
     if (!afterSale) return { success: false, error: '售后单不存在' };
-    
+
     if (afterSale.status !== 'returning') {
         return { success: false, error: '当前状态不允许确认收货' };
     }
-    
+
     const now = new Date().toISOString();
+    const qcPassed = qcResult === 'normal';
+
     afterSale.receiveTime = now;
-    
-    if (accepted) {
-        if (afterSale.type === 'return_refund') {
-            // 退货退款：确认收货后直接退款
-            afterSale.status = 'completed';
-            processRefund(afterSale);
-        } else if (afterSale.type === 'exchange') {
-            // 换货：进入待重新发货状态
-            afterSale.status = 'received';
-        }
-    } else {
-        // 拒绝收货（商品有问题）
-        afterSale.status = 'rejected';
-        afterSale.rejectReason = remark || '退回商品不符合要求';
-    }
-    
+    afterSale.status = 'received';
+    afterSale.qcPassed = qcPassed;
+
+    // 记录质检结果
+    afterSale.warehouseQC = {
+        operator: '仓库收货组',
+        time: now,
+        details: afterSale.items.map(item => ({
+            itemName: item.name,
+            expectedQty: item.quantity,
+            actualQty: item.quantity,
+            status: qcPassed ? 'normal' : 'abnormal',
+            remark: qcPassed ? '-' : '质检异常'
+        })),
+        remark: remark || (qcPassed ? '质检通过，商品完好。' : '质检发现异常。')
+    };
+
+    afterSale.internalNotes = afterSale.internalNotes || [];
+    afterSale.internalNotes.push({
+        time: now,
+        operator: '仓库收货组',
+        content: `已签收包裹并录入质检结果：${qcPassed ? '正常' : '异常'}。备注：${remark || '无'}`
+    });
+
     afterSale.updateTime = now;
     saveData();
-    
+
     return { success: true };
 }
 
@@ -2597,18 +2607,18 @@ function confirmReturnReceive(afterSaleId, accepted, remark) {
 function shipExchange(afterSaleId, expressCompany, trackingNo) {
     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
     if (!afterSale) return { success: false, error: '售后单不存在' };
-    
+
     if (afterSale.type !== 'exchange' || afterSale.status !== 'received') {
         return { success: false, error: '当前状态不允许发货' };
     }
-    
+
     afterSale.exchangeExpressCompany = expressCompany;
     afterSale.exchangeTrackingNo = trackingNo;
     afterSale.exchangeShipTime = new Date().toISOString();
     afterSale.status = 'reshipping';
     afterSale.updateTime = new Date().toISOString();
     saveData();
-    
+
     return { success: true };
 }
 
@@ -2616,16 +2626,16 @@ function shipExchange(afterSaleId, expressCompany, trackingNo) {
 function confirmExchangeReceive(afterSaleId) {
     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
     if (!afterSale) return { success: false, error: '售后单不存在' };
-    
+
     if (afterSale.status !== 'reshipping') {
         return { success: false, error: '当前状态不允许确认收货' };
     }
-    
+
     afterSale.exchangeReceiveTime = new Date().toISOString();
     afterSale.status = 'completed';
     afterSale.updateTime = new Date().toISOString();
     saveData();
-    
+
     return { success: true };
 }
 
@@ -2633,19 +2643,19 @@ function confirmExchangeReceive(afterSaleId) {
 function cancelAfterSale(afterSaleId) {
     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
     if (!afterSale) return { success: false, error: '售后单不存在' };
-    
+
     if (afterSale.status !== 'pending' && afterSale.status !== 'approved' && afterSale.status !== 'waiting_return') {
         return { success: false, error: '当前状态不允许撤销' };
     }
-    
+
     // 不删除记录，而是更新状态为已撤销
     afterSale.status = 'cancelled';
     afterSale.cancelTime = new Date().toISOString();
     afterSale.updateTime = new Date().toISOString();
     afterSale.cancelReason = '用户主动撤销';
-    
+
     saveData();
-    
+
     return { success: true };
 }
 
@@ -2653,21 +2663,21 @@ function cancelAfterSale(afterSaleId) {
 function completeAfterSale(afterSaleId) {
     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
     if (!afterSale) return { success: false, error: '售后单不存在' };
-    
+
     afterSale.status = 'completed';
     afterSale.updateTime = new Date().toISOString();
     if (afterSale.type !== 'exchange') {
         processRefund(afterSale);
     }
     saveData();
-    
+
     return { success: true };
 }
 
 // 获取订单列表
 function getOrders(filter = {}) {
     let orders = [...DB.orders];
-    
+
     if (filter.status) {
         orders = orders.filter(o => o.status === filter.status);
     }
@@ -2677,7 +2687,7 @@ function getOrders(filter = {}) {
     if (filter.userId) {
         orders = orders.filter(o => o.userId === filter.userId);
     }
-    
+
     // 附加子订单信息
     return orders.map(order => ({
         ...order,
@@ -2691,7 +2701,7 @@ function getAllOrders(filter = {}) {
     const saved = localStorage.getItem('s2b2c_prototype_data');
     let allOrders = [];
     let allSubOrders = [];
-    
+
     if (saved) {
         try {
             const data = JSON.parse(saved);
@@ -2701,7 +2711,7 @@ function getAllOrders(filter = {}) {
             console.error('读取全局订单数据失败:', e);
         }
     }
-    
+
     // 同时从所有用户的数据中收集订单
     const allUsers = Object.keys(TEST_USERS);
     allUsers.forEach(userId => {
@@ -2729,7 +2739,7 @@ function getAllOrders(filter = {}) {
             }
         }
     });
-    
+
     // 应用过滤条件
     let orders = [...allOrders];
     if (filter.status) {
@@ -2741,7 +2751,7 @@ function getAllOrders(filter = {}) {
     if (filter.userId) {
         orders = orders.filter(o => o.userId === filter.userId);
     }
-    
+
     // 附加子订单信息
     return orders.map(order => ({
         ...order,
@@ -2754,7 +2764,7 @@ function getAllSubOrders(filter = {}) {
     // 直接从localStorage读取全局数据
     const saved = localStorage.getItem('s2b2c_prototype_data');
     let allSubOrders = [];
-    
+
     if (saved) {
         try {
             const data = JSON.parse(saved);
@@ -2763,7 +2773,7 @@ function getAllSubOrders(filter = {}) {
             console.error('读取全局子订单数据失败:', e);
         }
     }
-    
+
     // 同时从所有用户的数据中收集子订单
     const allUsers = Object.keys(TEST_USERS);
     allUsers.forEach(userId => {
@@ -2783,7 +2793,7 @@ function getAllSubOrders(filter = {}) {
             }
         }
     });
-    
+
     // 应用过滤条件
     let subOrders = [...allSubOrders];
     if (filter.status) {
@@ -2792,7 +2802,7 @@ function getAllSubOrders(filter = {}) {
     if (filter.supplierId) {
         subOrders = subOrders.filter(so => so.supplierId === filter.supplierId);
     }
-    
+
     return subOrders.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
 }
 
@@ -2801,7 +2811,7 @@ function getAllAfterSales(filter = {}) {
     // 直接从localStorage读取全局数据
     const saved = localStorage.getItem('s2b2c_prototype_data');
     let allAfterSales = [];
-    
+
     if (saved) {
         try {
             const data = JSON.parse(saved);
@@ -2810,7 +2820,7 @@ function getAllAfterSales(filter = {}) {
             console.error('读取全局售后数据失败:', e);
         }
     }
-    
+
     // 同时从所有用户的数据中收集售后
     const allUsers = Object.keys(TEST_USERS);
     allUsers.forEach(userId => {
@@ -2830,7 +2840,7 @@ function getAllAfterSales(filter = {}) {
             }
         }
     });
-    
+
     // 应用过滤条件
     let afterSales = [...allAfterSales];
     if (filter.status) {
@@ -2839,7 +2849,7 @@ function getAllAfterSales(filter = {}) {
     if (filter.merchantId) {
         afterSales = afterSales.filter(as => as.merchantId === filter.merchantId);
     }
-    
+
     return afterSales.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
 }
 
@@ -2848,7 +2858,7 @@ function findGlobalSubOrder(subOrderId) {
     // 先从当前DB中查找
     let subOrder = DB.subOrders.find(so => so.id === subOrderId);
     if (subOrder) return subOrder;
-    
+
     // 从localStorage全局数据中查找
     const saved = localStorage.getItem('s2b2c_prototype_data');
     if (saved) {
@@ -2860,7 +2870,7 @@ function findGlobalSubOrder(subOrderId) {
             console.error('读取全局子订单数据失败:', e);
         }
     }
-    
+
     // 从所有用户数据中查找
     const allUsers = Object.keys(TEST_USERS);
     for (const userId of allUsers) {
@@ -2877,7 +2887,7 @@ function findGlobalSubOrder(subOrderId) {
             }
         }
     }
-    
+
     return null;
 }
 
@@ -2885,7 +2895,7 @@ function findGlobalAfterSale(afterSaleId) {
     // 先从当前DB中查找
     let afterSale = DB.afterSales.find(as => as.id === afterSaleId);
     if (afterSale) return afterSale;
-    
+
     // 从localStorage全局数据中查找
     const saved = localStorage.getItem('s2b2c_prototype_data');
     if (saved) {
@@ -2897,7 +2907,7 @@ function findGlobalAfterSale(afterSaleId) {
             console.error('读取全局售后数据失败:', e);
         }
     }
-    
+
     // 从所有用户数据中查找
     const allUsers = Object.keys(TEST_USERS);
     for (const userId of allUsers) {
@@ -2914,14 +2924,14 @@ function findGlobalAfterSale(afterSaleId) {
             }
         }
     }
-    
+
     return null;
 }
 
 // 批量查找全局子订单
 function findGlobalSubOrdersByIds(subOrderIds) {
     if (!subOrderIds || !Array.isArray(subOrderIds)) return [];
-    
+
     const allSubOrders = getAllSubOrders();
     return subOrderIds.map(id => allSubOrders.find(so => so.id === id)).filter(Boolean);
 }
@@ -2929,28 +2939,28 @@ function findGlobalSubOrdersByIds(subOrderIds) {
 // 获取子订单列表
 function getSubOrders(filter = {}) {
     let subOrders = [...DB.subOrders];
-    
+
     if (filter.status) {
         subOrders = subOrders.filter(so => so.status === filter.status);
     }
     if (filter.supplierId) {
         subOrders = subOrders.filter(so => so.supplierId === filter.supplierId);
     }
-    
+
     return subOrders.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
 }
 
 // 获取售后列表
 function getAfterSales(filter = {}) {
     let afterSales = [...DB.afterSales];
-    
+
     if (filter.status) {
         afterSales = afterSales.filter(as => as.status === filter.status);
     }
     if (filter.merchantId) {
         afterSales = afterSales.filter(as => as.merchantId === filter.merchantId);
     }
-    
+
     return afterSales.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
 }
 
@@ -2958,7 +2968,7 @@ function getAfterSales(filter = {}) {
 function getStatistics() {
     const today = new Date().toISOString().split('T')[0];
     const todayOrders = DB.orders.filter(o => o.createTime.startsWith(today));
-    
+
     return {
         todayOrderCount: todayOrders.length,
         todayGMV: todayOrders.reduce((sum, o) => sum + o.totalAmount, 0),
@@ -2973,7 +2983,7 @@ function getStatistics() {
 function getPlatformClearingStats(dateFilter = null) {
     // 获取所有已支付的供应链订单
     let orders = DB.orders.filter(o => o.type === 'supply' && o.status !== 'pending_pay' && o.status !== 'cancelled');
-    
+
     // 日期筛选
     if (dateFilter && dateFilter.start) {
         orders = orders.filter(o => o.createTime >= dateFilter.start);
@@ -2981,7 +2991,7 @@ function getPlatformClearingStats(dateFilter = null) {
     if (dateFilter && dateFilter.end) {
         orders = orders.filter(o => o.createTime <= dateFilter.end + 'T23:59:59');
     }
-    
+
     // 汇总清分数据
     let totalAmount = 0;           // 交易总额
     let orderCount = 0;            // 订单数
@@ -2999,15 +3009,15 @@ function getPlatformClearingStats(dateFilter = null) {
     let totalSplitAmount = 0;      // 空中分账总额
     let merchantCashRetain = 0;    // 商家保留现金
     let totalCash = 0;             // 现金支付总额
-    
+
     orders.forEach(o => {
         totalAmount += o.totalAmount || 0;
         orderCount++;
         totalCash += o.cashPaid || 0;
-        
+
         // 获取子订单
         const subOrders = (o.subOrderIds || []).map(id => DB.subOrders.find(so => so.id === id)).filter(Boolean);
-        
+
         subOrders.forEach(so => {
             if (so.clearing) {
                 // 使用清分数据
@@ -3027,13 +3037,13 @@ function getPlatformClearingStats(dateFilter = null) {
             }
         });
     });
-    
+
     // 推广员佣金总额
     const promoterCommission = directCommission + indirectCommission;
-    
+
     // 平台净利润 = 代运营费用（平台视角的收入）
     const platformNetProfit = operationAmount;
-    
+
     return {
         totalAmount,
         orderCount,
@@ -3078,7 +3088,7 @@ function saveData() {
         afterSaleConfig: DB.afterSaleConfig
     };
     localStorage.setItem('s2b2c_prototype_data', JSON.stringify(data));
-    
+
     // 同时保存当前用户的专属数据
     saveUserData(currentUserId);
 }
@@ -3131,7 +3141,7 @@ function loadData() {
             DB.orders = data.orders || [];
             DB.subOrders = data.subOrders || [];
             DB.afterSales = data.afterSales || [];
-            
+
             // 加载商品数据，并确保包含运费模板字段
             if (data.products) {
                 // 获取默认商品数据作为参考
@@ -3144,7 +3154,7 @@ function loadData() {
                     { id: 'P006', freightTemplateId: 'FT001', noDeliveryTemplateId: 'ND001', supplierId: 'S001' },
                     { id: 'P007', freightTemplateId: 'FT001', noDeliveryTemplateId: 'ND001', supplierId: 'S001' }
                 ];
-                
+
                 // 合并数据，确保旧数据包含新字段
                 DB.products = data.products.map(p => {
                     const defaultP = defaultProducts.find(dp => dp.id === p.id);
@@ -3159,7 +3169,7 @@ function loadData() {
                     return p;
                 });
             }
-            
+
             DB.freightTemplates = data.freightTemplates || JSON.parse(JSON.stringify(FREIGHT_TEMPLATES));
             DB.freightTemplateLogs = data.freightTemplateLogs || [];
             // V2.0 运费模板和不发货地区模板
@@ -3188,7 +3198,7 @@ function initMultiPackageTestData() {
     const now = new Date();
     const orderId = 'TEST' + Date.now();
     const subOrderId = 'SUB' + Date.now();
-    
+
     // 创建测试订单
     const testOrder = {
         id: orderId,
@@ -3212,7 +3222,7 @@ function initMultiPackageTestData() {
             cashAmount: 128 * 2 + 89 + 299
         }
     };
-    
+
     // 创建测试子订单（带多包裹）
     const testSubOrder = {
         id: subOrderId,
@@ -3249,11 +3259,11 @@ function initMultiPackageTestData() {
             }
         ]
     };
-    
+
     DB.orders.push(testOrder);
     DB.subOrders.push(testSubOrder);
     saveData();
-    
+
     console.log('多包裹测试数据已创建:', { orderId, subOrderId });
     return { orderId, subOrderId };
 }
@@ -3262,7 +3272,7 @@ function initMultiPackageTestData() {
 function initPaymentTestData() {
     const now = new Date();
     const results = [];
-    
+
     // 1. 微信支付订单
     const wechatOrderId = 'WECHAT' + Date.now();
     const wechatSubOrderId = 'SUB_WECHAT' + Date.now();
@@ -3302,7 +3312,7 @@ function initPaymentTestData() {
     DB.orders.push(wechatOrder);
     DB.subOrders.push(wechatSubOrder);
     results.push({ type: '微信支付', orderId: wechatOrderId });
-    
+
     // 2. 会员卡支付订单
     const cardOrderId = 'CARD' + Date.now();
     const cardSubOrderId = 'SUB_CARD' + Date.now();
@@ -3349,7 +3359,7 @@ function initPaymentTestData() {
     DB.orders.push(cardOrder);
     DB.subOrders.push(cardSubOrder);
     results.push({ type: '会员卡支付', orderId: cardOrderId });
-    
+
     // 3. 混合支付订单（卡金+微信）
     const mixOrderId = 'MIX' + Date.now();
     const mixSubOrderId = 'SUB_MIX' + Date.now();
@@ -3399,7 +3409,7 @@ function initPaymentTestData() {
     DB.orders.push(mixOrder);
     DB.subOrders.push(mixSubOrder);
     results.push({ type: '混合支付(卡金+微信)', orderId: mixOrderId });
-    
+
     saveData();
     console.log('支付方式测试数据已创建:', results);
     return results;
@@ -3436,7 +3446,7 @@ function clearOrderData() {
  */
 function resetAndGenerateScenarioData() {
     console.log('🗑️ 清空所有数据...');
-    
+
     // 清空内存数据
     DB.orders = [];
     DB.subOrders = [];
@@ -3445,31 +3455,31 @@ function resetAndGenerateScenarioData() {
     DB.orderIdCounter = 1000;
     DB.subOrderIdCounter = 1;
     DB.afterSaleIdCounter = 1;
-    
+
     // 清空localStorage
     localStorage.removeItem('s2b2c_prototype_data');
     Object.keys(TEST_USERS).forEach(userId => {
         localStorage.removeItem('s2b2c_user_' + userId);
     });
-    
+
     console.log('✅ 数据已清空');
     console.log('🎬 开始生成场景化Mock数据...');
-    
+
     // 生成场景化订单数据
     generateScenarioOrders();
-    
+
     // 生成场景化售后数据
     generateScenarioAfterSales();
-    
+
     // 保存数据
     saveData();
     saveAllUserData();
-    
+
     console.log('✅ 场景化Mock数据生成完成！');
     console.log(`📦 订单数: ${DB.orders.length}`);
     console.log(`📋 子订单数: ${DB.subOrders.length}`);
     console.log(`🔄 售后单数: ${DB.afterSales.length}`);
-    
+
     return {
         orders: DB.orders.length,
         subOrders: DB.subOrders.length,
@@ -3515,7 +3525,7 @@ function generateScenarioOrders() {
             products: [{ id: 'P004', qty: 1 }],
             paymentType: 'points_cash'
         },
-        
+
         // ========== 部分发货订单（可以追加发货） ==========
         {
             name: '部分发货订单 - 北京店王五',
@@ -3528,7 +3538,7 @@ function generateScenarioOrders() {
             paymentType: 'cash_only',
             partialShip: true  // 标记为部分发货
         },
-        
+
         // ========== 已发货订单（可以确认收货） ==========
         {
             name: '已发货订单1 - 上海店赵六',
@@ -3552,7 +3562,7 @@ function generateScenarioOrders() {
             paymentType: 'card_only',
             shipped: true
         },
-        
+
         // ========== 已完成订单（可以申请售后） ==========
         {
             name: '已完成订单1 - 北京店张三',
@@ -3588,7 +3598,7 @@ function generateScenarioOrders() {
             completed: true
         }
     ];
-    
+
     scenarios.forEach((scenario, index) => {
         createScenarioOrder(scenario, index);
     });
@@ -3600,19 +3610,19 @@ function generateScenarioOrders() {
 function createScenarioOrder(scenario, index) {
     const now = new Date();
     const orderTime = new Date(now.getTime() - scenario.daysAgo * 24 * 3600000);
-    
+
     const user = TEST_USERS[scenario.userId];
     const store = TEST_STORES[scenario.storeId];
-    
+
     if (!user || !store) {
         console.warn(`用户或门店不存在: ${scenario.userId}, ${scenario.storeId}`);
         return;
     }
-    
+
     // 获取商品信息
     const orderItems = [];
     let totalAmount = 0;
-    
+
     scenario.products.forEach(p => {
         const product = DB.products.find(prod => prod.id === p.id);
         if (product) {
@@ -3629,18 +3639,18 @@ function createScenarioOrder(scenario, index) {
             totalAmount += product.price * p.qty;
         }
     });
-    
+
     if (orderItems.length === 0) {
         console.warn(`没有有效商品: ${scenario.name}`);
         return;
     }
-    
+
     // 计算支付金额
     const paymentInfo = calculatePaymentInfo(totalAmount, scenario.paymentType);
-    
+
     // 生成订单ID
     const orderId = `ORD${String(DB.orderIdCounter++).padStart(8, '0')}`;
-    
+
     // 按供应商分组创建子订单
     const supplierGroups = {};
     orderItems.forEach(item => {
@@ -3650,18 +3660,18 @@ function createScenarioOrder(scenario, index) {
         }
         supplierGroups[supplierId].push(item);
     });
-    
+
     const subOrders = [];
     const subOrderIds = [];
-    
+
     Object.entries(supplierGroups).forEach(([supplierId, items], subIndex) => {
         const subOrderId = `${orderId}-${subIndex + 1}`;
         const subAmount = items.reduce((sum, item) => sum + item.price * item.qty, 0);
         const subSupplyAmount = items.reduce((sum, item) => sum + (item.supplyPrice || item.price * 0.7) * item.qty, 0);
-        
+
         // 计算子订单的支付分摊
         const ratio = totalAmount > 0 ? subAmount / totalAmount : 1;
-        
+
         const subOrder = {
             id: subOrderId,
             parentOrderId: orderId,
@@ -3679,7 +3689,7 @@ function createScenarioOrder(scenario, index) {
             createTime: orderTime.toISOString(),
             packages: []
         };
-        
+
         // 如果是部分发货，添加一个已发货的包裹
         if (scenario.partialShip && items.length > 1) {
             const firstItem = items[0];
@@ -3693,13 +3703,13 @@ function createScenarioOrder(scenario, index) {
                 sourceItems: []
             });
         }
-        
+
         // 如果是已发货，添加发货信息
         if (scenario.shipped || scenario.completed) {
             subOrder.shipTime = new Date(orderTime.getTime() + 24 * 3600000).toISOString();
             subOrder.expressCompany = '顺丰快递';
             subOrder.trackingNo = `SF${Math.random().toString().substr(2, 12)}`;
-            
+
             if (!subOrder.packages || subOrder.packages.length === 0) {
                 subOrder.packages = [{
                     id: `PKG${Date.now()}${subIndex}`,
@@ -3712,20 +3722,20 @@ function createScenarioOrder(scenario, index) {
                 }];
             }
         }
-        
+
         // 如果是已完成，添加签收时间
         if (scenario.completed) {
             subOrder.deliverTime = new Date(orderTime.getTime() + 72 * 3600000).toISOString();
         }
-        
+
         // 生成清分数据
         generateSubOrderClearingData(subOrder, scenario.storeId);
-        
+
         subOrders.push(subOrder);
         subOrderIds.push(subOrderId);
         DB.subOrders.push(subOrder);
     });
-    
+
     // 创建主订单
     const order = {
         id: orderId,
@@ -3752,7 +3762,7 @@ function createScenarioOrder(scenario, index) {
         payTime: orderTime.toISOString(),
         updateTime: orderTime.toISOString()
     };
-    
+
     // 添加发货和完成时间
     if (scenario.shipped || scenario.completed) {
         order.shipTime = new Date(orderTime.getTime() + 24 * 3600000).toISOString();
@@ -3760,7 +3770,7 @@ function createScenarioOrder(scenario, index) {
     if (scenario.completed) {
         order.completeTime = new Date(orderTime.getTime() + 72 * 3600000).toISOString();
     }
-    
+
     DB.orders.push(order);
     console.log(`✅ 创建订单: ${scenario.name} (${orderId})`);
 }
@@ -3777,9 +3787,9 @@ function calculatePaymentInfo(totalAmount, paymentType) {
         'points_card': { cashRatio: 0, pointsRatio: 0.5, cardRatio: 0.5 },
         'mixed': { cashRatio: 0.5, pointsRatio: 0.3, cardRatio: 0.2 }
     };
-    
+
     const ratios = paymentTypes[paymentType] || paymentTypes['cash_only'];
-    
+
     return {
         cashPaid: Math.round(totalAmount * ratios.cashRatio * 100) / 100,
         pointsDeduct: Math.round(totalAmount * ratios.pointsRatio * 100) / 100,
@@ -3809,14 +3819,14 @@ function getPaymentLabel(paymentType) {
 function generateScenarioAfterSales() {
     // 找到已完成的订单用于生成售后
     const completedOrders = DB.orders.filter(o => o.status === 'completed' || o.status === 'shipped');
-    
+
     if (completedOrders.length === 0) {
         console.warn('没有可用于生成售后的订单');
         return;
     }
-    
+
     const now = new Date();
-    
+
     const afterSaleScenarios = [
         // ========== 待审核售后（可以审核通过/拒绝） ==========
         {
@@ -3843,7 +3853,7 @@ function generateScenarioAfterSales() {
             description: '收到商品破损，申请换货',
             daysAgo: 2
         },
-        
+
         // ========== 待寄回售后（等待用户寄回） ==========
         {
             name: '待寄回-退货退款',
@@ -3854,7 +3864,7 @@ function generateScenarioAfterSales() {
             daysAgo: 3,
             returnAddress: '北京市朝阳区建国路88号退货仓库'
         },
-        
+
         // ========== 退货中售后（可以确认收货） ==========
         {
             name: '退货中-退货退款',
@@ -3878,7 +3888,7 @@ function generateScenarioAfterSales() {
             trackingNo: 'YT9876543210',
             returnAddress: '上海市浦东新区陆家嘴环路1000号退货仓库'
         },
-        
+
         // ========== 已收货售后（可以退款/换货发货） ==========
         {
             name: '已收货-退货退款',
@@ -3896,7 +3906,7 @@ function generateScenarioAfterSales() {
             description: '仓库已收货，待换货发货',
             daysAgo: 7
         },
-        
+
         // ========== 换货发货中（可以查看物流和确认收货） ==========
         {
             name: '换货发货中',
@@ -3908,7 +3918,7 @@ function generateScenarioAfterSales() {
             exchangeExpressCompany: '顺丰快递',
             exchangeTrackingNo: 'SF202601170001'
         },
-        
+
         // ========== 已完成售后（历史记录） ==========
         {
             name: '已完成-仅退款',
@@ -3928,7 +3938,7 @@ function generateScenarioAfterSales() {
             exchangeExpressCompany: '中通快递',
             exchangeTrackingNo: 'ZTO202601050001'
         },
-        
+
         // ========== 已拒绝售后（历史记录） ==========
         {
             name: '已拒绝-退货退款',
@@ -3940,11 +3950,11 @@ function generateScenarioAfterSales() {
             rejectReason: '超过15天售后申请时效'
         }
     ];
-    
+
     afterSaleScenarios.forEach((scenario, index) => {
         const orderIndex = index % completedOrders.length;
         const order = completedOrders[orderIndex];
-        
+
         createScenarioAfterSale(scenario, order, index);
     });
 }
@@ -3955,17 +3965,17 @@ function generateScenarioAfterSales() {
 function createScenarioAfterSale(scenario, order, index) {
     const now = new Date();
     const createTime = new Date(now.getTime() - scenario.daysAgo * 24 * 3600000);
-    
+
     // 选择订单中的第一个商品
     const item = order.items[0];
     if (!item) {
         console.warn(`订单没有商品: ${order.id}`);
         return;
     }
-    
+
     const refundQty = 1;
     const refundAmount = scenario.type === 'exchange' ? 0 : item.price * refundQty;
-    
+
     // 将原因代码转换为文本
     const reasonMap = {
         'quality_issue': '商品质量问题',
@@ -3977,12 +3987,12 @@ function createScenarioAfterSale(scenario, order, index) {
         'other': '其他原因'
     };
     const reasonText = reasonMap[scenario.reason] || scenario.reason;
-    
+
     // 判断运费责任方
     const supplierReasons = ['商品质量问题', '商品与描述不符', '收到商品破损', '发错货/漏发'];
     const reasonType = supplierReasons.includes(reasonText) ? 'supplier' : 'buyer';
     const freightResponsibility = reasonType;
-    
+
     const afterSale = {
         id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
         orderId: order.id,
@@ -4012,32 +4022,32 @@ function createScenarioAfterSale(scenario, order, index) {
         createTime: createTime.toISOString(),
         updateTime: new Date(createTime.getTime() + 3600000).toISOString()
     };
-    
+
     // 添加退货地址
     if (scenario.returnAddress) {
         afterSale.returnAddress = scenario.returnAddress;
     }
-    
+
     // 添加退货物流信息
     if (scenario.expressCompany) {
         afterSale.returnExpressCompany = scenario.expressCompany;
         afterSale.returnTrackingNo = scenario.trackingNo;
         afterSale.returnTime = new Date(createTime.getTime() + 24 * 3600000).toISOString();
     }
-    
+
     // 添加换货物流信息
     if (scenario.exchangeExpressCompany) {
         afterSale.exchangeExpressCompany = scenario.exchangeExpressCompany;
         afterSale.exchangeTrackingNo = scenario.exchangeTrackingNo;
         afterSale.exchangeShipTime = new Date(createTime.getTime() + 36 * 3600000).toISOString();
     }
-    
+
     // 添加拒绝原因
     if (scenario.rejectReason) {
         afterSale.rejectReason = scenario.rejectReason;
         afterSale.reviewTime = new Date(createTime.getTime() + 3600000).toISOString();
     }
-    
+
     // 如果是已完成状态，添加完成时间
     if (scenario.status === 'completed') {
         afterSale.completeTime = new Date(createTime.getTime() + 48 * 3600000).toISOString();
@@ -4047,7 +4057,7 @@ function createScenarioAfterSale(scenario, order, index) {
             afterSale.exchangeReceiveTime = afterSale.completeTime;
         }
     }
-    
+
     DB.afterSales.push(afterSale);
     console.log(`✅ 创建售后: ${scenario.name} (${afterSale.id})`);
 }
@@ -4063,14 +4073,14 @@ function saveAllUserData() {
             return order && order.userId === userId;
         });
         const userAfterSales = DB.afterSales.filter(as => as.userId === userId);
-        
+
         const userData = {
             cart: [],
             orders: userOrders,
             subOrders: userSubOrders,
             afterSales: userAfterSales
         };
-        
+
         localStorage.setItem('s2b2c_user_' + userId, JSON.stringify(userData));
     });
 }
@@ -4083,13 +4093,13 @@ function switchStore(storeId) {
     }
     currentStoreId = storeId;
     DB.currentStore = JSON.parse(JSON.stringify(TEST_STORES[storeId]));
-    
+
     // 找到该门店的第一个用户并切换
     const storeUsers = Object.values(TEST_USERS).filter(u => u.storeId === storeId);
     if (storeUsers.length > 0) {
         switchUser(storeUsers[0].id);
     }
-    
+
     saveData();
     return true;
 }
@@ -4126,24 +4136,24 @@ function switchUser(userId) {
         console.error('用户不存在:', userId);
         return false;
     }
-    
+
     // 保存当前用户的数据
     saveUserData(currentUserId);
-    
+
     currentUserId = userId;
     // 深拷贝用户数据
     DB.user = JSON.parse(JSON.stringify(TEST_USERS[userId]));
-    
+
     // 同步更新当前门店
     const userStoreId = TEST_USERS[userId].storeId;
     if (userStoreId && TEST_STORES[userStoreId]) {
         currentStoreId = userStoreId;
         DB.currentStore = JSON.parse(JSON.stringify(TEST_STORES[userStoreId]));
     }
-    
+
     // 加载新用户的数据
     loadUserData(userId);
-    
+
     return true;
 }
 
@@ -4163,7 +4173,7 @@ function getTestUsers() {
 function formatTime(isoString) {
     if (!isoString) return '-';
     const date = new Date(isoString);
-    return date.getFullYear() + '-' + 
+    return date.getFullYear() + '-' +
         (date.getMonth() + 1).toString().padStart(2, '0') + '-' +
         date.getDate().toString().padStart(2, '0') + ' ' +
         date.getHours().toString().padStart(2, '0') + ':' +
@@ -4225,12 +4235,12 @@ function getAfterSaleTypeText(type) {
 // 获取运费原因文本（根据运费快照）
 function getFreightReasonText(freightSnapshot) {
     if (!freightSnapshot) return '';
-    
+
     // 如果是包邮
     if (freightSnapshot.isFreeShipping) {
         return '已享包邮';
     }
-    
+
     // 检查是否为偏远地区
     const province = freightSnapshot.province;
     if (province) {
@@ -4240,7 +4250,7 @@ function getFreightReasonText(freightSnapshot) {
             return `${province.replace('维吾尔自治区', '').replace('回族自治区', '').replace('自治区', '').replace('省', '')}地区运费`;
         }
     }
-    
+
     return '';
 }
 
@@ -4294,23 +4304,23 @@ function checkProductDeliveryV2(product, province) {
     if (!product || !province) {
         return { canDeliver: true, message: '' };
     }
-    
+
     // 获取商品的不可发货地区模板
     const templateId = product.noDeliveryTemplateId;
     const template = templateId ? getNoDeliveryTemplate(templateId) : getDefaultNoDeliveryTemplate();
-    
+
     if (!template) {
         return { canDeliver: true, message: '' };
     }
-    
+
     // 检查是否在不可发货地区
     if (template.areas && template.areas.includes(province)) {
-        return { 
-            canDeliver: false, 
-            message: `「${product.name}」暂不支持配送到${province}` 
+        return {
+            canDeliver: false,
+            message: `「${product.name}」暂不支持配送到${province}`
         };
     }
-    
+
     return { canDeliver: true, message: '' };
 }
 
@@ -4324,26 +4334,26 @@ function calculateProductFreightV2(product, province) {
     if (!product) {
         return { freight: 0, isFreeShipping: true, reason: '包邮' };
     }
-    
+
     // 获取商品的运费模板
     const templateId = product.freightTemplateId;
     const template = templateId ? getFreightTemplateV2(templateId) : getDefaultFreightTemplate();
-    
+
     if (!template) {
         return { freight: 0, isFreeShipping: true, reason: '包邮' };
     }
-    
+
     // 计算基础运费
     let freight = template.baseFreight || 0;
     let reason = freight > 0 ? `基础运费¥${freight}` : '包邮';
-    
+
     // 检查是否为偏远地区
     const remoteArea = (template.remoteAreas || []).find(ra => ra.province === province);
     if (remoteArea) {
         freight = remoteArea.freight;
         reason = `${province}地区运费¥${freight}`;
     }
-    
+
     return {
         freight: freight,
         isFreeShipping: freight === 0,
@@ -4363,12 +4373,12 @@ function calculateOrderFreightV2(province, items) {
     const productFreights = [];
     const supplierFreights = [];
     const deliveryErrors = [];
-    
+
     // 按供应商分组
     const supplierGroups = {};
     items.forEach(item => {
         if (!item.product || item.product.type !== 'supply') return;
-        
+
         // 检查是否可配送
         const deliveryCheck = checkProductDeliveryV2(item.product, province);
         if (!deliveryCheck.canDeliver) {
@@ -4379,17 +4389,17 @@ function calculateOrderFreightV2(province, items) {
             });
             return;
         }
-        
+
         const supplierId = item.product.supplierId || 'unknown';
         if (!supplierGroups[supplierId]) {
             supplierGroups[supplierId] = [];
         }
         supplierGroups[supplierId].push(item);
-        
+
         // 计算该商品的运费（按数量累加）
         const freightResult = calculateProductFreightV2(item.product, province);
         const totalProductFreight = freightResult.freight * item.qty; // 按数量累加
-        
+
         productFreights.push({
             productId: item.product.id,
             productName: item.product.name,
@@ -4403,13 +4413,13 @@ function calculateOrderFreightV2(province, items) {
             templateName: freightResult.templateName
         });
     });
-    
+
     // 按供应商汇总运费（累加该供应商所有商品的运费）
     let totalFreight = 0;
     Object.keys(supplierGroups).forEach(supplierId => {
         const supplierItems = supplierGroups[supplierId];
         let supplierTotalFreight = 0;
-        
+
         // 累加该供应商所有商品的运费
         supplierItems.forEach(item => {
             const pf = productFreights.find(f => f.productId === item.product.id);
@@ -4417,7 +4427,7 @@ function calculateOrderFreightV2(province, items) {
                 supplierTotalFreight += pf.totalFreight;
             }
         });
-        
+
         const supplier = (DB.suppliers || []).find(s => s.id === supplierId);
         supplierFreights.push({
             supplierId: supplierId,
@@ -4426,10 +4436,10 @@ function calculateOrderFreightV2(province, items) {
             isFreeShipping: supplierTotalFreight === 0,
             itemCount: supplierItems.reduce((sum, item) => sum + item.qty, 0)
         });
-        
+
         totalFreight += supplierTotalFreight;
     });
-    
+
     return {
         totalFreight: totalFreight,
         productFreights: productFreights,
@@ -4476,22 +4486,22 @@ function getFreightTemplate(supplierId) {
  */
 function checkDeliveryAvailable(supplierId, province) {
     const template = getFreightTemplate(supplierId);
-    
+
     // 没有模板，默认可配送
     if (!template || !template.enabled) {
         return { canDeliver: true, message: '' };
     }
-    
+
     // 检查不发货地区
     const noDeliveryAreas = template.noDeliveryAreas || DEFAULT_NO_DELIVERY_AREAS;
     if (noDeliveryAreas.includes(province)) {
         const supplier = DB.suppliers.find(s => s.id === supplierId);
-        return { 
-            canDeliver: false, 
-            message: `${supplier ? supplier.name : '该供应商'}暂不支持配送到${province}` 
+        return {
+            canDeliver: false,
+            message: `${supplier ? supplier.name : '该供应商'}暂不支持配送到${province}`
         };
     }
-    
+
     return { canDeliver: true, message: '' };
 }
 
@@ -4504,7 +4514,7 @@ function checkDeliveryAvailable(supplierId, province) {
  */
 function calculateSupplierFreight(supplierId, province, orderAmount) {
     const template = getFreightTemplate(supplierId);
-    
+
     // 没有模板或未启用，默认包邮
     if (!template || !template.enabled) {
         return {
@@ -4513,18 +4523,18 @@ function calculateSupplierFreight(supplierId, province, orderAmount) {
             reason: '包邮'
         };
     }
-    
+
     // 计算基础运费或偏远地区运费
     let freight = template.baseFreight || 0;
     let reason = freight > 0 ? `基础运费¥${freight}` : '包邮';
-    
+
     // 检查是否为偏远地区
     const remoteArea = (template.remoteAreas || []).find(ra => ra.province === province);
     if (remoteArea) {
         freight = remoteArea.freight;
         reason = `${province}地区运费¥${freight}`;
     }
-    
+
     return {
         freight: freight,
         isFreeShipping: freight === 0,
@@ -4543,7 +4553,7 @@ function calculateOrderFreight(province, items) {
     const supplierGroups = {};
     items.forEach(item => {
         if (!item.product || item.product.type !== 'supply') return;
-        
+
         const supplierId = item.product.supplierId;
         if (!supplierGroups[supplierId]) {
             supplierGroups[supplierId] = {
@@ -4555,12 +4565,12 @@ function calculateOrderFreight(province, items) {
         supplierGroups[supplierId].items.push(item);
         supplierGroups[supplierId].totalAmount += item.product.price * item.qty;
     });
-    
+
     const supplierFreights = [];
     const deliveryErrors = [];
     let totalFreight = 0;
     let supplierIndex = 1;
-    
+
     Object.values(supplierGroups).forEach(group => {
         // 检查是否可配送
         const deliveryCheck = checkDeliveryAvailable(group.supplierId, province);
@@ -4571,11 +4581,11 @@ function calculateOrderFreight(province, items) {
             });
             return;
         }
-        
+
         // 计算运费
         const freightResult = calculateSupplierFreight(group.supplierId, province, group.totalAmount);
         const supplier = DB.suppliers.find(s => s.id === group.supplierId);
-        
+
         supplierFreights.push({
             supplierId: group.supplierId,
             supplierDisplayName: `供应商${supplierIndex}`,
@@ -4586,11 +4596,11 @@ function calculateOrderFreight(province, items) {
             freeShippingGap: freightResult.freeShippingGap,
             reason: freightResult.reason
         });
-        
+
         totalFreight += freightResult.freight;
         supplierIndex++;
     });
-    
+
     return {
         totalFreight: totalFreight,
         supplierFreights: supplierFreights,
@@ -4632,7 +4642,7 @@ function createFreightSnapshot(subOrderId, supplierId, province, orderAmount, fr
 function updateFreightTemplate(supplierId, updates, operatorId = 'admin') {
     let template = DB.freightTemplates[supplierId];
     const oldValue = template ? JSON.parse(JSON.stringify(template)) : null;
-    
+
     if (!template) {
         // 创建新模板
         template = {
@@ -4644,13 +4654,13 @@ function updateFreightTemplate(supplierId, updates, operatorId = 'admin') {
             version: 1
         };
     }
-    
+
     // 应用更新
     Object.assign(template, updates);
     template.version = (template.version || 0) + 1;
-    
+
     DB.freightTemplates[supplierId] = template;
-    
+
     // 记录变更日志
     DB.freightTemplateLogs.push({
         templateId: supplierId,
@@ -4661,9 +4671,9 @@ function updateFreightTemplate(supplierId, updates, operatorId = 'admin') {
         operatorId: operatorId,
         createTime: new Date().toISOString()
     });
-    
+
     saveData();
-    
+
     return { success: true, template: template };
 }
 
@@ -4699,27 +4709,27 @@ function calculateRefundAmount(subOrder, refundItems) {
     if (!subOrder || !refundItems || refundItems.length === 0) {
         return { itemsAmount: 0, discountAmount: 0, refundAmount: 0 };
     }
-    
+
     // 计算退款商品原价总额
     const itemsAmount = refundItems.reduce((sum, item) => {
         const orderItem = subOrder.items.find(oi => oi.productId === item.productId);
         if (!orderItem) return sum;
         return sum + orderItem.price * item.qty;
     }, 0);
-    
+
     // 计算子订单商品总额
     const subOrderTotal = subOrder.items.reduce((sum, item) => sum + item.price * item.qty, 0);
-    
+
     // 计算子订单总优惠金额（优惠券）
     const totalDiscount = (subOrder.couponDeduct || 0);
-    
+
     // 按比例计算优惠分摊
     const ratio = subOrderTotal > 0 ? itemsAmount / subOrderTotal : 0;
     const discountAmount = Math.round(totalDiscount * ratio * 100) / 100;
-    
+
     // 退款金额 = 商品金额 - 优惠分摊
     const refundAmount = Math.round((itemsAmount - discountAmount) * 100) / 100;
-    
+
     return {
         itemsAmount: Math.round(itemsAmount * 100) / 100,
         discountAmount: discountAmount,
@@ -4745,26 +4755,26 @@ function calculateRefundDetail(subOrder, refundAmount, itemsAmount) {
             total: 0
         };
     }
-    
+
     // 计算子订单商品总额
     const subOrderTotal = subOrder.items.reduce((sum, item) => sum + item.price * item.qty, 0);
-    
+
     // 计算退款商品占子订单的比例
     const ratio = subOrderTotal > 0 ? itemsAmount / subOrderTotal : 1;
-    
+
     // 获取子订单的各支付方式金额
     const pointsDeduct = subOrder.pointsDeduct || 0;
     const cardDeduct = subOrder.cardDeduct || 0;
     const cashPaid = subOrder.cashPaid || 0;
-    
+
     // 按比例计算各支付方式的退款金额
     let refundPointsAmount = Math.round(pointsDeduct * ratio * 100) / 100;
     let refundCardAmount = Math.round(cardDeduct * ratio * 100) / 100;
     let refundCashAmount = Math.round(cashPaid * ratio * 100) / 100;
-    
+
     // 计算总和（使用精确计算避免浮点误差）
     let total = Math.round((refundPointsAmount + refundCardAmount + refundCashAmount) * 100) / 100;
-    
+
     // 处理精度误差：调整最大的非零部分使总和等于refundAmount
     const diff = Math.round((refundAmount - total) * 100) / 100;
     if (Math.abs(diff) > 0) {
@@ -4779,7 +4789,7 @@ function calculateRefundDetail(subOrder, refundAmount, itemsAmount) {
         // 重新计算总和
         total = Math.round((refundPointsAmount + refundCardAmount + refundCashAmount) * 100) / 100;
     }
-    
+
     return {
         refundPointsAmount: Math.max(0, refundPointsAmount),
         refundCardAmount: Math.max(0, refundCardAmount),
@@ -4798,10 +4808,10 @@ function calculateRefundDetail(subOrder, refundAmount, itemsAmount) {
 function calculateFullRefundInfo(subOrder, refundItems) {
     // 计算退款金额
     const amountInfo = calculateRefundAmount(subOrder, refundItems);
-    
+
     // 计算退款明细
     const detailInfo = calculateRefundDetail(subOrder, amountInfo.refundAmount, amountInfo.itemsAmount);
-    
+
     return {
         // 金额信息
         itemsAmount: amountInfo.itemsAmount,
@@ -4829,7 +4839,7 @@ function canApplyAfterSale(subOrder, parentOrder) {
     if (!subOrder) {
         return { canApply: false, reason: '子订单不存在', buttonText: '' };
     }
-    
+
     // 检查订单状态：只有已发货或已签收的订单可以申请售后
     const validStatuses = ['shipped', 'delivered'];
     if (!validStatuses.includes(subOrder.status)) {
@@ -4838,33 +4848,33 @@ function canApplyAfterSale(subOrder, parentOrder) {
         }
         return { canApply: false, reason: '当前订单状态不支持售后', buttonText: '' };
     }
-    
+
     // 检查是否已签收超过15天
     if (subOrder.status === 'delivered' && subOrder.deliverTime) {
         const deliverDate = new Date(subOrder.deliverTime);
         const now = new Date();
         const daysDiff = Math.floor((now - deliverDate) / (1000 * 60 * 60 * 24));
-        
+
         if (daysDiff > AFTERSALE_CONFIG.applyDeadlineDays) {
-            return { 
-                canApply: false, 
-                reason: `已超过${AFTERSALE_CONFIG.applyDeadlineDays}天售后时效`, 
-                buttonText: '' 
+            return {
+                canApply: false,
+                reason: `已超过${AFTERSALE_CONFIG.applyDeadlineDays}天售后时效`,
+                buttonText: ''
             };
         }
     }
-    
+
     // 检查是否有进行中的售后申请
     const activeAfterSale = hasActiveAfterSale(subOrder.id);
     if (activeAfterSale.hasActive) {
-        return { 
-            canApply: false, 
-            reason: '该订单已有进行中的售后申请', 
+        return {
+            canApply: false,
+            reason: '该订单已有进行中的售后申请',
             buttonText: '查看售后',
             activeAfterSaleId: activeAfterSale.afterSaleId
         };
     }
-    
+
     return { canApply: true, reason: '', buttonText: '申请售后' };
 }
 
@@ -4878,7 +4888,7 @@ function hasActiveAfterSale(subOrderId) {
     if (!subOrderId) {
         return { hasActive: false, afterSaleId: null, afterSale: null };
     }
-    
+
     // 进行中的状态（非完成、非拒绝）
     const activeStatuses = [
         AFTERSALE_STATUS.PENDING,
@@ -4888,20 +4898,20 @@ function hasActiveAfterSale(subOrderId) {
         AFTERSALE_STATUS.RECEIVED,
         AFTERSALE_STATUS.RESHIPPING
     ];
-    
-    const activeAfterSale = DB.afterSales.find(as => 
-        as.subOrderId === subOrderId && 
+
+    const activeAfterSale = DB.afterSales.find(as =>
+        as.subOrderId === subOrderId &&
         activeStatuses.includes(as.status)
     );
-    
+
     if (activeAfterSale) {
-        return { 
-            hasActive: true, 
-            afterSaleId: activeAfterSale.id, 
-            afterSale: activeAfterSale 
+        return {
+            hasActive: true,
+            afterSaleId: activeAfterSale.id,
+            afterSale: activeAfterSale
         };
     }
-    
+
     return { hasActive: false, afterSaleId: null, afterSale: null };
 }
 
@@ -4914,25 +4924,25 @@ function hasActiveAfterSale(subOrderId) {
 function getAfterSaleEntryInfo(subOrderId) {
     const subOrder = DB.subOrders.find(so => so.id === subOrderId);
     if (!subOrder) {
-        return { 
-            show: false, 
-            enabled: false, 
-            buttonText: '', 
+        return {
+            show: false,
+            enabled: false,
+            buttonText: '',
             tooltip: '子订单不存在',
             hasActive: false,
             activeAfterSaleId: null
         };
     }
-    
+
     const parentOrder = DB.orders.find(o => o.id === subOrder.parentOrderId);
     const result = canApplyAfterSale(subOrder, parentOrder);
-    
+
     // 已发货或已签收状态显示按钮
     const showButton = ['shipped', 'delivered', 'pending_ship'].includes(subOrder.status);
-    
+
     // 检查是否有进行中的售后
     const activeAS = hasActiveAfterSale(subOrderId);
-    
+
     return {
         show: showButton,
         enabled: result.canApply,
@@ -4952,13 +4962,13 @@ function getAfterSaleEntryInfo(subOrderId) {
 function getRefundableItems(subOrderId) {
     const subOrder = DB.subOrders.find(so => so.id === subOrderId);
     if (!subOrder) return [];
-    
+
     // 获取该子订单已完成的售后申请中已退款的商品数量
-    const completedAfterSales = DB.afterSales.filter(as => 
-        as.subOrderId === subOrderId && 
+    const completedAfterSales = DB.afterSales.filter(as =>
+        as.subOrderId === subOrderId &&
         as.status === AFTERSALE_STATUS.COMPLETED
     );
-    
+
     // 计算每个商品已退款的数量
     const refundedQtyMap = {};
     completedAfterSales.forEach(as => {
@@ -4966,12 +4976,12 @@ function getRefundableItems(subOrderId) {
             refundedQtyMap[item.productId] = (refundedQtyMap[item.productId] || 0) + item.qty;
         });
     });
-    
+
     // 返回可退款商品列表
     return subOrder.items.map(item => {
         const refundedQty = refundedQtyMap[item.productId] || 0;
         const remainingQty = item.qty - refundedQty;
-        
+
         return {
             productId: item.productId,
             name: item.name,
@@ -5048,7 +5058,7 @@ const AFTERSALE_STATUS_TRANSITIONS = {
  */
 function getNextValidStatuses(currentStatus, afterSaleType = null) {
     const validStatuses = AFTERSALE_STATUS_TRANSITIONS[currentStatus] || [];
-    
+
     // 根据售后类型过滤状态
     if (afterSaleType && currentStatus === AFTERSALE_STATUS.APPROVED) {
         // 仅退款：审核通过后直接完成
@@ -5058,7 +5068,7 @@ function getNextValidStatuses(currentStatus, afterSaleType = null) {
         // 退货退款/换货：审核通过后进入待寄回
         return [AFTERSALE_STATUS.WAITING_RETURN];
     }
-    
+
     if (afterSaleType && currentStatus === AFTERSALE_STATUS.RECEIVED) {
         // 退货退款：收货后直接完成
         if (afterSaleType === AFTERSALE_TYPE.RETURN_REFUND) {
@@ -5069,7 +5079,7 @@ function getNextValidStatuses(currentStatus, afterSaleType = null) {
             return [AFTERSALE_STATUS.RESHIPPING];
         }
     }
-    
+
     return validStatuses;
 }
 
@@ -5096,28 +5106,28 @@ function isValidStatusTransition(currentStatus, nextStatus, afterSaleType = null
  */
 function transitionAfterSaleStatus(afterSaleId, nextStatus, extraData = {}) {
     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
-    
+
     if (!afterSale) {
         return { success: false, error: '售后单不存在', afterSale: null };
     }
-    
+
     const currentStatus = afterSale.status;
-    
+
     // 验证状态转换是否合法
     if (!isValidStatusTransition(currentStatus, nextStatus, afterSale.type)) {
-        return { 
-            success: false, 
-            error: `不能从 ${currentStatus} 转换到 ${nextStatus}`, 
-            afterSale: null 
+        return {
+            success: false,
+            error: `不能从 ${currentStatus} 转换到 ${nextStatus}`,
+            afterSale: null
         };
     }
-    
+
     const now = new Date().toISOString();
-    
+
     // 更新状态
     afterSale.status = nextStatus;
     afterSale.updateTime = now;
-    
+
     // 根据目标状态处理额外逻辑
     switch (nextStatus) {
         case AFTERSALE_STATUS.APPROVED:
@@ -5126,7 +5136,7 @@ function transitionAfterSaleStatus(afterSaleId, nextStatus, extraData = {}) {
             afterSale.reviewRemark = extraData.reviewRemark || '';
             // 如果是退货退款或换货，设置退货地址
             if (afterSale.type !== AFTERSALE_TYPE.REFUND_ONLY) {
-                const warehouse = extraData.warehouseId 
+                const warehouse = extraData.warehouseId
                     ? RETURN_WAREHOUSES.find(w => w.id === extraData.warehouseId)
                     : getDefaultReturnWarehouse();
                 if (warehouse) {
@@ -5138,31 +5148,31 @@ function transitionAfterSaleStatus(afterSaleId, nextStatus, extraData = {}) {
                 afterSale.status = AFTERSALE_STATUS.WAITING_RETURN;
             }
             break;
-            
+
         case AFTERSALE_STATUS.REJECTED:
             afterSale.reviewTime = now;
             afterSale.reviewBy = extraData.reviewBy || 'admin';
             afterSale.rejectReason = extraData.rejectReason || '审核未通过';
             afterSale.reviewRemark = extraData.reviewRemark || '';
             break;
-            
+
         case AFTERSALE_STATUS.RETURNING:
             afterSale.returnExpressCompany = extraData.expressCompany || '';
             afterSale.returnTrackingNo = extraData.trackingNo || '';
             afterSale.returnTime = now;
             break;
-            
+
         case AFTERSALE_STATUS.RECEIVED:
             afterSale.receiveTime = now;
             afterSale.receiveRemark = extraData.receiveRemark || '';
             break;
-            
+
         case AFTERSALE_STATUS.RESHIPPING:
             afterSale.exchangeExpressCompany = extraData.expressCompany || '';
             afterSale.exchangeTrackingNo = extraData.trackingNo || '';
             afterSale.exchangeShipTime = now;
             break;
-            
+
         case AFTERSALE_STATUS.COMPLETED:
             afterSale.completeTime = now;
             // 执行退款（仅退款和退货退款类型）
@@ -5171,9 +5181,9 @@ function transitionAfterSaleStatus(afterSaleId, nextStatus, extraData = {}) {
             }
             break;
     }
-    
+
     saveData();
-    
+
     return { success: true, error: null, afterSale: afterSale };
 }
 
@@ -5184,21 +5194,21 @@ function transitionAfterSaleStatus(afterSaleId, nextStatus, extraData = {}) {
  */
 function executeRefund(afterSale) {
     if (!afterSale) return;
-    
+
     // 退回积分
     if (afterSale.refundPointsAmount > 0) {
         const refundPoints = Math.round(afterSale.refundPointsAmount * 100);
         DB.user.points += refundPoints;
     }
-    
+
     // 退回卡金
     if (afterSale.refundCardAmount > 0) {
         DB.user.cardBalance += afterSale.refundCardAmount;
     }
-    
+
     // 现金退回（模拟，实际需要调用支付接口）
     // afterSale.refundCashAmount 原路退回
-    
+
     console.log(`退款执行完成: 积分 ${afterSale.refundPointsAmount}元, 卡金 ${afterSale.refundCardAmount}元, 现金 ${afterSale.refundCashAmount}元`);
 }
 
@@ -5210,25 +5220,25 @@ function executeRefund(afterSale) {
  */
 function checkAfterSaleTimeout(afterSaleId) {
     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
-    
+
     if (!afterSale) {
         return { isTimeout: false, daysPassed: 0 };
     }
-    
+
     // 只检查待寄回状态
     if (afterSale.status !== AFTERSALE_STATUS.WAITING_RETURN) {
         return { isTimeout: false, daysPassed: 0 };
     }
-    
+
     // 计算审核通过后的天数
     const reviewTime = afterSale.reviewTime ? new Date(afterSale.reviewTime) : null;
     if (!reviewTime) {
         return { isTimeout: false, daysPassed: 0 };
     }
-    
+
     const now = new Date();
     const daysPassed = Math.floor((now - reviewTime) / (1000 * 60 * 60 * 24));
-    
+
     return {
         isTimeout: daysPassed > AFTERSALE_CONFIG.returnDeadlineDays,
         daysPassed: daysPassed
@@ -5243,26 +5253,26 @@ function checkAfterSaleTimeout(afterSaleId) {
  */
 function checkExchangeAutoConfirm(afterSaleId) {
     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
-    
+
     if (!afterSale) {
         return { shouldAutoConfirm: false, daysPassed: 0 };
     }
-    
+
     // 只检查换货且重新发货中状态
-    if (afterSale.type !== AFTERSALE_TYPE.EXCHANGE || 
+    if (afterSale.type !== AFTERSALE_TYPE.EXCHANGE ||
         afterSale.status !== AFTERSALE_STATUS.RESHIPPING) {
         return { shouldAutoConfirm: false, daysPassed: 0 };
     }
-    
+
     // 计算发货后的天数
     const shipTime = afterSale.exchangeShipTime ? new Date(afterSale.exchangeShipTime) : null;
     if (!shipTime) {
         return { shouldAutoConfirm: false, daysPassed: 0 };
     }
-    
+
     const now = new Date();
     const daysPassed = Math.floor((now - shipTime) / (1000 * 60 * 60 * 24));
-    
+
     return {
         shouldAutoConfirm: daysPassed >= AFTERSALE_CONFIG.autoConfirmDays,
         daysPassed: daysPassed
@@ -5277,7 +5287,7 @@ function checkExchangeAutoConfirm(afterSaleId) {
 function processAfterSaleTimeouts() {
     let closedCount = 0;
     let autoConfirmedCount = 0;
-    
+
     DB.afterSales.forEach(afterSale => {
         // 检查退货超时
         const timeoutResult = checkAfterSaleTimeout(afterSale.id);
@@ -5287,7 +5297,7 @@ function processAfterSaleTimeouts() {
             afterSale.updateTime = new Date().toISOString();
             closedCount++;
         }
-        
+
         // 检查换货自动确认
         const autoConfirmResult = checkExchangeAutoConfirm(afterSale.id);
         if (autoConfirmResult.shouldAutoConfirm) {
@@ -5298,11 +5308,11 @@ function processAfterSaleTimeouts() {
             autoConfirmedCount++;
         }
     });
-    
+
     if (closedCount > 0 || autoConfirmedCount > 0) {
         saveData();
     }
-    
+
     return { closedCount, autoConfirmedCount };
 }
 
@@ -5331,51 +5341,51 @@ console.log('data.js loaded, calculateOrderFreight:', typeof calculateOrderFreig
  */
 function calculateProfitSharing(goodsAmount, freight, config = {}) {
     // 参数校验和默认值
-    const amount = typeof goodsAmount === 'number' && !isNaN(goodsAmount) && goodsAmount >= 0 
+    const amount = typeof goodsAmount === 'number' && !isNaN(goodsAmount) && goodsAmount >= 0
         ? goodsAmount : 0;
-    const freightAmount = typeof freight === 'number' && !isNaN(freight) && freight >= 0 
+    const freightAmount = typeof freight === 'number' && !isNaN(freight) && freight >= 0
         ? freight : 0;
-    
+
     // 使用平台配置或默认值
     const platformConfig = DB.platformConfig || {};
     const supplierCostRate = config.supplierCostRate || 0.80;
     const opsServiceFeeRate = config.opsServiceFeeRate || platformConfig.opsServiceFeeRate || 0.05;
     const merchantMarginRate = config.merchantMarginRate || 0.15;
     const channelFeeRate = config.channelFeeRate || platformConfig.channelFeeRate || 0.0038;
-    
+
     // 计算基数 = 商品金额（不含运费）
     // 重要：运费不参与分成计算
     const profitBase = amount;
-    
+
     // 计算各项分成（基于商品金额，不含运费）
     const supplierCost = Math.round(profitBase * supplierCostRate * 100) / 100;
     const opsServiceFee = Math.round(profitBase * opsServiceFeeRate * 100) / 100;
     const merchantMargin = Math.round(profitBase * merchantMarginRate * 100) / 100;
     const channelFee = Math.round(profitBase * channelFeeRate * 100) / 100;
-    
+
     // 运费100%归供应商，不参与分成
     const supplierFreight = freightAmount;
-    
+
     // 供应商总收入 = 供应商成本分成 + 运费（100%）
     const supplierTotalIncome = Math.round((supplierCost + supplierFreight) * 100) / 100;
-    
+
     return {
         // 分成计算基数（商品金额，不含运费）
         profitBase: profitBase,
-        
+
         // 各项分成（基于商品金额）
         supplierCost: supplierCost,           // 供应商成本分成
         opsServiceFee: opsServiceFee,         // 代运营服务费
         merchantMargin: merchantMargin,       // 商家毛利
         channelFee: channelFee,               // 渠道费
-        
+
         // 运费结算（独立于分成）
         freight: freightAmount,               // 运费金额
         supplierFreight: supplierFreight,     // 供应商应收运费（100%）
-        
+
         // 供应商总收入
         supplierTotalIncome: supplierTotalIncome,
-        
+
         // 验证信息
         freightIncludedInProfitBase: false,   // 运费是否计入分成基数（应为false）
         freightSupplierRate: 1.0              // 运费归供应商比例（应为100%）
@@ -5394,7 +5404,7 @@ function calculateProfitSharing(goodsAmount, freight, config = {}) {
  */
 function calculateSubOrderSettlement(subOrderId, config = {}) {
     const subOrder = DB.subOrders.find(so => so.id === subOrderId);
-    
+
     if (!subOrder) {
         return {
             success: false,
@@ -5402,42 +5412,42 @@ function calculateSubOrderSettlement(subOrderId, config = {}) {
             settlement: null
         };
     }
-    
+
     // 获取商品金额（不含运费）
-    const goodsAmount = subOrder.amount || 
+    const goodsAmount = subOrder.amount ||
         (subOrder.items || []).reduce((sum, item) => sum + (item.price || 0) * (item.qty || 0), 0);
-    
+
     // 获取运费
     const freight = subOrder.freight || 0;
-    
+
     // 计算利润分成
     const profitSharing = calculateProfitSharing(goodsAmount, freight, config);
-    
+
     return {
         success: true,
         subOrderId: subOrder.id,
         supplierId: subOrder.supplierId,
         supplierName: subOrder.supplierName,
-        
+
         // 金额信息
         goodsAmount: goodsAmount,
         freight: freight,
-        
+
         // 结算明细
         settlement: {
             // 供应商应收（成本分成 + 运费）
             supplierSettlement: profitSharing.supplierTotalIncome,
             supplierCostShare: profitSharing.supplierCost,
             supplierFreightShare: profitSharing.supplierFreight,
-            
+
             // 平台收入
             opsServiceFee: profitSharing.opsServiceFee,
             channelFee: profitSharing.channelFee,
-            
+
             // 商家收入
             merchantMargin: profitSharing.merchantMargin
         },
-        
+
         // 验证信息
         verification: {
             profitBase: profitSharing.profitBase,
@@ -5456,7 +5466,7 @@ function calculateSubOrderSettlement(subOrderId, config = {}) {
  */
 function calculateOrderSettlement(orderId, config = {}) {
     const order = DB.orders.find(o => o.id === orderId);
-    
+
     if (!order) {
         return {
             success: false,
@@ -5464,9 +5474,9 @@ function calculateOrderSettlement(orderId, config = {}) {
             settlement: null
         };
     }
-    
+
     const subOrders = DB.subOrders.filter(so => so.parentOrderId === orderId);
-    
+
     if (subOrders.length === 0) {
         return {
             success: false,
@@ -5474,14 +5484,14 @@ function calculateOrderSettlement(orderId, config = {}) {
             settlement: null
         };
     }
-    
+
     // 计算每个子订单的结算
     const subOrderSettlements = subOrders.map(so => {
-        const goodsAmount = so.amount || 
+        const goodsAmount = so.amount ||
             (so.items || []).reduce((sum, item) => sum + (item.price || 0) * (item.qty || 0), 0);
         const freight = so.freight || 0;
         const profitSharing = calculateProfitSharing(goodsAmount, freight, config);
-        
+
         return {
             subOrderId: so.id,
             supplierId: so.supplierId,
@@ -5496,7 +5506,7 @@ function calculateOrderSettlement(orderId, config = {}) {
             merchantMargin: profitSharing.merchantMargin
         };
     });
-    
+
     // 汇总
     const summary = {
         totalGoodsAmount: subOrderSettlements.reduce((sum, s) => sum + s.goodsAmount, 0),
@@ -5508,7 +5518,7 @@ function calculateOrderSettlement(orderId, config = {}) {
         totalChannelFee: subOrderSettlements.reduce((sum, s) => sum + s.channelFee, 0),
         totalMerchantMargin: subOrderSettlements.reduce((sum, s) => sum + s.merchantMargin, 0)
     };
-    
+
     return {
         success: true,
         orderId: orderId,
@@ -5525,18 +5535,18 @@ function calculateOrderSettlement(orderId, config = {}) {
  */
 function getSupplierPendingFreight(supplierId) {
     // 获取该供应商所有已完成的子订单
-    const completedSubOrders = DB.subOrders.filter(so => 
-        so.supplierId === supplierId && 
+    const completedSubOrders = DB.subOrders.filter(so =>
+        so.supplierId === supplierId &&
         so.status === 'delivered'
     );
-    
+
     // 计算总运费
     const totalFreight = completedSubOrders.reduce((sum, so) => sum + (so.freight || 0), 0);
-    
+
     // 计算已退款运费（从售后单中获取）
     const refundedFreight = DB.afterSales
-        .filter(as => 
-            as.status === 'completed' && 
+        .filter(as =>
+            as.status === 'completed' &&
             completedSubOrders.some(so => so.id === as.subOrderId)
         )
         .reduce((sum, as) => {
@@ -5549,7 +5559,7 @@ function getSupplierPendingFreight(supplierId) {
             }
             return sum;
         }, 0);
-    
+
     return {
         supplierId: supplierId,
         orderCount: completedSubOrders.length,
@@ -5569,7 +5579,7 @@ console.log('data.js loaded, calculateProfitSharing:', typeof calculateProfitSha
  */
 function generateCompleteTestData() {
     console.log('🚀 开始基于测试用例生成演示数据...');
-    
+
     try {
         // 清空现有数据
         DB.orders = [];
@@ -5578,17 +5588,17 @@ function generateCompleteTestData() {
         DB.orderIdCounter = 1000;
         DB.subOrderIdCounter = 1;
         DB.afterSaleIdCounter = 1;
-        
+
         const results = [];
         const allUsers = Object.values(TEST_USERS);
-        
+
         // 为每个用户生成多样化的测试数据
         allUsers.forEach((user, userIndex) => {
             console.log(`📝 为用户 ${user.name} 生成测试数据...`);
-            
+
             // 根据用户特点生成不同的订单场景
             const userScenarios = getUserScenarios(user, userIndex);
-            
+
             userScenarios.forEach((scenario, scenarioIndex) => {
                 const order = createDemoOrder(user, scenario, scenarioIndex);
                 if (order) {
@@ -5597,23 +5607,23 @@ function generateCompleteTestData() {
                 }
             });
         });
-        
+
         // 生成售后数据
         generateAfterSalesData(results);
-        
+
         // 为每个用户保存独立数据
         saveUserSpecificData(allUsers);
-        
+
         console.log('🎉 演示数据生成完成！');
         console.log(`📊 统计: ${results.length}个订单, ${DB.afterSales.length}个售后`);
-        
+
         return {
             success: true,
             orderCount: results.length,
             afterSaleCount: DB.afterSales.length,
             orders: results
         };
-        
+
     } catch (error) {
         console.error('❌ 生成演示数据失败:', error);
         return { success: false, error: error.message };
@@ -5633,25 +5643,25 @@ function getUserScenarios(user, userIndex) {
             products: [{ id: 'P001', qty: 1 }],
             daysAgo: 0
         },
-        
+
         // 2. 待发货订单 (15%)
         {
-            status: 'pending_ship', 
+            status: 'pending_ship',
             description: '待发货-已支付',
             paymentType: user.memberCards.length > 0 ? 'card' : 'cash',
             products: [{ id: 'P002', qty: 1 }],
             daysAgo: 1
         },
-        
+
         // 3. 已发货订单 (20%)
         {
             status: 'shipped',
-            description: '已发货-运输中', 
+            description: '已发货-运输中',
             paymentType: 'mixed',
             products: [{ id: 'P003', qty: 1 }, { id: 'P004', qty: 1 }],
             daysAgo: 3
         },
-        
+
         // 4. 已完成订单 - 高价值 (25%)
         {
             status: 'completed',
@@ -5660,17 +5670,17 @@ function getUserScenarios(user, userIndex) {
             products: [{ id: 'P001', qty: 2 }, { id: 'P002', qty: 1 }],
             daysAgo: 7
         },
-        
+
         // 5. 已完成订单 - 积分支付 (25%)
         {
-            status: 'completed', 
+            status: 'completed',
             description: '已完成-积分支付',
             paymentType: 'points_cash',
             products: [{ id: 'P005', qty: 1 }],
             daysAgo: 15
         }
     ];
-    
+
     // 根据用户特点调整场景
     if (user.addresses.length > 1) {
         // 有偏远地址的用户，添加偏远地区订单
@@ -5683,18 +5693,18 @@ function getUserScenarios(user, userIndex) {
             daysAgo: 2
         });
     }
-    
+
     if (userIndex % 3 === 0) {
         // 部分用户有取消订单
         baseScenarios.push({
             status: 'cancelled',
             description: '已取消-用户取消',
-            paymentType: 'cash', 
+            paymentType: 'cash',
             products: [{ id: 'P003', qty: 1 }],
             daysAgo: 5
         });
     }
-    
+
     return baseScenarios;
 }
 
@@ -5706,12 +5716,12 @@ function createDemoOrder(user, scenario, scenarioIndex) {
         const orderId = generateOrderId();
         const now = new Date();
         now.setDate(now.getDate() - scenario.daysAgo);
-        
+
         // 选择地址
-        const address = scenario.useRemoteAddress && user.addresses.length > 1 
-            ? user.addresses[1] 
+        const address = scenario.useRemoteAddress && user.addresses.length > 1
+            ? user.addresses[1]
             : user.addresses[0];
-            
+
         // 计算商品金额
         const items = scenario.products.map(p => {
             const product = DB.products.find(prod => prod.id === p.id);
@@ -5724,21 +5734,21 @@ function createDemoOrder(user, scenario, scenarioIndex) {
                 img: product.img
             };
         });
-        
+
         const goodsAmount = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-        
+
         // 计算运费
         let freight = 0;
         if (scenario.useRemoteAddress) {
             const remoteConfig = PLATFORM_REMOTE_AREAS.find(r => r.province === address.province);
             freight = remoteConfig ? remoteConfig.defaultFreight : 0;
         }
-        
+
         const totalAmount = goodsAmount + freight;
-        
+
         // 设置支付方式
         const payment = calculatePayment(user, scenario.paymentType, totalAmount);
-        
+
         // 创建订单对象
         const order = {
             id: orderId,
@@ -5757,15 +5767,15 @@ function createDemoOrder(user, scenario, scenarioIndex) {
             subOrderIds: [],
             description: scenario.description
         };
-        
+
         // 根据状态设置时间戳
         setOrderTimestamps(order, scenario, now);
-        
+
         // 添加到数据库
         DB.orders.push(order);
-        
+
         return order;
-        
+
     } catch (error) {
         console.error(`创建订单失败 (${user.name}):`, error);
         return null;
@@ -5778,7 +5788,7 @@ function createDemoOrder(user, scenario, scenarioIndex) {
 function calculatePayment(user, paymentType, totalAmount) {
     let payment = { cash: totalAmount };
     let cashPaid = totalAmount;
-    
+
     switch (paymentType) {
         case 'card':
             if (user.memberCards.length > 0) {
@@ -5791,7 +5801,7 @@ function calculatePayment(user, paymentType, totalAmount) {
                 cashPaid = payment.cash || 0;
             }
             break;
-            
+
         case 'mixed':
             if (user.memberCards.length > 0) {
                 const card = user.memberCards[0];
@@ -5804,7 +5814,7 @@ function calculatePayment(user, paymentType, totalAmount) {
                 cashPaid = payment.cash;
             }
             break;
-            
+
         case 'points_cash':
             const maxPoints = Math.min(user.points, Math.floor(totalAmount * 0.3 * 100));
             const pointsValue = Math.floor(maxPoints / 100);
@@ -5814,7 +5824,7 @@ function calculatePayment(user, paymentType, totalAmount) {
             };
             cashPaid = payment.cash;
             break;
-            
+
         case 'coupon_cash':
             if (user.coupons && user.coupons.length > 0) {
                 const availableCoupon = user.coupons.find(c => !c.used && totalAmount >= c.minAmount);
@@ -5829,7 +5839,7 @@ function calculatePayment(user, paymentType, totalAmount) {
             }
             break;
     }
-    
+
     return { details: payment, cashPaid: cashPaid };
 }
 
@@ -5840,7 +5850,7 @@ function setOrderTimestamps(order, scenario, baseTime) {
     if (scenario.status !== 'pending_pay') {
         order.payTime = new Date(baseTime.getTime() + 5 * 60000).toISOString();
     }
-    
+
     if (scenario.status === 'shipped' || scenario.status === 'completed') {
         order.shipTime = new Date(baseTime.getTime() + 24 * 3600000).toISOString();
         order.logistics = {
@@ -5849,12 +5859,12 @@ function setOrderTimestamps(order, scenario, baseTime) {
             status: scenario.status === 'completed' ? 'delivered' : 'in_transit'
         };
     }
-    
+
     if (scenario.status === 'completed') {
         order.receiveTime = new Date(baseTime.getTime() + 72 * 3600000).toISOString();
         order.completeTime = order.receiveTime;
     }
-    
+
     if (scenario.status === 'cancelled') {
         order.cancelTime = new Date(baseTime.getTime() + 10 * 60000).toISOString();
         order.cancelReason = '用户取消';
@@ -5885,32 +5895,23 @@ function generateAfterSalesData(orders) {
     // 清空现有售后数据
     DB.afterSales = [];
 
-    // 模拟门店列表
-    const mockStores = [
-        { id: 'STORE001', name: '北京朝阳店' },
-        { id: 'STORE002', name: '上海浦东店' },
-        { id: 'STORE003', name: '广州天河店' },
-        { id: 'STORE004', name: '深圳福田店' },
-        { id: 'STORE005', name: '杭州西湖店' }
-    ];
+    const realOrders = (orders && orders.length > 0) ? orders : DB.orders;
+    if (!realOrders || realOrders.length === 0) {
+        console.warn('⚠️ 没有订单数据，无法生成售后数据');
+        return;
+    }
 
-    // 模拟用户列表
-    const mockUsers = [
-        { id: 'U001', name: '张三' },
-        { id: 'U002', name: '李四' },
-        { id: 'U003', name: '王五' },
-        { id: 'U004', name: '赵六' },
-        { id: 'U005', name: '钱七' }
-    ];
+    // 过滤出可用的供应链订单（已支付及后续状态）
+    const availableOrders = realOrders.filter(o =>
+        o.type === 'supply' &&
+        ['paid', 'shipped', 'delivered', 'completed', 'partial_shipped'].includes(o.status) &&
+        o.subOrderIds && o.subOrderIds.length > 0
+    );
 
-    // 模拟商品列表
-    const mockProducts = [
-        { id: 'P001', name: '玻尿酸精华液', spec: '30ml', price: 299 },
-        { id: 'P002', name: '胶原蛋白面膜', spec: '5片装', price: 159 },
-        { id: 'P003', name: '烟酰胺身体乳', spec: '200ml', price: 89 },
-        { id: 'P004', name: '氨基酸洁面乳', spec: '100g', price: 69 },
-        { id: 'P005', name: '烟酰胺精华液', spec: '30ml', price: 199 }
-    ];
+    if (availableOrders.length === 0) {
+        console.warn('⚠️ 没有符合条件的订单（已支付/已完成的供应链订单），无法生成售后数据');
+        return;
+    }
 
     // 售后原因配置
     const reasonConfigs = [
@@ -5922,81 +5923,51 @@ function generateAfterSalesData(orders) {
         { code: 'other', label: '其他原因', freightResponsible: 'buyer' }
     ];
 
-    // 快递公司
-    const expressCompanies = ['顺丰速运', '中通快递', '圆通速递', '韵达快递', '京东快递'];
-    const expressPrefixes = ['SF', 'ZTO', 'YTO', 'YD', 'JD'];
-
-    // 创建模拟订单信息
-    function createMockOrderInfo(index) {
-        const store = mockStores[index % mockStores.length];
-        const user = mockUsers[index % mockUsers.length];
-        const orderDate = new Date(Date.now() - (index + 1) * 24 * 3600000);
-        const orderId = 'SO' + orderDate.getFullYear().toString() +
-            (orderDate.getMonth() + 1).toString().padStart(2, '0') +
-            orderDate.getDate().toString().padStart(2, '0') +
-            (1000 + index).toString().padStart(4, '0');
-
-        return {
-            id: orderId,
-            userId: user.id,
-            storeId: store.id,
-            storeName: store.name,
-            userName: user.name,
-            createTime: orderDate.toISOString()
-        };
-    }
-
-    // 创建模拟售后商品
-    function createMockAfterSaleItem(productIndex) {
-        const product = mockProducts[productIndex % mockProducts.length];
-        return {
-            productId: product.id,
-            name: product.name,
-            spec: product.spec,
-            price: product.price,
-            qty: 1,
-            img: '📦'
-        };
-    }
-
     let asIndex = 0;
 
-    // ==================== 1. 待审核状态（pending）====================
-    console.log('📋 生成待审核状态数据...');
-    for (let i = 0; i < 5; i++) {
-        const orderInfo = createMockOrderInfo(asIndex);
-        const product = mockProducts[i % mockProducts.length];
-        const reason = reasonConfigs[i % reasonConfigs.length];
-        const itemsAmount = product.price;
-        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
-        const freightRefund = i === 0 ? 10 : 0; // 第一个是待发货状态，有运费退款
-        const refundAmount = itemsAmount + freightRefund - discountAmount;
+    // 助手函数：从实订单创建售后
+    function createAfterSaleFromOrder(order, subOrderId, status, i) {
+        const subOrder = DB.subOrders.find(so => so.id === subOrderId) || (order.subOrders ? order.subOrders.find(so => so.id === subOrderId) : null);
+        if (!subOrder) return null;
 
-        const afterSale = {
+        const reason = reasonConfigs[i % reasonConfigs.length];
+        const itemsAmount = subOrder.amount || 0;
+        // 假设运费退回：如果是待发货状态且由供应商责任，则退运费
+        const freightRefund = (subOrder.status === 'pending_ship' && reason.freightResponsible === 'supplier') ? (subOrder.freight || 0) : 0;
+        const refundAmount = itemsAmount + freightRefund;
+
+        // 按原支付比例分摊退款
+        const refundCash = subOrder.cashPaid || 0;
+        const refundPoints = subOrder.pointsDeduct || 0;
+        const refundCard = subOrder.cardDeduct || 0;
+
+        const createTime = new Date(new Date(order.createTime).getTime() + 2 * 3600000); // 下单2小时后申请
+
+        return {
             id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
-            orderId: orderInfo.id,
-            subOrderId: orderInfo.id + '-1',
-            userId: orderInfo.userId,
-            storeId: orderInfo.storeId,
-            storeName: orderInfo.storeName,
-            userName: orderInfo.userName,
-            type: i % 2 === 0 ? 'refund_only' : 'return_refund',
-            status: 'pending',
+            orderId: order.id,
+            subOrderId: subOrderId,
+            userId: order.userId,
+            storeId: order.storeId,
+            storeName: order.storeName || '未知门店',
+            userName: order.userName || '未知用户',
+            type: status === 'pending' && i % 2 === 0 ? 'refund_only' : 'return_refund',
+            status: status,
             reason: reason.label,
             reasonCode: reason.code,
-            description: `【测试数据】待审核-售后申请${i + 1}`,
-            items: [createMockAfterSaleItem(i)],
+            description: `【系统生成】${status}状态测试售后单`,
+            items: subOrder.items.map(item => ({ ...item })),
             itemsAmount: itemsAmount,
-            discountAmount: discountAmount,
+            discountAmount: 0,
             freightRefund: freightRefund,
             refundAmount: refundAmount,
-            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
-            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
-            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
+            refundCashAmount: refundCash,
+            refundPointsAmount: refundPoints,
+            refundCardAmount: refundCard,
             freightResponsibility: reason.freightResponsible,
-            images: ['https://picsum.photos/800/600?random=' + asIndex],
-            createTime: new Date(Date.now() - (i + 1) * 24 * 3600000).toISOString(),
-            updateTime: new Date(Date.now() - (i + 1) * 24 * 3600000 + 3600000).toISOString(),
+            images: ['https://picsum.photos/800/600?random=' + (asIndex + 100)],
+            createTime: createTime.toISOString(),
+            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
             auditTime: null,
             returnExpressCompany: null,
             returnTrackingNo: null,
@@ -6006,290 +5977,200 @@ function generateAfterSalesData(orders) {
             qcPassed: false,
             refundTime: null,
             completeTime: null,
-            rejectReason: null
+            rejectReason: null,
+            internalNotes: [
+                {
+                    time: new Date(createTime.getTime() + 1800000).toISOString(),
+                    operator: '系统',
+                    content: '买家发起了售后申请，系统已自动分配给客服组。'
+                }
+            ],
+            warehouseQC: null // 用于存储验货结果
         };
-
-        DB.afterSales.push(afterSale);
-        asIndex++;
     }
 
-    // ==================== 2. 待寄回状态（waiting_return）====================
-    console.log('📤 生成待寄回状态数据...');
-    for (let i = 0; i < 3; i++) {
-        const orderInfo = createMockOrderInfo(asIndex);
-        const product = mockProducts[i % mockProducts.length];
-        const reason = reasonConfigs[i % reasonConfigs.length];
-        const itemsAmount = product.price;
-        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
-        const refundAmount = itemsAmount - discountAmount;
-        const createTime = new Date(Date.now() - (5 + i) * 24 * 3600000);
+    // ==================== 1. 分配状态并生成 ====================
+    const statusCounts = {
+        'pending': 4,
+        'waiting_return': 3,
+        'returning': 3,
+        'received': 3,
+        'completed': 3,
+        'rejected': 2,
+        'cancelled': 2
+    };
 
-        const afterSale = {
-            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
-            orderId: orderInfo.id,
-            subOrderId: orderInfo.id + '-1',
-            userId: orderInfo.userId,
-            storeId: orderInfo.storeId,
-            storeName: orderInfo.storeName,
-            userName: orderInfo.userName,
-            type: 'return_refund',
-            status: 'waiting_return',
-            reason: reason.label,
-            reasonCode: reason.code,
-            description: `【测试数据】待寄回-退货退款${i + 1}`,
-            items: [createMockAfterSaleItem(i)],
-            itemsAmount: itemsAmount,
-            discountAmount: discountAmount,
-            freightRefund: 0,
-            refundAmount: refundAmount,
-            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
-            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
-            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
-            freightResponsibility: reason.freightResponsible,
-            images: ['https://picsum.photos/800/600?random=' + asIndex],
-            createTime: createTime.toISOString(),
-            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
-            auditTime: new Date(createTime.getTime() + 2 * 3600000).toISOString(),
-            auditRemark: '审核通过，请寄回商品',
-            returnExpressCompany: null,
-            returnTrackingNo: null,
-            returnTime: null,
-            returnAddress: '北京市朝阳区建国路88号退货仓库',
-            receiveTime: null,
-            qcPassed: false,
-            refundTime: null,
-            completeTime: null,
-            rejectReason: null
-        };
+    let orderIdx = 0;
+    Object.entries(statusCounts).forEach(([status, count]) => {
+        for (let i = 0; i < count; i++) {
+            const order = availableOrders[orderIdx % availableOrders.length];
+            if (!order) break;
+            orderIdx++;
 
-        DB.afterSales.push(afterSale);
-        asIndex++;
+            const subOrderId = order.subOrderIds[0];
+            const as = createAfterSaleFromOrder(order, subOrderId, status, i);
+
+            if (as) {
+                if (status !== 'pending' && status !== 'cancelled') {
+                    as.auditTime = new Date(new Date(as.createTime).getTime() + 4 * 3600000).toISOString();
+
+                    if (status === 'rejected') {
+                        as.auditRemark = '审核拒绝';
+                        as.rejectReason = '商品影响二次销售，不符合退换规范。';
+                        as.internalNotes.push({
+                            time: as.auditTime,
+                            operator: '客服-小美',
+                            content: '经核实图片，商品已拆塑封，无法同意退货退款请求。'
+                        });
+                    } else {
+                        as.auditRemark = '系统自动审核通过';
+                        as.returnAddress = '上海市青浦区XX路XX号XX物流园3号库|退货组-李四|188****5678';
+                        as.internalNotes.push({
+                            time: as.auditTime,
+                            operator: '客服-小美',
+                            content: '已电话沟通，同意退回。已发送退货地址。'
+                        });
+                    }
+                }
+
+                if (['returning', 'received', 'completed'].includes(status)) {
+                    as.returnExpressCompany = '顺丰速运';
+                    as.returnTrackingNo = 'SF' + Math.random().toString().substring(2, 12);
+                    as.returnTime = new Date(new Date(as.auditTime).getTime() + 24 * 3600000).toISOString();
+                    as.internalNotes.push({
+                        time: as.returnTime,
+                        operator: '系统',
+                        content: `买家已登记退货物流：${as.returnExpressCompany} (${as.returnTrackingNo})`
+                    });
+                }
+
+                if (['received', 'completed'].includes(status)) {
+                    as.receiveTime = new Date(new Date(as.returnTime).getTime() + 48 * 3600000).toISOString();
+
+                    // 模拟验货逻辑 (1/3 概率生成异常记录)
+                    const isAbnormal = i % 3 === 0;
+                    as.qcPassed = !isAbnormal;
+
+                    as.warehouseQC = {
+                        operator: '仓库收货组-王五',
+                        time: new Date(new Date(as.receiveTime).getTime() + 1800000).toISOString(),
+                        details: as.items.map(item => {
+                            const expected = item.quantity;
+                            const actual = isAbnormal && expected > 1 ? Math.max(0, expected - 1) : expected; // 确保如果有异常减少一件
+                            return {
+                                itemName: item.name,
+                                expectedQty: expected,
+                                actualQty: actual,
+                                status: actual === expected ? 'normal' : 'abnormal',
+                                remark: actual === expected ? '-' : `少退 ${expected - actual} 件`
+                            };
+                        }),
+                        remark: isAbnormal ? '核实退回商品数量不全。' : '质检通过，商品完好。',
+                        videoUrl: 'demo-unboxing-video.mp4'
+                    };
+
+                    // 如果是异常包裹且最终完成了，加一条客服备注说破例通过
+                    if (isAbnormal && status === 'completed') {
+                        as.internalNotes.push({
+                            time: new Date(new Date(as.warehouseQC.time).getTime() + 3600000).toISOString(),
+                            operator: '售后主管',
+                            content: '虽然少件，但考虑到是VIP老客，破例全额通过退款。'
+                        });
+                    }
+                }
+
+                if (status === 'completed') {
+                    as.refundTime = new Date(new Date(as.receiveTime).getTime() + 12 * 3600000).toISOString();
+                    as.completeTime = as.refundTime;
+                    as.internalNotes.push({
+                        time: as.completeTime,
+                        operator: '系统',
+                        content: '全额退款已成功下发至对应支付渠道。'
+                    });
+                }
+
+                if (status === 'cancelled') {
+                    as.internalNotes.push({
+                        time: new Date(new Date(as.createTime).getTime() + 86400000).toISOString(),
+                        operator: '系统',
+                        content: '买家主动撤销了售后单，流程终止。'
+                    });
+                }
+
+                DB.afterSales.push(as);
+                asIndex++;
+            }
+        }
+    });
+
+    console.log(`✅ 售后常规数据生成完成，共 ${DB.afterSales.length} 条`);
+
+    // ==================== 2. 创建硬编码的定制化测试场景 ====================
+    // 获取第一个多商品的子订单来模拟多商品售后
+    const multiItemOrder = availableOrders.find(o => {
+        const so = DB.subOrders.find(sub => sub.id === o.subOrderIds[0]);
+        return so && so.items && so.items.length > 1;
+    });
+
+    if (multiItemOrder) {
+        const so = DB.subOrders.find(sub => sub.id === multiItemOrder.subOrderIds[0]);
+        // 场景 A: 包含多个商品的主状态为‘待审核’ (Pending)
+        const customPendingAS = createAfterSaleFromOrder(multiItemOrder, so.id, 'pending', 0);
+        if (customPendingAS) {
+            customPendingAS.id = 'AS' + '999991';
+            customPendingAS.description = '【模拟场景】多商品退款待审核申请';
+            DB.afterSales.unshift(customPendingAS); // 放在最前面方便查看
+        }
     }
 
-    // ==================== 3. 退货中状态（returning）====================
-    console.log('🚛 生成退货中状态数据...');
-    for (let i = 0; i < 3; i++) {
-        const orderInfo = createMockOrderInfo(asIndex);
-        const product = mockProducts[i % mockProducts.length];
-        const reason = reasonConfigs[i % reasonConfigs.length];
-        const itemsAmount = product.price;
-        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
-        const refundAmount = itemsAmount - discountAmount;
-        const createTime = new Date(Date.now() - (8 + i) * 24 * 3600000);
+    // 获取单商品子订单
+    const singleItemOrder = availableOrders.find(o => {
+        const so = DB.subOrders.find(sub => sub.id === o.subOrderIds[0]);
+        return so && so.items && so.items.length === 1;
+    });
 
-        const afterSale = {
-            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
-            orderId: orderInfo.id,
-            subOrderId: orderInfo.id + '-1',
-            userId: orderInfo.userId,
-            storeId: orderInfo.storeId,
-            storeName: orderInfo.storeName,
-            userName: orderInfo.userName,
-            type: 'return_refund',
-            status: 'returning',
-            reason: reason.label,
-            reasonCode: reason.code,
-            description: `【测试数据】退货中-物流运输${i + 1}`,
-            items: [createMockAfterSaleItem(i)],
-            itemsAmount: itemsAmount,
-            discountAmount: discountAmount,
-            freightRefund: 0,
-            refundAmount: refundAmount,
-            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
-            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
-            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
-            freightResponsibility: reason.freightResponsible,
-            images: ['https://picsum.photos/800/600?random=' + asIndex],
-            createTime: createTime.toISOString(),
-            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
-            auditTime: new Date(createTime.getTime() + 2 * 3600000).toISOString(),
-            auditRemark: '审核通过',
-            returnExpressCompany: expressCompanies[i % expressCompanies.length],
-            returnTrackingNo: expressPrefixes[i % expressPrefixes.length] + String(Date.now()).slice(-10),
-            returnTime: new Date(createTime.getTime() + 24 * 3600000).toISOString(),
-            returnAddress: '北京市朝阳区建国路88号退货仓库',
-            receiveTime: null,
-            qcPassed: false,
-            refundTime: null,
-            completeTime: null,
-            rejectReason: null
-        };
+    if (singleItemOrder) {
+        const so = DB.subOrders.find(sub => sub.id === singleItemOrder.subOrderIds[0]);
 
-        DB.afterSales.push(afterSale);
-        asIndex++;
+        // 场景 B: 包含异常质检的‘已收货’状态 (Received with abnormal QC)
+        const customAbnormalAS = createAfterSaleFromOrder(singleItemOrder, so.id, 'received', 1);
+        if (customAbnormalAS) {
+            customAbnormalAS.id = 'AS' + '999992';
+            customAbnormalAS.description = '【模拟场景】退回商品质检发现异常，等待处理';
+
+            // 补全已收货状态必须的中间态数据（审核时间、退回到哪里、退回物流、签收时间）
+            // 解决“该状态本该有数据的都没显示”的问题
+            customAbnormalAS.auditTime = new Date(new Date().getTime() - 72 * 3600000).toISOString();
+            customAbnormalAS.returnAddress = '上海市青浦区XX路XX号XX物流园3号库|退货组-李四|188****5678';
+            customAbnormalAS.returnExpressCompany = '顺丰速运';
+            customAbnormalAS.returnTrackingNo = 'SF' + Math.random().toString().substring(2, 12);
+            customAbnormalAS.returnTime = new Date(new Date().getTime() - 48 * 3600000).toISOString();
+            customAbnormalAS.receiveTime = new Date(new Date().getTime() - 2 * 3600000).toISOString();
+
+            customAbnormalAS.qcPassed = false;
+            customAbnormalAS.warehouseQC = {
+                operator: '仓库收货组',
+                time: new Date().toISOString(),
+                details: customAbnormalAS.items.map(item => ({
+                    itemName: item.name,
+                    expectedQty: item.quantity,
+                    actualQty: 0,
+                    status: 'abnormal',
+                    remark: '商品破损严重，影响二次销售'
+                })),
+                remark: '包裹外包装破损，内部香水已碎裂漏液。'
+            };
+            customAbnormalAS.internalNotes.push({
+                time: new Date().toISOString(),
+                operator: '系统',
+                content: '质检结果为异常，拦截了自动退款，请财务/客服主管手动介入处理（可驳回或破例同意）。'
+            });
+            DB.afterSales.unshift(customAbnormalAS);
+        }
     }
 
-    // ==================== 4. 已收货状态（received）====================
-    console.log('📥 生成已收货状态数据...');
-    for (let i = 0; i < 3; i++) {
-        const orderInfo = createMockOrderInfo(asIndex);
-        const product = mockProducts[i % mockProducts.length];
-        const reason = reasonConfigs[i % reasonConfigs.length];
-        const itemsAmount = product.price;
-        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
-        const refundAmount = itemsAmount - discountAmount;
-        const createTime = new Date(Date.now() - (12 + i) * 24 * 3600000);
-
-        const afterSale = {
-            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
-            orderId: orderInfo.id,
-            subOrderId: orderInfo.id + '-1',
-            userId: orderInfo.userId,
-            storeId: orderInfo.storeId,
-            storeName: orderInfo.storeName,
-            userName: orderInfo.userName,
-            type: i < 2 ? 'return_refund' : 'exchange',
-            status: 'received',
-            reason: reason.label,
-            reasonCode: reason.code,
-            description: `【测试数据】已收货-待确认${i + 1}`,
-            items: [createMockAfterSaleItem(i)],
-            itemsAmount: itemsAmount,
-            discountAmount: discountAmount,
-            freightRefund: 0,
-            refundAmount: refundAmount,
-            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
-            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
-            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
-            freightResponsibility: reason.freightResponsible,
-            images: ['https://picsum.photos/800/600?random=' + asIndex],
-            createTime: createTime.toISOString(),
-            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
-            auditTime: new Date(createTime.getTime() + 2 * 3600000).toISOString(),
-            auditRemark: '审核通过',
-            returnExpressCompany: expressCompanies[i % expressCompanies.length],
-            returnTrackingNo: expressPrefixes[i % expressPrefixes.length] + String(Date.now()).slice(-10),
-            returnTime: new Date(createTime.getTime() + 24 * 3600000).toISOString(),
-            returnAddress: '北京市朝阳区建国路88号退货仓库',
-            receiveTime: new Date(createTime.getTime() + 72 * 3600000).toISOString(),
-            qcPassed: true,
-            qcRemark: '质检通过，商品状态良好',
-            refundTime: null,
-            completeTime: null,
-            rejectReason: null
-        };
-
-        DB.afterSales.push(afterSale);
-        asIndex++;
-    }
-
-    // ==================== 5. 已完成状态（completed）====================
-    console.log('✅ 生成已完成状态数据...');
-    for (let i = 0; i < 5; i++) {
-        const orderInfo = createMockOrderInfo(asIndex);
-        const product = mockProducts[i % mockProducts.length];
-        const reason = reasonConfigs[i % reasonConfigs.length];
-        const itemsAmount = product.price;
-        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
-        const freightRefund = i === 0 ? 10 : 0;
-        const refundAmount = itemsAmount + freightRefund - discountAmount;
-        const createTime = new Date(Date.now() - (15 + i) * 24 * 3600000);
-
-        const isReturnRefund = i % 2 === 0;
-
-        const afterSale = {
-            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
-            orderId: orderInfo.id,
-            subOrderId: orderInfo.id + '-1',
-            userId: orderInfo.userId,
-            storeId: orderInfo.storeId,
-            storeName: orderInfo.storeName,
-            userName: orderInfo.userName,
-            type: isReturnRefund ? 'return_refund' : 'refund_only',
-            status: 'completed',
-            reason: reason.label,
-            reasonCode: reason.code,
-            description: `【测试数据】已完成-售后${i + 1}`,
-            items: [createMockAfterSaleItem(i)],
-            itemsAmount: itemsAmount,
-            discountAmount: discountAmount,
-            freightRefund: freightRefund,
-            refundAmount: refundAmount,
-            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
-            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
-            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
-            freightResponsibility: reason.freightResponsible,
-            images: ['https://picsum.photos/800/600?random=' + asIndex],
-            createTime: createTime.toISOString(),
-            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
-            auditTime: new Date(createTime.getTime() + 2 * 3600000).toISOString(),
-            auditRemark: '审核通过',
-            returnExpressCompany: isReturnRefund ? expressCompanies[i % expressCompanies.length] : null,
-            returnTrackingNo: isReturnRefund ? expressPrefixes[i % expressPrefixes.length] + String(Date.now()).slice(-10) : null,
-            returnTime: isReturnRefund ? new Date(createTime.getTime() + 24 * 3600000).toISOString() : null,
-            returnAddress: isReturnRefund ? '北京市朝阳区建国路88号退货仓库' : null,
-            receiveTime: isReturnRefund ? new Date(createTime.getTime() + 72 * 3600000).toISOString() : null,
-            qcPassed: isReturnRefund,
-            qcRemark: isReturnRefund ? '质检通过' : null,
-            refundTime: new Date(createTime.getTime() + 96 * 3600000).toISOString(),
-            completeTime: new Date(createTime.getTime() + 100 * 3600000).toISOString(),
-            rejectReason: null
-        };
-
-        DB.afterSales.push(afterSale);
-        asIndex++;
-    }
-
-    // ==================== 6. 已拒绝状态（rejected）====================
-    console.log('❌ 生成已拒绝状态数据...');
-    for (let i = 0; i < 3; i++) {
-        const orderInfo = createMockOrderInfo(asIndex);
-        const product = mockProducts[i % mockProducts.length];
-        const reason = reasonConfigs[4 + (i % 2)]; // 买家责任原因
-        const itemsAmount = product.price;
-        const discountAmount = Math.round(itemsAmount * 0.1 * 100) / 100;
-        const refundAmount = itemsAmount - discountAmount;
-        const createTime = new Date(Date.now() - (20 + i) * 24 * 3600000);
-
-        const rejectReasons = [
-            '商品已拆封使用，不符合退货条件',
-            '超过售后申请时效（确认收货后15天）',
-            '未提供有效质量问题证明材料'
-        ];
-
-        const afterSale = {
-            id: 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0'),
-            orderId: orderInfo.id,
-            subOrderId: orderInfo.id + '-1',
-            userId: orderInfo.userId,
-            storeId: orderInfo.storeId,
-            storeName: orderInfo.storeName,
-            userName: orderInfo.userName,
-            type: 'refund_only',
-            status: 'rejected',
-            reason: reason.label,
-            reasonCode: reason.code,
-            description: `【测试数据】已拒绝-售后${i + 1}`,
-            items: [createMockAfterSaleItem(i)],
-            itemsAmount: itemsAmount,
-            discountAmount: discountAmount,
-            freightRefund: 0,
-            refundAmount: refundAmount,
-            refundCashAmount: Math.round(refundAmount * 0.7 * 100) / 100,
-            refundPointsAmount: Math.round(refundAmount * 0.2 * 100) / 100,
-            refundCardAmount: Math.round(refundAmount * 0.1 * 100) / 100,
-            freightResponsibility: reason.freightResponsible,
-            images: ['https://picsum.photos/800/600?random=' + asIndex],
-            createTime: createTime.toISOString(),
-            updateTime: new Date(createTime.getTime() + 3600000).toISOString(),
-            auditTime: new Date(createTime.getTime() + 2 * 3600000).toISOString(),
-            auditRemark: '审核拒绝',
-            returnExpressCompany: null,
-            returnTrackingNo: null,
-            returnTime: null,
-            returnAddress: null,
-            receiveTime: null,
-            qcPassed: false,
-            refundTime: null,
-            completeTime: null,
-            rejectReason: rejectReasons[i % rejectReasons.length]
-        };
-
-        DB.afterSales.push(afterSale);
-        asIndex++;
-    }
-
-    console.log(`✅ 生成了 ${DB.afterSales.length} 个售后单，涵盖所有状态`);
+    // 🔥 关键修复：确保生成的测试数据被持久化到 localStorage，否则页面刷新后会被 loadData 覆盖
+    saveData();
 }
 
 // 获取售后原因文本
@@ -6309,18 +6190,18 @@ function getReasonText(reason) {
  */
 function saveUserSpecificData(allUsers) {
     console.log('💾 保存用户独立数据...');
-    
+
     allUsers.forEach(user => {
         const userOrders = DB.orders.filter(o => o.userId === user.id);
         const userAfterSales = DB.afterSales.filter(as => as.userId === user.id);
-        
+
         const userData = {
             cart: [],
             orders: userOrders,
             subOrders: [],
             afterSales: userAfterSales
         };
-        
+
         localStorage.setItem('s2b2c_user_' + user.id, JSON.stringify(userData));
         console.log(`💾 ${user.name}: ${userOrders.length}订单, ${userAfterSales.length}售后`);
     });
@@ -6332,83 +6213,83 @@ function saveUserSpecificData(allUsers) {
 function createSimpleTestOrder(user, userIndex) {
     try {
         console.log(`开始为用户 ${user.name} 创建订单...`);
-        
+
         // 清空购物车
         DB.cart = [];
-        
+
         // 添加一个商品到购物车
         const productId = userIndex % 2 === 0 ? 'P001' : 'P002';
         const qty = 1;
-        
+
         console.log(`添加商品到购物车: ${productId}, 数量: ${qty}`);
         const addResult = addToCart(productId, qty);
         console.log(`添加商品结果:`, addResult);
-        
+
         if (!addResult) {
             console.warn(`添加商品到购物车失败: ${productId}`);
             return null;
         }
-        
+
         // 确保商品被选中
         DB.cart.forEach(item => {
             item.selected = true;
         });
-        
+
         console.log(`购物车状态:`, DB.cart);
-        
+
         if (DB.cart.length === 0) {
             console.warn(`购物车为空: ${user.name}`);
             return null;
         }
-        
+
         // 选择地址
         const address = user.addresses[0];
         if (!address) {
             console.warn(`用户没有地址: ${user.name}`);
             return null;
         }
-        
+
         console.log(`使用地址:`, address);
-        
+
         // 计算订单金额
         const cartItems = getCartItems();
         const goodsTotal = cartItems.reduce((sum, item) => sum + item.product.price * item.qty, 0);
-        
+
         console.log(`商品总金额: ${goodsTotal}`);
-        
+
         // 计算运费
         const freightResult = calculateOrderFreight(address.province, DB.cart);
         const totalFreight = freightResult.totalFreight || 0;
         const orderTotal = goodsTotal + totalFreight;
-        
+
         console.log(`运费: ${totalFreight}, 订单总金额: ${orderTotal}`);
-        
+
         // 设置支付方式（纯现金）
         const payment = { cash: orderTotal };
         const paymentPlan = {
             ...payment,
             freightResult: freightResult
         };
-        
+
         console.log(`支付计划:`, paymentPlan);
-        
+
         // 创建订单
         console.log(`调用createOrder...`);
         const orderResult = createOrder(address.id, paymentPlan, 'supply', false);
         console.log(`创建订单结果:`, orderResult);
-        
+
         if (!orderResult.success) {
             console.warn(`创建订单失败: ${orderResult.error}`);
             return null;
         }
-        
+
         const orderId = orderResult.orderId;
         console.log(`订单创建成功: ${orderId}`);
-        
+
         // 检查订单是否真的被添加到DB中
         const createdOrder = DB.orders.find(o => o.id === orderId);
         console.log(`DB中的订单:`, createdOrder);
-        
+
         return {
             orderId: orderId,
             userId: user.id,
@@ -6416,7 +6297,7 @@ function createSimpleTestOrder(user, userIndex) {
             status: 'pending_pay',
             description: '测试订单'
         };
-        
+
     } catch (error) {
         console.error(`创建测试订单失败 (${user.name}):`, error);
         return null;
@@ -6435,11 +6316,11 @@ function createTestOrder(user, config) {
         useRemoteAddress = false,
         daysAgo = 0
     } = config;
-    
+
     try {
         // 清空购物车
         DB.cart = [];
-        
+
         // 添加商品到购物车并选中
         products.forEach(item => {
             const product = DB.products.find(p => p.id === item.id);
@@ -6447,42 +6328,42 @@ function createTestOrder(user, config) {
                 addToCart(item.id, item.qty);
             }
         });
-        
+
         // 确保所有商品都被选中
         DB.cart.forEach(item => {
             item.selected = true;
         });
-        
+
         if (DB.cart.length === 0) {
             console.warn(`用户 ${user.name} 的订单 ${description} 无可用商品`);
             return null;
         }
-        
+
         // 选择地址
-        const address = useRemoteAddress && user.addresses.length > 1 
-            ? user.addresses[1] 
+        const address = useRemoteAddress && user.addresses.length > 1
+            ? user.addresses[1]
             : user.addresses[0];
-        
+
         if (!address) {
             console.warn(`用户 ${user.name} 没有地址`);
             return null;
         }
-        
+
         selectedAddressId = address.id;
-        
+
         // 计算订单金额
         const cartItems = getCartItems();
         const goodsTotal = cartItems.reduce((sum, item) => sum + item.product.price * item.qty, 0);
-        
+
         // 计算运费
         const freightResult = calculateOrderFreight(address.province, DB.cart);
         const totalFreight = freightResult.totalFreight || 0;
-        
+
         const orderTotal = goodsTotal + totalFreight;
-        
+
         // 根据支付类型设置支付方式
         let payment = { cash: orderTotal };
-        
+
         switch (paymentType) {
             case 'card':
                 if (user.memberCards.length > 0) {
@@ -6496,10 +6377,10 @@ function createTestOrder(user, config) {
                 if (user.memberCards.length > 0) {
                     const card = user.memberCards[0];
                     const cardAmount = Math.min(card.balance, Math.floor(orderTotal * 0.6));
-                    payment = { 
-                        card: cardAmount, 
+                    payment = {
+                        card: cardAmount,
                         cardId: card.id,
-                        cash: orderTotal - cardAmount 
+                        cash: orderTotal - cardAmount
                     };
                 }
                 break;
@@ -6523,40 +6404,40 @@ function createTestOrder(user, config) {
                 }
                 break;
         }
-        
+
         // 创建订单
         const paymentPlan = {
             ...payment,
             freightResult: freightResult
         };
-        
+
         const orderResult = createOrder(selectedAddressId, paymentPlan, 'supply', false);
-        
+
         if (!orderResult.success) {
             console.warn(`创建订单失败: ${description}`);
             return null;
         }
-        
+
         const orderId = orderResult.orderId;
         const order = DB.orders.find(o => o.id === orderId);
-        
+
         if (!order) return null;
-        
+
         // 调整订单时间
         const orderTime = new Date();
         orderTime.setDate(orderTime.getDate() - daysAgo);
         order.createTime = orderTime.toISOString();
         order.updateTime = orderTime.toISOString();
-        
+
         // 根据状态更新订单
         if (status !== 'pending_pay') {
             // 支付订单
             order.status = 'pending_ship';
             order.payTime = new Date(orderTime.getTime() + 5 * 60000).toISOString(); // 5分钟后支付
-            
+
             // 创建子订单
             createSubOrdersForOrder(order);
-            
+
             if (status === 'pending_ship') {
                 // 保持待发货状态
             } else if (status === 'shipped') {
@@ -6595,11 +6476,11 @@ function createTestOrder(user, config) {
                 order.cancelReason = '用户取消';
             }
         }
-        
+
         saveData();
-        
+
         console.log(`✓ 创建订单: ${user.name} - ${description} (${orderId})`);
-        
+
         return {
             orderId: orderId,
             userId: user.id,
@@ -6607,7 +6488,7 @@ function createTestOrder(user, config) {
             status: status,
             description: description
         };
-        
+
     } catch (error) {
         console.error(`创建订单失败 (${description}):`, error);
         return null;
@@ -6625,31 +6506,31 @@ function createTestAfterSale(user, orderId, config) {
         description = '',
         daysAgo = 0
     } = config;
-    
+
     try {
         const order = DB.orders.find(o => o.id === orderId);
         if (!order) {
             console.warn(`订单不存在: ${orderId}`);
             return null;
         }
-        
+
         const subOrders = DB.subOrders.filter(so => so.parentOrderId === orderId);
         if (subOrders.length === 0) {
             console.warn(`订单无子订单: ${orderId}`);
             return null;
         }
-        
+
         const subOrder = subOrders[0];
         if (!subOrder.items || subOrder.items.length === 0) {
             console.warn(`子订单无商品: ${subOrder.id}`);
             return null;
         }
-        
+
         // 创建售后单
         const afterSaleId = 'AS' + String(DB.afterSaleIdCounter++).padStart(6, '0');
         const now = new Date();
         now.setDate(now.getDate() - daysAgo);
-        
+
         const afterSale = {
             id: afterSaleId,
             orderId: orderId,
@@ -6666,19 +6547,19 @@ function createTestAfterSale(user, orderId, config) {
             createTime: now.toISOString(),
             updateTime: now.toISOString()
         };
-        
+
         // 根据状态设置时间线
         if (status === 'approved' || status === 'waiting_return' || status === 'completed') {
             afterSale.reviewTime = new Date(now.getTime() + 3600000).toISOString(); // 1小时后审核
             afterSale.reviewResult = 'approved';
             afterSale.reviewNote = '审核通过';
-            
+
             if (type === 'return_refund' || type === 'exchange') {
                 afterSale.status = 'waiting_return';
                 afterSale.returnAddress = RETURN_WAREHOUSES[0];
             }
         }
-        
+
         if (status === 'completed') {
             if (type === 'refund_only') {
                 afterSale.refundTime = new Date(now.getTime() + 7200000).toISOString(); // 2小时后退款
@@ -6691,18 +6572,18 @@ function createTestAfterSale(user, orderId, config) {
                 afterSale.completeTime = new Date(now.getTime() + 259200000).toISOString(); // 3天后完成
             }
         }
-        
+
         if (status === 'rejected') {
             afterSale.reviewTime = new Date(now.getTime() + 3600000).toISOString();
             afterSale.reviewResult = 'rejected';
             afterSale.reviewNote = '不符合退款条件';
         }
-        
+
         DB.afterSales.push(afterSale);
         saveData();
-        
+
         console.log(`✓ 创建售后: ${user.name} - ${description} (${afterSaleId})`);
-        
+
         return {
             afterSaleId: afterSaleId,
             orderId: orderId,
@@ -6710,7 +6591,7 @@ function createTestAfterSale(user, orderId, config) {
             status: status,
             description: description
         };
-        
+
     } catch (error) {
         console.error(`创建售后失败 (${description}):`, error);
         return null;
@@ -6735,7 +6616,7 @@ function updateAfterSaleConfig(config) {
             features: { ...DB.afterSaleConfig.features, ...(config.features || {}) },
             settlement: { ...DB.afterSaleConfig.settlement, ...(config.settlement || {}) }
         };
-        
+
         saveData();
         return { success: true, message: '售后配置已更新' };
     } catch (error) {
@@ -6767,19 +6648,19 @@ function getFreightResponsibility(reason) {
  */
 function generateMockOrdersForClearing() {
     console.log('开始生成模拟订单数据...');
-    
+
     const now = new Date();
     const stores = getStores();
     const products = DB.products.filter(p => p.type === 'supply'); // 只使用供应链商品
-    
+
     // 确保有足够的商品数据
     if (products.length < 3) {
         console.error('商品数据不足，无法生成订单');
         return;
     }
-    
+
     const mockOrders = [];
-    
+
     // 辅助函数：生成随机日期
     function randomDate(daysAgo) {
         const date = new Date(now);
@@ -6788,7 +6669,7 @@ function generateMockOrdersForClearing() {
         date.setMinutes(Math.floor(Math.random() * 60));
         return date.toISOString();
     }
-    
+
     // 辅助函数：随机选择
     function randomChoice(arr) {
         return arr[Math.floor(Math.random() * arr.length)];
@@ -7018,7 +6899,7 @@ function generateMockOrdersForClearing() {
 
     // 创建订单并生成清分数据
     console.log(`准备创建 ${mockOrders.length} 个模拟订单...`);
-    
+
     mockOrders.forEach((orderData, index) => {
         try {
             // 直接创建订单对象
@@ -7060,9 +6941,9 @@ function generateMockOrdersForClearing() {
                 payTime: orderData.createTime,
                 updateTime: orderData.createTime
             };
-            
+
             DB.orders.push(order);
-            
+
             // 按供应商分组创建子订单
             const supplierGroups = {};
             orderData.items.forEach(item => {
@@ -7073,32 +6954,32 @@ function generateMockOrdersForClearing() {
                 }
                 supplierGroups[supplierId].push(item);
             });
-            
+
             Object.keys(supplierGroups).forEach(supplierId => {
                 const items = supplierGroups[supplierId];
                 const supplier = DB.suppliers.find(s => s.id === supplierId);
                 const subOrderId = `${orderId}-${String(DB.subOrderIdCounter++).padStart(2, '0')}`;
-                
+
                 const subAmount = items.reduce((sum, item) => sum + item.price * item.qty, 0);
                 const subCashPaid = subAmount;
-                
+
                 // 计算清分数据
                 const headquarterShareRate = store && store.isChain ? (store.headquarterShareRate || 0.10) : 0;
                 const clearing = calculateItemClearing(subAmount, subCashPaid, true, true, headquarterShareRate);
-                
+
                 // 为每个商品添加清分数据
                 const itemsWithClearing = items.map(item => {
                     const itemAmount = item.price * item.qty;
                     const itemRatio = subAmount > 0 ? itemAmount / subAmount : 0;
                     const itemCashPaid = subCashPaid * itemRatio;
                     const itemClearing = calculateItemClearing(itemAmount, itemCashPaid, true, true, headquarterShareRate);
-                    
+
                     return {
                         ...item,
                         clearing: itemClearing
                     };
                 });
-                
+
                 const subOrder = {
                     id: subOrderId,
                     parentOrderId: orderId,
@@ -7117,11 +6998,11 @@ function generateMockOrdersForClearing() {
                     createTime: orderData.createTime,
                     updateTime: orderData.createTime
                 };
-                
+
                 DB.subOrders.push(subOrder);
                 order.subOrderIds.push(subOrderId);
             });
-            
+
         } catch (error) {
             console.error(`创建第 ${index + 1} 个订单失败:`, error);
         }
@@ -7129,19 +7010,19 @@ function generateMockOrdersForClearing() {
 
     // 6. 创建一些退款订单（已冲账状态）
     console.log('创建退款订单...');
-    
+
     // 找出一些已完成的订单来创建退款
     const completedOrders = DB.orders.filter(o => o.status === 'completed' && o.subOrderIds && o.subOrderIds.length > 0);
-    
+
     for (let i = 0; i < Math.min(3, completedOrders.length); i++) {
         const order = completedOrders[i];
         const subOrderId = order.subOrderIds[0];
         const subOrder = DB.subOrders.find(so => so.id === subOrderId);
-        
+
         if (subOrder && subOrder.items && subOrder.items.length > 0) {
             const item = subOrder.items[0];
             const refundQty = Math.min(item.qty, Math.floor(Math.random() * item.qty) + 1);
-            
+
             try {
                 // 创建售后申请
                 const afterSaleResult = createAfterSale({
@@ -7159,19 +7040,19 @@ function generateMockOrdersForClearing() {
                     }],
                     evidence: []
                 });
-                
+
                 if (afterSaleResult.success) {
                     const afterSaleId = afterSaleResult.afterSaleId;
-                    
+
                     // 自动审核通过
                     approveAfterSale(afterSaleId, '同意退款', 'WH001');
-                    
+
                     // 模拟用户寄回
                     const afterSale = DB.afterSales.find(as => as.id === afterSaleId);
                     if (afterSale) {
                         afterSale.status = 'received';
                         afterSale.receiveTime = new Date().toISOString();
-                        
+
                         // 完成退款
                         completeAfterSale(afterSaleId, true, '质检通过');
                     }
@@ -7181,7 +7062,7 @@ function generateMockOrdersForClearing() {
             }
         }
     }
-    
+
     console.log(`模拟订单数据生成完成！共创建 ${DB.orders.length} 个订单，${DB.afterSales.filter(as => as.status === 'completed').length} 个退款记录`);
     saveData();
 }
