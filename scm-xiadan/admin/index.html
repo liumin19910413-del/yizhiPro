@@ -820,8 +820,8 @@
             </div>
             <div class="menu-group">
                 <div class="menu-label">财务管理</div>
-                <div class="menu-item" onclick="showPage('orderDetailReconciliation', event)">📋 订单对账</div>
-                <div class="menu-item" onclick="showPage('payableCenter', event)">📑 应付中心</div>
+                <div class="menu-item" onclick="showPage('financeOverview', event)">📈 财务总览</div>
+                <div class="menu-item" onclick="showPage('financeLedger', event)">📋 对账明细</div>
                 <div class="menu-item" onclick="showPage('depositManagement', event)">🏦 保证金</div>
             </div>
         </div>
@@ -979,6 +979,8 @@
             aftersale: '售后管理',
             sourceProducts: '基础商品',
             mallProducts: '商城商品',
+            financeOverview: '财务总览',
+            financeLedger: '对账明细',
             orderDetailReconciliation: '订单对账',
             payableCenter: '应付中心',
             financialV2: '财务结算',
@@ -1070,10 +1072,18 @@
             const content = document.getElementById('content');
 
             switch (currentPage) {
-                case 'dashboard': renderDashboard(content); break;
+                case 'dashboard':
+                    content.innerHTML = `<iframe src="../platform-admin-vue/dist/index.html?embedded=true#/dashboard" style="width: 100%; height: 100%; border: none;"></iframe>`;
+                    break;
                 case 'orders': renderOrders(content); break;
                 case 'ship': renderShip(content); break;
                 case 'aftersale': renderAfterSale(content); break;
+                case 'financeOverview':
+                    content.innerHTML = `<iframe src="../platform-admin-vue/dist/index.html?embedded=true#/finance/overview" style="width: 100%; height: 100%; border: none;"></iframe>`;
+                    break;
+                case 'financeLedger':
+                    content.innerHTML = `<iframe src="../platform-admin-vue/dist/index.html?embedded=true#/finance/ledger" style="width: 100%; height: 100%; border: none;"></iframe>`;
+                    break;
                 case 'sourceProducts': renderSourceProducts(content); break;
                 case 'mallProducts': renderMallProducts(content); break;
                 case 'payableCenter':
@@ -4168,6 +4178,9 @@
 
             // 上下分层布局
             let html = `
+        <div class="prd-icon-btn" onclick="toggleSpecPanel()" title="查看需求说明" style="position: fixed; top: 140px; right: 40px; z-index: 1000; width: 40px; height: 40px; background: #fa8c16; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(250, 140, 22, 0.4); font-size: 20px; border: 2px solid #fff; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            📖
+        </div>
         <div style="display: flex; flex-direction: column; height: calc(100vh - 120px); gap: 15px;">
             <!-- 上层：售后列表（75%高度） -->
             <div style="flex: 3; display: flex; flex-direction: column; background: #fff; border-radius: 8px; padding: 20px; overflow: hidden;">
@@ -14615,6 +14628,9 @@
          */
         function renderDepositManagement(content) {
             content.innerHTML = `
+        <div class="prd-icon-btn" onclick="toggleSpecPanel()" title="查看需求说明" style="position: fixed; top: 140px; right: 40px; z-index: 1000; width: 40px; height: 40px; background: #fa8c16; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(250, 140, 22, 0.4); font-size: 20px; border: 2px solid #fff; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            📖
+        </div>
         <div class="card" style="margin-bottom: 0;">
             <!-- Tab切换 -->
             <div class="tabs" style="margin-bottom: 20px;">
