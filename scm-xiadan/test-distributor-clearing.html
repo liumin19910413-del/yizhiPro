@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试经销商清分数据</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #1890ff;
+            padding-bottom: 10px;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+        }
+        .success { background: #f6ffed; border: 1px solid #b7eb8f; }
+        .error { background: #fff2f0; border: 1px solid #ffccc7; }
+        button {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        button:hover { background: #40a9ff; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #e8e8e8;
+        }
+        th {
+            background: #fafafa;
+            font-weight: 600;
+        }
+        .highlight { background: #fffbe6; }
+    </style>
+</head>
+<body>
+    <h1>🔍 测试经销商清分数据</h1>
+    
+    <div class="test-section">
+        <h2>测试1: 检查函数是否存在</h2>
+        <button onclick="test1()">运行测试</button>
+        <div id="result1" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试2: 检查订单清分数据</h2>
+        <button onclick="test2()">运行测试</button>
+        <div id="result2" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试3: 手动计算清分数据</h2>
+        <button onclick="test3()">运行测试</button>
+        <div id="result3" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试4: 调用聚合函数</h2>
+        <button onclick="test4()">运行测试</button>
+        <div id="result4" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试5: 完整流程测试</h2>
+        <button onclick="test5()">运行测试</button>
+        <div id="result5" class="result"></div>
+    </div>
+
+    <!-- 引入依赖 -->
+    <script src="../shared/data.js"></script>
+    <script src="../shared/amount-formatter.js"></script>
+    <script src="../shared/settlement-calculator.js"></script>
+    <script src="../shared/payment-status-calculator.js"></script>
+    <script src="../shared/distributor-reconciliation.js"></script>
+    
+    <script>
+        function test1() {
+            const result = document.getElementById('result1');
+            let output = '检查函数是否存在:\n\n';
+            
+            try {
+                output += `✓ DistributorReconciliation: ${typeof DistributorReconciliation}\n`;
+                output += `✓ SettlementCalculator: ${typeof SettlementCalculator}\n`;
+                
+                const calculator = new SettlementCalculator(new Date());
+                const reconciliation = new DistributorReconciliation(calculator);
+                
+                output += `✓ calculateDistributorClearing: ${typeof reconciliation.calculateDistributorClearing}\n`;
+                output += `✓ aggregateDistributorClearing: ${typeof reconciliation.aggregateDistributorClearing}\n`;
+                
+                result.className = 'result success';
+                result.textContent = output + '\n✅ 所有函数都存在！';
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = output + '\n❌ 错误: ' + error.message;
+            }
+        }
+        
+        function test2() {
+            const result = document.getElementById('result2');
+            let output = '检查订单清分数据:\n\n';
+            
+            try {
+                const subOrders = DB.subOrders || [];
+                output += `子订单总数: ${subOrders.length}\n\n`;
+                
+                let hasClearing = 0;
+                let hasClearingDetails = 0;
+                let hasPlatformClearing = 0;
+                
+                subOrders.forEach(so => {
+                    if (so.clearing) {
+                        hasClearing++;
+                        if (so.clearing.clearingDetails) {
+                            hasClearingDetails++;
+                            if (so.clearing.clearingDetails.platform) {
+                                hasPlatformClearing++;
+                            }
+                        }
+                    }
+                });
+                
+                output += `有clearing数据: ${hasClearing}\n`;
+                output += `有clearingDetails: ${hasClearingDetails}\n`;
+                output += `有platform清分: ${hasPlatformClearing}\n\n`;
+                
+                // 显示第一个订单的清分数据
+                const firstOrder = subOrders.find(so => so.clearing && so.clearing.clearingDetails);
+                if (firstOrder) {
+                    output += '第一个订单的清分数据:\n';
+                    output += JSON.stringify(firstOrder.clearing.clearingDetails.platform, null, 2);
+                }
+                
+                result.className = 'result success';
+                result.textContent = output;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = output + '\n❌ 错误: ' + error.message;
+            }
+        }
+        
+        function test3() {
+            const result = document.getElementById('result3');
+            let output = '手动计算清分数据:\n\n';
+            
+            try {
+                const subOrders = (DB.subOrders || []).filter(so => so.clearing && so.clearing.clearingDetails);
+                
+                if (subOrders.length === 0) {
+                    result.className = 'result error';
+                    result.textContent = '❌ 没有找到有清分数据的订单';
+                    return;
+                }
+                
+                const testOrder = subOrders[0];
+                const clearing = testOrder.clearing;
+                const platformClearing = clearing.clearingDetails.platform;
+                
+                output += `测试订单ID: ${testOrder.id}\n\n`;
+                output += `经销商应得: ${clearing.distributorAmount}\n`;
+                output += `平台货款总额: ${platformClearing.amount}\n`;
+                output += `平台空中分账: ${platformClearing.splitAmount}\n`;
+                output += `平台保证金扣除: ${platformClearing.depositAmount}\n\n`;
+                
+                const splitRatio = platformClearing.splitAmount / platformClearing.amount;
+                const depositRatio = platformClearing.depositAmount / platformClearing.amount;
+                
+                output += `空中分账比例: ${(splitRatio * 100).toFixed(2)}%\n`;
+                output += `保证金扣除比例: ${(depositRatio * 100).toFixed(2)}%\n\n`;
+                
+                const distributorSplit = clearing.distributorAmount * splitRatio;
+                const distributorDeposit = clearing.distributorAmount * depositRatio;
+                
+                output += `经销商空中分账: ${distributorSplit.toFixed(2)}\n`;
+                output += `经销商保证金扣除: ${distributorDeposit.toFixed(2)}\n`;
+                
+                result.className = 'result success';
+                result.textContent = output;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = output + '\n❌ 错误: ' + error.message;
+            }
+        }
+        
+        function test4() {
+            const result = document.getElementById('result4');
+            let output = '调用聚合函数:\n\n';
+            
+            try {
+                const calculator = new SettlementCalculator(new Date());
+                const reconciliation = new DistributorReconciliation(calculator);
+                
+                const subOrders = (DB.subOrders || []).filter(so => so.clearing && so.clearing.clearingDetails);
+                
+                if (subOrders.length === 0) {
+                    result.className = 'result error';
+                    result.textContent = '❌ 没有找到有清分数据的订单';
+                    return;
+                }
+                
+                // 测试单个订单
+                const testOrder = subOrders[0];
+                const singleResult = reconciliation.calculateDistributorClearing(testOrder);
+                
+                output += `单个订单测试:\n`;
+                output += JSON.stringify(singleResult, null, 2);
+                output += '\n\n';
+                
+                // 测试聚合
+                const testOrders = subOrders.slice(0, 5);
+                const aggregateResult = reconciliation.aggregateDistributorClearing(testOrders);
+                
+                output += `聚合测试（前5个订单）:\n`;
+                output += JSON.stringify(aggregateResult, null, 2);
+                
+                result.className = 'result success';
+                result.textContent = output;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = output + '\n❌ 错误: ' + error.message + '\n\n' + error.stack;
+            }
+        }
+        
+        function test5() {
+            const result = document.getElementById('result5');
+            let output = '完整流程测试:\n\n';
+            
+            try {
+                const calculator = new SettlementCalculator(new Date());
+                const reconciliation = new DistributorReconciliation(calculator);
+                
+                // 获取订单数据
+                const orders = DB.orders.filter(o => o.type === 'supply' && o.distributorId);
+                const subOrders = [];
+                
+                orders.forEach(order => {
+                    const orderSubOrders = DB.subOrders.filter(so => 
+                        order.subOrderIds && order.subOrderIds.includes(so.id)
+                    );
+                    orderSubOrders.forEach(so => {
+                        so.orderId = order.id;
+                        so.distributorId = order.distributorId;
+                        so.distributorName = order.distributorName;
+                        subOrders.push(so);
+                    });
+                });
+                
+                output += `订单数: ${orders.length}\n`;
+                output += `子订单数: ${subOrders.length}\n\n`;
+                
+                // 生成汇总
+                const summaries = reconciliation.generateSummary(orders, subOrders, []);
+                
+                output += `经销商数: ${summaries.length}\n\n`;
+                
+                // 显示结果表格
+                if (summaries.length > 0) {
+                    output += '经销商对账汇总:\n\n';
+                    summaries.forEach(s => {
+                        output += `${s.distributorName}:\n`;
+                        output += `  正常应结: ${s.normalAmount.toFixed(2)}\n`;
+                        output += `  净应结: ${s.netAmount.toFixed(2)}\n`;
+                        output += `  空中分账: ${s.airSplitAmount ? s.airSplitAmount.toFixed(2) : '未定义'}\n`;
+                        output += `  保证金扣除: ${s.depositDeductAmount ? s.depositDeductAmount.toFixed(2) : '未定义'}\n`;
+                        output += `  已付: ${s.paidAmount.toFixed(2)}\n`;
+                        output += `  待付: ${s.pendingAmount.toFixed(2)}\n\n`;
+                    });
+                    
+                    // 验证数据一致性
+                    output += '数据一致性验证:\n';
+                    summaries.forEach(s => {
+                        const check1 = Math.abs(s.netAmount - (s.airSplitAmount + s.depositDeductAmount)) < 0.01;
+                        const check2 = Math.abs(s.paidAmount - s.airSplitAmount) < 0.01;
+                        const check3 = Math.abs(s.pendingAmount - s.depositDeductAmount) < 0.01;
+                        
+                        output += `${s.distributorName}: `;
+                        output += `净应结=${check1?'✓':'✗'} `;
+                        output += `已付=${check2?'✓':'✗'} `;
+                        output += `待付=${check3?'✓':'✗'}\n`;
+                    });
+                }
+                
+                result.className = 'result success';
+                result.textContent = output;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = output + '\n❌ 错误: ' + error.message + '\n\n' + error.stack;
+            }
+        }
+        
+        // 页面加载时自动运行所有测试
+        window.onload = function() {
+            console.log('页面加载完成，开始测试...');
+            setTimeout(() => {
+                test1();
+                setTimeout(() => test2(), 500);
+                setTimeout(() => test3(), 1000);
+                setTimeout(() => test4(), 1500);
+                setTimeout(() => test5(), 2000);
+            }, 500);
+        };
+    </script>
+</body>
+</html>

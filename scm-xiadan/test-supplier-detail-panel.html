@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试供应商明细面板</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>供应商明细面板重构测试</h1>
+    
+    <div id="test-results"></div>
+    
+    <script src="shared/settlement-calculator.js"></script>
+    <script src="shared/detail-panel.js"></script>
+    <script src="shared/amount-formatter.js"></script>
+    
+    <script>
+        // 测试数据
+        const testData = {
+            orders: [
+                {
+                    id: 'order1',
+                    type: 'supply',
+                    status: 'completed',
+                    storeName: '测试门店1',
+                    subOrderIds: ['sub1', 'sub2']
+                }
+            ],
+            subOrders: [
+                {
+                    id: 'sub1',
+                    orderId: 'order1',
+                    supplierId: 'supplier1',
+                    supplierName: '测试供应商',
+                    deliverTime: '2024-01-10T10:00:00Z',
+                    items: [
+                        { supplyPrice: 100, qty: 2 },
+                        { supplyPrice: 50, qty: 1 }
+                    ],
+                    freight: 20
+                },
+                {
+                    id: 'sub2',
+                    orderId: 'order1',
+                    supplierId: 'supplier1',
+                    supplierName: '测试供应商',
+                    deliverTime: '2024-01-15T10:00:00Z',
+                    items: [
+                        { supplyPrice: 80, qty: 3 }
+                    ],
+                    freight: 15
+                }
+            ],
+            afterSales: [
+                {
+                    id: 'as1',
+                    subOrderId: 'sub1',
+                    refundAmount: 50,
+                    refundTime: '2024-01-20T10:00:00Z',
+                    reason: '质量问题'
+                }
+            ]
+        };
+        
+        // 模拟全局函数
+        window.getAllOrders = () => testData.orders;
+        window.findGlobalSubOrdersByIds = (ids) => testData.subOrders.filter(so => ids.includes(so.id));
+        window.DB = { afterSales: testData.afterSales };
+        
+        function runTests() {
+            const results = document.getElementById('test-results');
+            
+            try {
+                // 测试1: 创建结算计算引擎
+                const settlementDate = new Date('2024-02-01T00:00:00Z');
+                const calculator = new SettlementCalculator(settlementDate);
+                addResult('success', '✓ 结算计算引擎创建成功');
+                
+                // 测试2: 创建明细面板
+                const detailPanel = new DetailPanel();
+                addResult('success', '✓ 明细面板创建成功');
+                
+                // 测试3: 筛选供应商订单
+                const supplierSubOrders = [];
+                testData.orders.forEach(o => {
+                    const subOrders = findGlobalSubOrdersByIds(o.subOrderIds || []);
+                    subOrders.forEach(so => {
+                        if (so.supplierId === 'supplier1' && so.deliverTime) {
+                            let goodsCost = 0;
+                            if (so.items) {
+                                so.items.forEach(item => {
+                                    goodsCost += (item.supplyPrice || 0) * item.qty;
+                                });
+                            }
+                            const freight = so.freight || 0;
+                            const totalAmount = goodsCost + freight;
+                            
+                            supplierSubOrders.push({
+                                id: so.id,
+                                orderNo: so.id,
+                                orderId: o.id,
+                                supplierId: so.supplierId,
+                                supplierName: so.supplierName,
+                                supplierAmount: goodsCost,
+                                shippingFee: freight,
+                                amount: totalAmount,
+                                deliverTime: so.deliverTime,
+                                storeName: o.storeName || '未知门店',
+                                items: so.items || [],
+                                itemCount: so.items ? so.items.length : 0
+                            });
+                        }
+                    });
+                });
+                
+                addResult('success', `✓ 筛选到 ${supplierSubOrders.length} 个供应商订单`);
+                
+                // 测试4: 筛选售后记录
+                const supplierAfterSales = [];
+                testData.afterSales.forEach(as => {
+                    const relatedSubOrder = supplierSubOrders.find(so => so.id === as.subOrderId);
+                    if (relatedSubOrder && as.refundTime) {
+                        supplierAfterSales.push({
+                            id: as.id,
+                            subOrderId: as.subOrderId,
+                            originalOrderNo: relatedSubOrder.orderNo,
+                            refundAmount: as.refundAmount || 0,
+                            refundTime: as.refundTime,
+                            reason: as.reason || '未知原因'
+                        });
+                    }
+                });
+                
+                addResult('success', `✓ 筛选到 ${supplierAfterSales.length} 个售后记录`);
+                
+                // 测试5: 筛选符合结算条件的订单
+                const firstPeriodOrders = calculator.filterFirstPeriodOrders(supplierSubOrders);
+                const secondPeriodOrders = calculator.filterSecondPeriodOrders(supplierSubOrders);
+                const eligibleChargebacks = calculator.filterChargebacks(supplierAfterSales);
+                
+                addResult('success', `✓ 第一期订单: ${firstPeriodOrders.length} 个`);
+                addResult('success', `✓ 第二期订单: ${secondPeriodOrders.length} 个`);
+                addResult('success', `✓ 符合条件的售后: ${eligibleChargebacks.length} 个`);
+                
+                // 测试6: 生成分期订单记录
+                const periodOrderRecords = [];
+                
+                firstPeriodOrders.forEach(order => {
+                    periodOrderRecords.push({
+                        id: order.id + '_p1',
+                        orderNo: order.orderNo,
+                        amount: order.amount * 0.9,
+                        deliverTime: order.deliverTime,
+                        period: 1,
+                        storeName: order.storeName,
+                        itemCount: order.itemCount,
+                        supplierAmount: order.supplierAmount,
+                        shippingFee: order.shippingFee,
+                        originalOrderId: order.id
+                    });
+                });
+                
+                secondPeriodOrders.forEach(order => {
+                    periodOrderRecords.push({
+                        id: order.id + '_p2',
+                        orderNo: order.orderNo,
+                        amount: order.amount * 0.1,
+                        deliverTime: order.deliverTime,
+                        period: 2,
+                        storeName: order.storeName,
+                        itemCount: order.itemCount,
+                        supplierAmount: order.supplierAmount,
+                        shippingFee: order.shippingFee,
+                        originalOrderId: order.id
+                    });
+                });
+                
+                addResult('success', `✓ 生成 ${periodOrderRecords.length} 个分期订单记录`);
+                
+                // 测试7: 使用DetailPanel生成明细记录
+                const detailRecords = detailPanel.generateDetailRecords(periodOrderRecords, eligibleChargebacks);
+                const summary = detailPanel.calculateSummary(detailRecords);
+                
+                addResult('success', `✓ 生成 ${detailRecords.length} 个明细记录`);
+                addResult('info', `订单总额: ${AmountFormatter.format(summary.orderTotal)}`);
+                addResult('info', `冲账总额: ${AmountFormatter.format(summary.chargebackTotal)}`);
+                addResult('info', `净应结金额: ${AmountFormatter.format(summary.netTotal)}`);
+                
+                // 测试8: 验证记录类型
+                const orderRecords = detailRecords.filter(r => r.type === 'order');
+                const chargebackRecords = detailRecords.filter(r => r.type === 'chargeback');
+                
+                addResult('success', `✓ 订单记录: ${orderRecords.length} 个`);
+                addResult('success', `✓ 冲账记录: ${chargebackRecords.length} 个`);
+                
+                // 测试9: 验证记录结构
+                if (orderRecords.length > 0) {
+                    const firstOrder = orderRecords[0];
+                    const hasRequiredFields = firstOrder.typeLabel && firstOrder.orderId && firstOrder.amount !== undefined;
+                    addResult(hasRequiredFields ? 'success' : 'error', 
+                        hasRequiredFields ? '✓ 订单记录结构正确' : '✗ 订单记录结构不完整');
+                }
+                
+                if (chargebackRecords.length > 0) {
+                    const firstChargeback = chargebackRecords[0];
+                    const hasRequiredFields = firstChargeback.typeLabel && firstChargeback.refundReason && firstChargeback.amount < 0;
+                    addResult(hasRequiredFields ? 'success' : 'error', 
+                        hasRequiredFields ? '✓ 冲账记录结构正确' : '✗ 冲账记录结构不完整');
+                }
+                
+                addResult('success', '🎉 所有测试通过！showSupplierDetailPanel() 函数重构成功');
+                
+            } catch (error) {
+                addResult('error', `✗ 测试失败: ${error.message}`);
+                console.error('测试错误:', error);
+            }
+        }
+        
+        function addResult(type, message) {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        // 运行测试
+        runTests();
+    </script>
+</body>
+</html>

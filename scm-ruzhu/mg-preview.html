@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG管理后台 - 商户入驻管理预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        /* 主Tab样式 */
+        .main-tabs {
+            display: flex;
+            border-bottom: 2px solid #e8e8e8;
+            background: #fafafa;
+            padding: 0 30px;
+        }
+
+        .main-tab {
+            padding: 16px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-tab:hover {
+            color: #1890ff;
+            background: rgba(24, 144, 255, 0.05);
+        }
+
+        .main-tab.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+            background: white;
+        }
+
+        /* 子Tab容器 */
+        .sub-tabs-container {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        /* 子Tab样式 */
+        .sub-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sub-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #666;
+            background: white;
+            border: 1px solid #e8e8e8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sub-tab:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+            background: #f0f9ff;
+        }
+
+        .sub-tab.active {
+            color: #1890ff;
+            border-color: #1890ff;
+            background: #e6f7ff;
+            font-weight: 500;
+        }
+
+        /* 内容区域 */
+        .content {
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-header {
+            margin-bottom: 24px;
+        }
+
+        .tab-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .tab-desc {
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+        }
+
+        /* 表格样式 */
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e8e8e8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #fafafa;
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e8e8e8;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .status-approved {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .status-rejected {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        /* 操作按钮 */
+        .action-btn {
+            padding: 6px 12px;
+            margin: 0 4px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        /* 信息卡片 */
+        .info-card {
+            background: #f0f9ff;
+            border: 1px solid #bae7ff;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-card h4 {
+            color: #1890ff;
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 MG管理后台</h1>
+            <p>商户入驻管理系统 - 功能预览</p>
+        </div>
+
+        <!-- 主Tab -->
+        <div class="main-tabs">
+            <div class="main-tab active" onclick="switchMainTab('audit')">
+                <span>📋</span>
+                <span>入驻审批</span>
+            </div>
+            <div class="main-tab" onclick="switchMainTab('profit')">
+                <span>💰</span>
+                <span>分成管理</span>
+            </div>
+        </div>
+
+        <!-- 入驻审批内容 -->
+        <div id="audit-content" class="tab-content active">
+            <div class="content">
+                <div class="tab-header">
+                    <h2 class="tab-title">入驻审批</h2>
+                    <p class="tab-desc">审核商户入驻申请，管理商户资质信息</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>12</h3>
+                        <p>待审批申请</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <h3>45</h3>
+                        <p>已通过</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <h3>8</h3>
+                        <p>已拒绝</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>商户名称</th>
+                                <th>联系人</th>
+                                <th>联系电话</th>
+                                <th>申请时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>张三便利店</td>
+                                <td>张三</td>
+                                <td>138****1234</td>
+                                <td>2025-01-15 10:30</td>
+                                <td><span class="status-badge status-pending">待审批</span></td>
+                                <td>
+                                    <button class="action-btn">查看详情</button>
+                                    <button class="action-btn">通过</button>
+                                    <button class="action-btn">拒绝</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>李四超市</td>
+                                <td>李四</td>
+                                <td>139****5678</td>
+                                <td>2025-01-14 15:20</td>
+                                <td><span class="status-badge status-approved">已通过</span></td>
+                                <td>
+                                    <button class="action-btn">查看详情</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>王五商店</td>
+                                <td>王五</td>
+                                <td>137****9012</td>
+                                <td>2025-01-13 09:15</td>
+                                <td><span class="status-badge status-rejected">已拒绝</span></td>
+                                <td>
+                                    <button class="action-btn">查看详情</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分成管理内容 -->
+        <div id="profit-content" class="tab-content">
+            <!-- 子Tab -->
+            <div class="sub-tabs-container">
+                <div class="sub-tabs">
+                    <div class="sub-tab active" onclick="switchSubTab('headquarters')">
+                        <span>🏛️</span>
+                        <span>品牌总部分成设置</span>
+                    </div>
+                    <div class="sub-tab" onclick="switchSubTab('distributor')">
+                        <span>🤝</span>
+                        <span>经销商单位分成设置</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 品牌总部分成设置 -->
+            <div id="headquarters-content" class="tab-content active">
+                <div class="content">
+                    <div class="tab-header">
+                        <h2 class="tab-title">品牌总部分成设置</h2>
+                        <p class="tab-desc">设置品牌总部与伊智贸易公司的分成比例（占供应链平台收益）</p>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>💡 分成规则说明</h4>
+                        <p>• 品牌总部分成比例 + 伊智贸易分成比例 = 100%</p>
+                        <p>• 修改任一方比例，另一方会自动调整</p>
+                        <p>• 分成比例精确到小数点后2位</p>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>品牌名称</th>
+                                    <th>品牌总部分成</th>
+                                    <th>伊智贸易分成</th>
+                                    <th>更新时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>品牌A</td>
+                                    <td><strong style="color: #1890ff;">60%</strong></td>
+                                    <td><strong style="color: #52c41a;">40%</strong></td>
+                                    <td>2025-01-15 14:30</td>
+                                    <td>
+                                        <button class="action-btn">编辑</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>品牌B</td>
+                                    <td><strong style="color: #1890ff;">55%</strong></td>
+                                    <td><strong style="color: #52c41a;">45%</strong></td>
+                                    <td>2025-01-14 10:20</td>
+                                    <td>
+                                        <button class="action-btn">编辑</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>品牌C</td>
+                                    <td><strong style="color: #1890ff;">65%</strong></td>
+                                    <td><strong style="color: #52c41a;">35%</strong></td>
+                                    <td>2025-01-13 16:45</td>
+                                    <td>
+                                        <button class="action-btn">编辑</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 经销商单位分成设置 -->
+            <div id="distributor-content" class="tab-content">
+                <div class="content">
+                    <div class="tab-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 class="tab-title">经销商单位分成设置</h2>
+                            <p class="tab-desc">设置经销商单位与伊智贸易公司的分成比例（占供应链平台收益）</p>
+                        </div>
+                        <button class="btn btn-primary">
+                            <span>批量设置分成比例</span>
+                        </button>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>💡 分成规则说明</h4>
+                        <p>• 经销商分成比例 + 伊智贸易分成比例 = 100%</p>
+                        <p>• 可批量设置多个经销商的分成比例</p>
+                        <p>• 修改任一方比例，另一方会自动调整</p>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>经销商名称</th>
+                                    <th>经销商分成</th>
+                                    <th>伊智贸易分成</th>
+                                    <th>更新时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>经销商A</td>
+                                    <td><strong style="color: #1890ff;">70%</strong></td>
+                                    <td><strong style="color: #52c41a;">30%</strong></td>
+                                    <td>2025-01-15 11:20</td>
+                                    <td>
+                                        <button class="action-btn">编辑</button>
+                                        <button class="action-btn">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>经销商B</td>
+                                    <td><strong style="color: #1890ff;">65%</strong></td>
+                                    <td><strong style="color: #52c41a;">35%</strong></td>
+                                    <td>2025-01-14 15:30</td>
+                                    <td>
+                                        <button class="action-btn">编辑</button>
+                                        <button class="action-btn">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>经销商C</td>
+                                    <td><strong style="color: #1890ff;">75%</strong></td>
+                                    <td><strong style="color: #52c41a;">25%</strong></td>
+                                    <td>2025-01-13 09:45</td>
+                                    <td>
+                                        <button class="action-btn">编辑</button>
+                                        <button class="action-btn">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换主Tab
+        function switchMainTab(tab) {
+            // 更新Tab样式
+            document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+            event.target.closest('.main-tab').classList.add('active');
+
+            // 切换内容
+            document.querySelectorAll('.container > .tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tab + '-content').classList.add('active');
+        }
+
+        // 切换子Tab
+        function switchSubTab(tab) {
+            // 更新Tab样式
+            document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+            event.target.closest('.sub-tab').classList.add('active');
+
+            // 切换内容
+            document.querySelectorAll('#profit-content .tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tab + '-content').classList.add('active');
+        }
+
+        // 添加交互提示
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('这是一个演示页面，实际功能需要在完整系统中使用');
+            });
+        });
+
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            alert('批量设置分成比例功能\n\n可以同时为多个经销商设置分成比例');
+        });
+    </script>
+</body>
+</html>

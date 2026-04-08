@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iframe测试</title>
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+        .test-section { margin-bottom: 30px; }
+        h2 { color: #333; }
+        iframe { width: 100%; height: 600px; border: 2px solid #ddd; }
+        .info { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .error { background: #ffe6e6; color: #d00; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #e6ffe6; color: #0a0; padding: 10px; margin: 10px 0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>iframe加载测试</h1>
+    
+    <div class="test-section">
+        <h2>测试1: 直接加载MG系统</h2>
+        <div class="info">路径: mg/index.html</div>
+        <iframe id="mgFrame" src="mg/index.html"></iframe>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试2: 直接加载Lite系统</h2>
+        <div class="info">路径: lite/index.html</div>
+        <iframe id="liteFrame" src="lite/index.html"></iframe>
+    </div>
+    
+    <div class="test-section">
+        <h2>控制台日志</h2>
+        <div id="log"></div>
+    </div>
+    
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            log.appendChild(div);
+        }
+        
+        // 监听iframe加载
+        document.getElementById('mgFrame').onload = function() {
+            addLog('MG系统iframe加载完成', 'success');
+            try {
+                const doc = this.contentDocument || this.contentWindow.document;
+                addLog('MG系统文档标题: ' + doc.title, 'info');
+            } catch(e) {
+                addLog('无法访问MG系统文档: ' + e.message, 'error');
+            }
+        };
+        
+        document.getElementById('mgFrame').onerror = function() {
+            addLog('MG系统iframe加载失败', 'error');
+        };
+        
+        document.getElementById('liteFrame').onload = function() {
+            addLog('Lite系统iframe加载完成', 'success');
+            try {
+                const doc = this.contentDocument || this.contentWindow.document;
+                addLog('Lite系统文档标题: ' + doc.title, 'info');
+            } catch(e) {
+                addLog('无法访问Lite系统文档: ' + e.message, 'error');
+            }
+        };
+        
+        document.getElementById('liteFrame').onerror = function() {
+            addLog('Lite系统iframe加载失败', 'error');
+        };
+        
+        // 监听控制台错误
+        window.addEventListener('error', function(e) {
+            addLog('页面错误: ' + e.message, 'error');
+        });
+        
+        addLog('测试页面加载完成', 'success');
+    </script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVP原型demo - 平台后台 资金动账流水总表</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f0f2f5; }
+        
+        /* 顶部导航 */
+        .header { background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%); color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 18px; font-weight: 600; }
+        
+        /* 统计卡片区域 */
+        .stats-container { display: flex; gap: 20px; padding: 20px 30px; flex-wrap: wrap; }
+        .stats-card { background: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); min-width: 200px; flex: 1; }
+        .stats-label { font-size: 13px; color: #999; margin-bottom: 8px; }
+        .stats-value { font-size: 28px; font-weight: 700; }
+        .stats-value.income { color: #52c41a; }
+        .stats-value.expense { color: #ff4d4f; }
+        .stats-value.balance { color: #1890ff; }
+        
+        /* 筛选条件区域 */
+        .filter-bar { background: #fff; padding: 20px 30px; border-bottom: 1px solid #e8e8e8; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .filter-group { display: flex; align-items: center; gap: 8px; }
+        .filter-label { font-size: 14px; color: #666; }
+        .filter-input { padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; }
+        .filter-select { padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; min-width: 120px; }
+        .btn { padding: 8px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #1890ff; color: #fff; }
+        .btn-default { background: #fff; border: 1px solid #d9d9d9; color: #333; }
+        
+        /* 数据表格 */
+        .table-container { background: #fff; margin: 20px 30px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+        th { background: #fafafa; font-weight: 600; color: #333; }
+        
+        /* 金额样式 */
+        .amount { font-weight: 600; }
+        .amount-income { color: #52c41a; }
+        .amount-expense { color: #ff4d4f; }
+        
+        /* 交易类型标签 */
+        .trade-type { padding: 4px 10px; border-radius: 4px; font-size: 12px; display: inline-block; }
+        .type-income { background: #f6ffed; color: #52c41a; }
+        .type-expense { background: #fff1f0; color: #ff4d4f; }
+        
+        /* 账户类型 */
+        .account-tag { padding: 2px 8px; border-radius: 10px; font-size: 11px; background: #e6f7ff; color: #1890ff; }
+        
+        /* 页面标题 */
+        .page-title { font-size: 24px; font-weight: 600; margin-bottom: 20px; padding: 0 30px; padding-top: 20px; }
+        .page-subtitle { font-size: 14px; color: #999; font-weight: normal; margin-left: 12px; }
+        
+        /* 说明文字 */
+        .description { background: #f0f5ff; border-left: 3px solid #1890ff; padding: 15px 20px; margin: 0 30px 20px; border-radius: 0 8px 8px 0; font-size: 13px; color: #666; line-height: 1.8; }
+        
+        /* Tab切换 */
+        .tabs { display: flex; gap: 5px; padding: 0 30px; background: #fff; border-bottom: 1px solid #e8e8e8; }
+        .tab { padding: 12px 20px; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; }
+        .tab.active { color: #1890ff; border-bottom-color: #1890ff; font-weight: 500; }
+        
+        /* 账户变动明细 */
+        .account-change { display: flex; align-items: center; gap: 15px; margin-top: 5px; }
+        .account-item { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+        .account-item .account-tag { margin-right: 4px; }
+        
+        /* 底部汇总 */
+        .summary-bar { background: #fafafa; padding: 15px 30px; display: flex; justify-content: space-between; border-top: 1px solid #e8e8e8; font-size: 14px; }
+        .summary-item span { font-weight: 600; margin-left: 5px; }
+    </style>
+</head>
+<body>
+    <!-- 页面标题 -->
+    <div class="page-title">
+        财务管理 → 资金动账流水
+        <span class="page-subtitle">财务看全部资金进出的台账</span>
+    </div>
+    
+    <!-- 顶部说明 -->
+    <div class="description">
+        <strong>📋 页面定位：</strong>财务看全部资金进出的台账，类似银行流水的概念。<br>
+        <strong>💡 核心概念：</strong>收入(客户付款) = 支出(分账给各方) + 账户余额变动<br>
+        <strong>💰 账户体系：</strong>平台总账户、拉卡拉商户账户、门店保证金账户、供应商账户
+    </div>
+    
+    <!-- 统计概览 -->
+    <div class="stats-container">
+        <div class="stats-card">
+            <div class="stats-label">🎯 统计周期</div>
+            <div style="font-size: 16px; font-weight: 600; color: #333;">2026年3月</div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-label">💚 客户实收(收入)</div>
+            <div class="stats-value amount-income">¥2,680,000</div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-label">💔 分账支出(支出)</div>
+            <div class="stats-value amount-expense">¥2,412,000</div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-label">💰 净变动(收入-支出)</div>
+            <div class="stats-value amount-balance">¥268,000</div>
+        </div>
+    </div>
+    
+    <!-- Tab切换 -->
+    <div class="tabs">
+        <div class="tab active">全部流水</div>
+        <div class="tab">收入明细(客户付款)</div>
+        <div class="tab">支出明细(分账支出)</div>
+        <div class="tab">账户余额变动</div>
+    </div>
+    
+    <!-- 筛选条件 -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <span class="filter-label">交易类型：</span>
+            <select class="filter-select">
+                <option value="all">全部</option>
+                <option value="income">收入</option>
+                <option value="expense">支出</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <span class="filter-label">账户：</span>
+            <select class="filter-select">
+                <option value="all">全部账户</option>
+                <option value="platform">平台总账户</option>
+                <option value="lakala">拉卡拉商户账户</option>
+                <option value="deposit">门店保证金账户</option>
+                <option value="supplier">供应商账户</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <span class="filter-label">时间：</span>
+            <input type="date" class="filter-input" value="2026-03-01">
+            <span style="color: #999;">至</span>
+            <input type="date" class="filter-input" value="2026-03-31">
+        </div>
+        <div class="filter-group">
+            <span class="filter-label">对方账户：</span>
+            <input type="text" class="filter-input" placeholder="请输入账户名称" style="width: 150px;">
+        </div>
+        <button class="btn btn-primary">查询</button>
+        <button class="btn btn-default">导出</button>
+    </div>
+    
+    <!-- 数据表格 -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 150px;">流水号</th>
+                    <th style="width: 140px;">交易时间</th>
+                    <th style="width: 100px;">交易类型</th>
+                    <th style="width: 120px;">金额</th>
+                    <th>账户变动明细</th>
+                    <th style="width: 100px;">关联单号</th>
+                    <th style="width: 120px;">备注</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 收入 - 客户付款 -->
+                <tr>
+                    <td style="font-weight: 500; color: #1890ff;">LF2026030100001</td>
+                    <td>
+                        <div style="font-size: 13px;">2026-03-01</div>
+                        <div style="font-size: 12px; color: #999;">14:30:25</div>
+                    </td>
+                    <td><span class="trade-type type-income">💚 收入</span></td>
+                    <td><span class="amount amount-income">+¥100.00</span></td>
+                    <td>
+                        <div class="account-change">
+                            <div class="account-item">
+                                <span class="account-tag">拉卡拉</span> +100
+                            </div>
+                            <span style="color: #999;">→</span>
+                            <div class="account-item">
+                                <span class="account-tag">平台</span> +100
+                            </div>
+                        </div>
+                    </td>
+                    <td style="color: #1890ff;">OD20260301123456</td>
+                    <td style="color: #999;">客户付款</td>
+                </tr>
+                
+                <!-- 支出 - 空中分账(平台) -->
+                <tr>
+                    <td style="font-weight: 500; color: #1890ff;">LF2026030100002</td>
+                    <td>
+                        <div style="font-size: 13px;">2026-03-01</div>
+                        <div style="font-size: 12px; color: #999;">14:30:28</div>
+                    </td>
+                    <td><span class="trade-type type-expense">💔 支出</span></td>
+                    <td><span class="amount amount-expense">-¥70.00</span></td>
+                    <td>
+                        <div class="account-change">
+                            <div class="account-item">
+                                <span class="account-tag">平台</span> -70
+                            </div>
+                            <span style="color: #999;">→</span>
+                            <div class="account-item">
+                                <span class="account-tag">伊智咨询</span> +70
+                            </div>
+                        </div>
+                    </td>
+                    <td style="color: #1890ff;">OD20260301123456</td>
+                    <td style="color: #999;">平台抽成70%</td>
+                </tr>
+                
+                <!-- 支出 - 空中分账(总部) -->
+                <tr>
+                    <td style="font-weight: 500; color: #1890ff;">LF2026030100003</td>
+                    <td>
+                        <div style="font-size: 13px;">2026-03-01</div>
+                        <div style="font-size: 12px; color: #999;">14:30:30</div>
+                    </td>
+                    <td><span class="trade-type type-expense">💔 支出</span></td>
+                    <td><span class="amount amount-expense">-¥6.00</span></td>
+                    <td>
+                        <div class="account-change">
+                            <div class="account-item">
+                                <span class="account-tag">平台</span> -6
+                            </div>
+                            <span style="color: #999;">→</span>
+                            <div class="account-item">
+                                <span class="account-tag">总部</span> +6
+                            </div>
+                        </div>
+                    </td>
+                    <td style="color: #1890ff;">OD20260301123456</td>
+                    <td style="color: #999;">总部分成10%</td>
+                </tr>
+                
+                <!-- 支出 - 保证金扣除 -->
+                <tr>
+                    <td style="font-weight: 500; color: #1890ff;">LF2026030100004</td>
+                    <td>
+                        <div style="font-size: 13px;">2026-03-01</div>
+                        <div style="font-size: 12px; color: #999;">14:30:32</div>
+                    </td>
+                    <td><span class="trade-type type-expense">💔 支出</span></td>
+                    <td><span class="amount amount-expense">-¥24.00</span></td>
+                    <td>
+                        <div class="account-change">
+                            <div class="account-item">
+                                <span class="account-tag">门店保证金</span> -24
+                            </div>
+                            <span style="color: #999;">→</span>
+                            <div class="account-item">
+                                <span class="account-tag">供应商</span> +24
+                            </div>
+                        </div>
+                    </td>
+                    <td style="color: #1890ff;">OD20260301123456</td>
+                    <td style="color: #999;">保证金扣除</td>
+                </tr>
+                
+                <!-- 收入 - 退款 -->
+                <tr style="background: #fff1f0;">
+                    <td style="font-weight: 500; color: #999;">LF2026030100005</td>
+                    <td>
+                        <div style="font-size: 13px; color: #999;">2026-03-01</div>
+                        <div style="font-size: 12px; color: #999;">16:30:00</div>
+                    </td>
+                    <td><span class="trade-type type-expense" style="background: #fff1f0; color: #ff4d4f;">🔄 退款</span></td>
+                    <td><span class="amount amount-expense">-¥99.00</span></td>
+                    <td>
+                        <div class="account-change">
+                            <div class="account-item">
+                                <span class="account-tag">平台</span> -99
+                            </div>
+                            <span style="color: #999;">→</span>
+                            <div class="account-item">
+                                <span class="account-tag">用户</span> +99
+                            </div>
+                        </div>
+                    </td>
+                    <td style="color: #999;">OD20260301123459</td>
+                    <td style="color: #999;">售后退款</td>
+                </tr>
+                
+                <!-- 支出 - 退款冲账(回滚分账) -->
+                <tr style="background: #fff1f0;">
+                    <td style="font-weight: 500; color: #999;">LF2026030100006</td>
+                    <td>
+                        <div style="font-size: 13px; color: #999;">2026-03-01</div>
+                        <div style="font-size: 12px; color: #999;">16:30:05</div>
+                    </td>
+                    <td><span class="trade-type type-expense" style="background: #fff1f0; color: #ff4d4f;">🔄 退款冲账</span></td>
+                    <td><span class="amount amount-expense">+¥69.30</span></td>
+                    <td>
+                        <div class="account-change">
+                            <div class="account-item">
+                                <span class="account-tag">伊智咨询</span> -69.3
+                            </div>
+                            <span style="color: #999;">←</span>
+                            <div class="account-item">
+                                <span class="account-tag">平台</span> +69.3
+                            </div>
+                        </div>
+                    </td>
+                    <td style="color: #999;">OD20260301123459</td>
+                    <td style="color: #999;">退款冲回分账</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 底部汇总 -->
+    <div class="summary-bar">
+        <div class="summary-item">
+            收入笔数: <span style="color: #52c41a;">1,234</span>
+        </div>
+        <div class="summary-item">
+            支出笔数: <span style="color: #ff4d4f;">2,567</span>
+        </div>
+        <div class="summary-item">
+            收入总额: <span class="amount-income">¥2,680,000</span>
+        </div>
+        <div class="summary-item">
+            支出总额: <span class="amount-expense">¥2,412,000</span>
+        </div>
+        <div class="summary-item">
+            净变动: <span style="color: #1890ff; font-weight: 700;">¥268,000</span>
+        </div>
+    </div>
+    
+    <div style="text-align: center; padding: 30px; color: #999; font-size: 14px;">
+        共 3,801 条记录，显示 1-6 条
+    </div>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVP原型demo - 平台后台 全网订单清分明细表</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f0f2f5; }
+        
+        /* 顶部导航 */
+        .header { background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%); color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 18px; font-weight: 600; }
+        
+        /* 筛选条件区域 */
+        .filter-bar { background: #fff; padding: 20px 30px; border-bottom: 1px solid #e8e8e8; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .filter-group { display: flex; align-items: center; gap: 8px; }
+        .filter-label { font-size: 14px; color: #666; }
+        .filter-input { padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; }
+        .filter-select { padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; min-width: 120px; }
+        .btn { padding: 8px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #1890ff; color: #fff; }
+        .btn-default { background: #fff; border: 1px solid #d9d9d9; color: #333; }
+        
+        /* 状态单选按钮 */
+        .status-tabs { display: flex; gap: 15px; margin-top: 10px; }
+        .status-tab { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; color: #666; }
+        .status-tab input { cursor: pointer; }
+        .status-tab.active { color: #1890ff; font-weight: 500; }
+        
+        /* 数据表格 */
+        .table-container { background: #fff; margin: 20px 30px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+        th { background: #fafafa; font-weight: 600; color: #333; }
+        
+        /* 状态标签 */
+        .status-tag { padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: 500; display: inline-block; }
+        .status-cleared { background: #f6ffed; color: #52c41a; }  /* 已清分 - 绿色 */
+        .status-pending { background: #fff7e6; color: #fa8c16; }  /* 待清分 - 黄色 */
+        .status-exception { background: #fff1f0; color: #ff4d4f; } /* 清分异常 - 红色 */
+        .status-rolled { background: #f0f0f0; color: #999; }       /* 已退回滚 - 灰色 */
+        
+        /* 子状态 */
+        .sub-status { font-size: 11px; color: #999; margin-top: 4px; }
+        .sub-status.error { color: #ff4d4f; }
+        .sub-status.success { color: #52c41a; }
+        
+        /* 操作按钮 */
+        .btn-link { color: #1890ff; background: none; border: none; cursor: pointer; font-size: 13px; text-decoration: underline; }
+        .btn-link:hover { color: #40a9ff; }
+        
+        /* 页面标题 */
+        .page-title { font-size: 24px; font-weight: 600; margin-bottom: 20px; padding: 0 30px; padding-top: 20px; }
+        .page-subtitle { font-size: 14px; color: #999; font-weight: normal; margin-left: 12px; }
+        
+        /* 说明文字 */
+        .description { background: #fff7e6; border-left: 3px solid #fa8c16; padding: 15px 20px; margin: 20px 30px; border-radius: 0 8px 8px 0; font-size: 13px; color: #666; line-height: 1.8; }
+        
+        /* 金额构成 */
+        .amount-breakdown { font-size: 12px; color: #666; }
+        .amount-breakdown .total { font-weight: 600; color: #333; }
+        .amount-breakdown .detail { color: #999; font-size: 11px; margin-top: 2px; }
+    </style>
+</head>
+<body>
+    <!-- 页面标题 -->
+    <div class="page-title">
+        订单管理 → 订单清结算明细
+        <span class="page-subtitle">客服/运营排查"这单我没收到钱"问题</span>
+    </div>
+    
+    <!-- 顶部说明 -->
+    <div class="description">
+        <strong>📋 页面定位：</strong>纯列表页。当门店打电话投诉"这单我没收到钱"时，客服全靠这个页面排查。<br>
+        <strong>💡 核心字段：</strong>主清分状态 + 子状态(空中分账/保证金扣除) + 金额构成(现金/积分/卡金)
+    </div>
+    
+    <!-- 筛选条件 -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <span class="filter-label">订单号：</span>
+            <input type="text" class="filter-input" placeholder="请输入订单号" style="width: 180px;">
+        </div>
+        <div class="filter-group">
+            <span class="filter-label">门店名称：</span>
+            <input type="text" class="filter-input" placeholder="请输入门店名称" style="width: 150px;">
+        </div>
+        <div class="filter-group">
+            <span class="filter-label">支付时间：</span>
+            <input type="date" class="filter-input" value="2026-03-01">
+            <span style="color: #999;">至</span>
+            <input type="date" class="filter-input" value="2026-03-01">
+        </div>
+        
+        <!-- 主状态筛选 -->
+        <div style="width: 100%;">
+            <span class="filter-label">主状态：</span>
+            <div class="status-tabs">
+                <label class="status-tab active">
+                    <input type="radio" name="mainStatus" value="all" checked> 全部
+                </label>
+                <label class="status-tab">
+                    <input type="radio" name="mainStatus" value="pending"> 待清分
+                </label>
+                <label class="status-tab">
+                    <input type="radio" name="mainStatus" value="cleared"> 已清分
+                </label>
+                <label class="status-tab">
+                    <input type="radio" name="mainStatus" value="exception"> 清分异常
+                </label>
+                <label class="status-tab">
+                    <input type="radio" name="mainStatus" value="rolled_back"> 已退回滚
+                </label>
+            </div>
+        </div>
+        
+        <button class="btn btn-primary">查询</button>
+        <button class="btn btn-default">重置</button>
+    </div>
+    
+    <!-- 数据表格 -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 140px;">业务单号</th>
+                    <th style="width: 140px;">交易门店<br>& 下单时间</th>
+                    <th style="width: 140px;">订单金额构成</th>
+                    <th style="width: 90px;">主清分状态</th>
+                    <th style="width: 100px;">
+                        子状态<br>
+                        <span style="font-weight: normal; color: #999; font-size: 11px;">空中分账</span>
+                    </th>
+                    <th style="width: 100px;">
+                        子状态<br>
+                        <span style="font-weight: normal; color: #999; font-size: 11px;">保证金扣除</span>
+                    </th>
+                    <th style="width: 100px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 已清分 - 全部成功 -->
+                <tr>
+                    <td style="font-weight: 500; color: #1890ff;">OD20260301123456</td>
+                    <td>
+                        <div style="font-weight: 500;">伊匠直营店</div>
+                        <div style="font-size: 12px; color: #999;">03-01 14:30</div>
+                    </td>
+                    <td>
+                        <div class="amount-breakdown">
+                            <div class="total">总额 ¥100</div>
+                            <div class="detail">(现金30 + 积分70)</div>
+                        </div>
+                    </td>
+                    <td><span class="status-tag status-cleared">🟢 已清分</span></td>
+                    <td>
+                        <div class="sub-status success">✓ 分账成功</div>
+                    </td>
+                    <td>
+                        <div class="sub-status success">✓ 扣账成功</div>
+                    </td>
+                    <td>
+                        <button class="btn-link" onclick="alert('查看底层流水')">查看底层流水</button>
+                    </td>
+                </tr>
+                
+                <!-- 清分异常 - 空中分账失败 -->
+                <tr>
+                    <td style="font-weight: 500; color: #1890ff;">OD20260301123457</td>
+                    <td>
+                        <div style="font-weight: 500;">北京旗舰店</div>
+                        <div style="font-size: 12px; color: #999;">03-01 15:20</div>
+                    </td>
+                    <td>
+                        <div class="amount-breakdown">
+                            <div class="total">总额 ¥198</div>
+                            <div class="detail">(现金198)</div>
+                        </div>
+                    </td>
+                    <td><span class="status-tag status-exception">🔴 清分异常</span></td>
+                    <td>
+                        <div class="sub-status error">✗ 失败</div>
+                        <div style="font-size: 10px; color: #ff4d4f;">拉卡拉报错: 余额不足</div>
+                    </td>
+                    <td>
+                        <div class="sub-status success">✓ 扣账成功</div>
+                    </td>
+                    <td>
+                        <button class="btn-link" onclick="alert('查看底层流水')">查看底层流水</button>
+                    </td>
+                </tr>
+                
+                <!-- 待清分 -->
+                <tr>
+                    <td style="font-weight: 500; color: #1890ff;">OD20260301123458</td>
+                    <td>
+                        <div style="font-weight: 500;">上海分店</div>
+                        <div style="font-size: 12px; color: #999;">03-01 16:00</div>
+                    </td>
+                    <td>
+                        <div class="amount-breakdown">
+                            <div class="total">总额 ¥99</div>
+                            <div class="detail">(现金99)</div>
+                        </div>
+                    </td>
+                    <td><span class="status-tag status-pending">🟡 待清分</span></td>
+                    <td>
+                        <div class="sub-status">-</div>
+                    </td>
+                    <td>
+                        <div class="sub-status">-</div>
+                    </td>
+                    <td>
+                        <button class="btn-link" onclick="alert('查看底层流水')">查看底层流水</button>
+                    </td>
+                </tr>
+                
+                <!-- 已退回滚 - 退款导致 -->
+                <tr style="background: #f5f5f5;">
+                    <td style="font-weight: 500; color: #999;">OD20260301123459</td>
+                    <td>
+                        <div style="font-weight: 500; color: #999;">广州分店</div>
+                        <div style="font-size: 12px; color: #999;">03-01 16:30</div>
+                    </td>
+                    <td>
+                        <div class="amount-breakdown">
+                            <div class="total" style="color: #999;">总额 ¥150</div>
+                            <div class="detail">(现金150)</div>
+                        </div>
+                    </td>
+                    <td><span class="status-tag status-rolled">⚪ 已退回滚</span></td>
+                    <td>
+                        <div class="sub-status">已回滚</div>
+                    </td>
+                    <td>
+                        <div class="sub-status">已回滚</div>
+                    </td>
+                    <td>
+                        <button class="btn-link" onclick="alert('查看底层流水')">查看底层流水</button>
+                    </td>
+                </tr>
+                
+                <!-- 已清分 - 混合结算(部分空中分账+部分保证金) -->
+                <tr>
+                    <td style="font-weight: 500; color: #1890ff;">OD20260301123460</td>
+                    <td>
+                        <div style="font-weight: 500;">深圳分店</div>
+                        <div style="font-size: 12px; color: #999;">03-01 17:00</div>
+                    </td>
+                    <td>
+                        <div class="amount-breakdown">
+                            <div class="total">总额 ¥258</div>
+                            <div class="detail">(现金200 + 积分58)</div>
+                        </div>
+                    </td>
+                    <td><span class="status-tag status-cleared">🟢 已清分</span></td>
+                    <td>
+                        <div class="sub-status success">✓ 分账成功</div>
+                        <div style="font-size: 10px; color: #666;">到账 ¥180(空中)</div>
+                    </td>
+                    <td>
+                        <div class="sub-status success">✓ 扣账成功</div>
+                        <div style="font-size: 10px; color: #666;">扣除 ¥78(保证金)</div>
+                    </td>
+                    <td>
+                        <button class="btn-link" onclick="alert('查看底层流水')">查看底层流水</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div style="text-align: center; padding: 30px; color: #999; font-size: 14px;">
+        共 1,234 条记录，显示 1-5 条
+    </div>
+</body>
+</html>
