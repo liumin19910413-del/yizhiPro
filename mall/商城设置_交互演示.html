@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商城设置 · 交互演示</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/themes/corporate-clean.css">
+  <style>
+    :root {
+      --sidebar-w: 200px;
+      --header-h: 52px;
+      --footer-h: 60px;
+      --accent: #4f46e5;
+      --accent-2: #7c3aed;
+      --good: #10b981;
+      --bad: #ef4444;
+      --warn: #f59e0b;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08);
+      --text-1: #111827;
+      --text-2: #6b7280;
+      --text-3: #9ca3af;
+      --border: #e5e7eb;
+      --surface: #ffffff;
+      --bg: #f9fafb;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ===== Layout ===== */
+    .app {
+      display: grid;
+      grid-template-rows: var(--header-h) 1fr var(--footer-h);
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-areas:
+        "header header"
+        "sidebar main"
+        "footer footer";
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      grid-area: header;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+    }
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .header-nav span:last-child { color: var(--text-1); font-weight: 500; }
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-outline {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all .15s;
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      grid-area: sidebar;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .sidebar-item:hover { background: var(--bg); color: var(--text-1); }
+    .sidebar-item.active { color: var(--accent); font-weight: 500; background: #f0f0ff; }
+    .sidebar-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 3px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 0 3px 3px 0;
+    }
+    .sidebar-section {
+      font-size: 11px;
+      color: var(--text-3);
+      padding: 12px 20px 4px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    /* ===== Main Content ===== */
+    .main {
+      grid-area: main;
+      overflow-y: auto;
+      padding: 20px 24px 80px;
+      background: var(--bg);
+    }
+
+    /* ===== Section Block ===== */
+    .section-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: #fafafa;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .section-header .info-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      color: var(--text-2);
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+      position: relative;
+    }
+    .section-header .info-icon:hover .tooltip {
+      display: block;
+    }
+    .tooltip {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text-1);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 400;
+      padding: 8px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      z-index: 100;
+      min-width: 240px;
+      white-space: normal;
+      text-align: left;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    }
+    .tooltip::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-bottom-color: var(--text-1);
+    }
+    .section-body {
+      padding: 16px 20px;
+    }
+    .section-apply-note {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-3);
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin-bottom: 12px;
+    }
+
+    /* ===== Form Rows ===== */
+    .form-row {
+      display: flex;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .form-row:last-child { border-bottom: none; }
+    .form-label {
+      width: 120px;
+      font-size: 14px;
+      color: var(--text-1);
+      padding-top: 2px;
+      flex-shrink: 0;
+    }
+    .form-control {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-hint {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    /* ===== Input ===== */
+    .input-sm {
+      width: 72px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      text-align: center;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .input-sm:focus { border-color: var(--accent); }
+
+    /* ===== Toggle Switch ===== */
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle-track {
+      width: 40px;
+      height: 22px;
+      border-radius: 11px;
+      background: #d1d5db;
+      position: relative;
+      transition: background .2s;
+    }
+    .toggle-track.on { background: var(--accent); }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+    .toggle-track.on .toggle-thumb { left: 21px; }
+    .toggle-label { font-size: 13px; color: var(--text-2); }
+
+    /* ===== Radio Group ===== */
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .radio-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid #d1d5db;
+      flex-shrink: 0;
+      position: relative;
+      transition: border-color .15s;
+    }
+    .radio-dot.checked {
+      border-color: var(--accent);
+    }
+    .radio-dot.checked::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* ===== Checkbox Group ===== */
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .checkbox-box {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 2px solid #d1d5db;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+    }
+    .checkbox-box.checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .checkbox-box.checked::after {
+      content: '✓';
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* ===== Divider ===== */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* ===== Collapsible Section ===== */
+    .collapsible {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .collapsible-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #fafafa;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      user-select: none;
+    }
+    .collapsible-header:hover { background: #f5f5f5; }
+    .collapsible-arrow {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .2s;
+      color: var(--text-2);
+    }
+    .collapsible.open .collapsible-arrow { transform: rotate(180deg); }
+    .collapsible-body {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+    .collapsible.open .collapsible-body { display: block; }
+
+    /* ===== Zone Header ===== */
+    .zone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: linear-gradient(to right, #f8f9ff, #fafafa);
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: .3px;
+    }
+    .zone-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      color: var(--accent);
+    }
+
+    /* ===== Sub Section ===== */
+    .sub-section {
+      margin-bottom: 14px;
+    }
+    .sub-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-1);
+      margin-bottom: 8px;
+    }
+    .sub-card {
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    /* ===== Matrix Table ===== */
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .matrix-table th, .matrix-table td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .matrix-table th {
+      background: #fafafa;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+    .matrix-table td:first-child { text-align: left; font-weight: 500; }
+
+    /* ===== Rule Jump Link ===== */
+    .rule-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+      cursor: pointer;
+    }
+    .rule-link:last-child { border-bottom: none; }
+    .rule-link:hover .rule-arrow { color: var(--accent); transform: translateX(3px); }
+    .rule-link-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rule-tag {
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .rule-arrow {
+      color: var(--text-3);
+      font-size: 13px;
+      transition: all .15s;
+    }
+
+    /* ===== Config Center Bar ===== */
+    .config-center-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .config-center-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .config-center-sub {
+      font-size: 12px;
+      opacity: .85;
+      margin-top: 2px;
+    }
+    .btn-bar {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-sm {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      transition: all .15s;
+    }
+    .btn-sm-secondary {
+      background: rgba(255,255,255,.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.3);
+    }
+    .btn-sm-secondary:hover { background: rgba(255,255,255,.25); }
+    .btn-sm-primary {
+      background: #fff;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .btn-sm-primary:hover { background: #f0f0ff; }
+
+    /* ===== Footer ===== */
+    .footer {
+      grid-area: footer;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+    .footer-hint {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+    .footer-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 9px 20px;
+      border-radius: 7px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: all .15s;
+    }
+    .btn-ghost:hover { background: #f3f4f6; }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+    }
+    .btn-primary:hover { background: #4338ca; }
+
+    /* ===== Mode Tabs ===== */
+    .mode-tabs {
+      display: flex;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .mode-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-2);
+      transition: all .2s;
+      border-right: 1px solid var(--border);
+      user-select: none;
+    }
+    .mode-tab:last-child { border-right: none; }
+    .mode-tab:hover { background: #f0f0ff; }
+    .mode-tab.selected { background: var(--accent); color: #fff; }
+    .mode-tab.selected .tab-dot {
+      border-color: #fff;
+      background: #fff;
+    }
+    .mode-tab.selected .tab-dot::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .mode-tab .tab-label { font-weight: 600; }
+    .mode-tab .tab-sub { font-size: 11px; opacity: .7; }
+    .mode-tab .tab-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    /* ===== State B — 多优惠叠加配置 ===== */
+    .state-b-zone { display: none; }
+    body.state-b .state-b-zone { display: block; }
+    body.state-b .state-a-only { display: none; }
+    body.state-a .state-b-zone { display: none; }
+
+    /* ===== Mode Block ===== */
+    .mode-block {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .mode-block-header {
+      padding: 12px 16px;
+      background: #fafafa;
+      border-bottom: 1px solid var(--border);
+      border-left-width: 4px;
+      border-left-style: solid;
+    }
+    .mode-block-header-inner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mode-block-dot {
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+    .mode-block-dot-off { color: #f59e0b; }
+    .mode-block-dot-on { color: var(--accent); }
+    .mode-block-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .mode-block-desc {
+      font-size: 12px;
+      color: var(--text-2);
+    }
+    .mode-block-body {
+      padding: 16px 20px;
+    }
+    /* 标准模式 */
+    .mode-block-header-off {
+      border-left-color: #f59e0b;
+      background: #fffbeb;
+    }
+    #blockOff {
+      border-color: #fcd34d;
+    }
+    /* 电商模式 */
+    .mode-block-header-on {
+      border-left-color: var(--accent);
+      background: #f0f0ff;
+    }
+    #blockOn {
+      display: none;
+      border-color: var(--accent);
+    }
+    #blockOn .mode-block-body { background: #fafafa; }
+
+    /* ===== Cash Section ===== */
+    .cash-section {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .cash-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #fafafa;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+    .cash-section-header:hover { background: #f0f0f0; }
+    .cash-section-body {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+    }
+    .cash-section.collapsed .cash-section-body { display: none; }
+    .cash-section.collapsed .cash-arrow { transform: rotate(-90deg); }
+
+    /* ===== Toggle row in 支付规则 ===== */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+    .toggle-row-label {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .toggle-row-desc {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 2px;
+    }
+    .state-indicator {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: .3px;
+    }
+    .state-indicator.off {
+      background: #fee2e2;
+      color: var(--bad);
+    }
+    .state-indicator.on {
+      background: #d1fae5;
+      color: var(--good);
+    }
+
+    /* ===== Search + Select in 仅限现金 ===== */
+    .cash-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .search-input {
+      flex: 1;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .btn-select-all {
+      font-size: 12px;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .btn-select-all:hover { text-decoration: underline; }
+    .cash-category {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .cash-category-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #fafafa;
+      cursor: pointer;
+      font-size: 13px;
+      user-select: none;
+    }
+    .cash-category-header:hover { background: #f0f0f0; }
+    .cash-items {
+      padding: 8px 14px;
+      display: none;
+    }
+    .cash-category.open .cash-items { display: block; }
+    .cash-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+
+    /* ===== 热门搜索 ===== */
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      background: #f3f4f6;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .tag .remove {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #d1d5db;
+      color: #fff;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .btn-add {
+      padding: 5px 12px;
+      border: 1px dashed #d1d5db;
+      border-radius: 6px;
+      background: none;
+      color: var(--text-2);
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-add:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ===== Badge pills ===== */
+    .badge {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: #fee2e2;
+      color: var(--bad);
+      font-weight: 600;
+    }
+
+    /* ===== Animations ===== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .section-block {
+      animation: fadeIn .3s ease-out;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; max-height: 0; }
+      to { opacity: 1; max-height: 2000px; }
+    }
+    .state-b-zone {
+      animation: slideDown .35s ease-out;
+    }
+
+    /* ===== Responsive fix ===== */
+    .inline-fields {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-nav">
+      <span>营销应用</span>
+      <span>›</span>
+      <span>商城</span>
+      <span>›</span>
+      <span style="font-weight:600;color:var(--text-1)">商城设置</span>
+    </div>
+    <div class="header-right">
+      <span style="font-size:12px;color:var(--text-3);">变多 ▾</span>
+      <button class="btn-outline">下载中心</button>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">商品系统</div>
+    <div class="sidebar-item">商品管理</div>
+    <div class="sidebar-item">商品规格</div>
+    <div class="sidebar-item">运费模版</div>
+    <div class="sidebar-section">营销</div>
+    <div class="sidebar-item active">商城设置</div>
+    <div class="sidebar-item">优惠券</div>
+    <div class="sidebar-item">积分规则</div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main" id="mainScroll">
+
+    <!-- 三、履约设置 -->
+    <div class="section-block">
+      <div class="section-header">
+        <input type="checkbox" checked disabled class="check">
+        <span>履约设置</span>
+        <span class="info-icon">ℹ️
+          <span class="tooltip">以下设置适用于：微商城、秒杀、拼团、积分等订单</span>
+        </span>
+      </div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-label">快递费用</div>
+          <div class="form-control">
+            <div style="font-size:14px;">查看邮费模版 <span style="color:var(--accent);cursor:pointer;">→</span></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">自动确认发货</div>
+          <div class="form-control">
+            <div class="inline-fields">
+              发货后 <input type="text" class="input-sm" value="0"> 天自动确认收货
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">退款截止期</div>
+          <div class="form-control">
+            <div class="inline-fields">
+              确认收货后 <input type="text" class="input-sm" value="0"> 天，用户在小程序端不可再发起退款
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">代付有效期</div>
+          <div class="form-control">
+            <div class="inline-fields">
+              代付订单 <input type="text" class="input-sm" value="2"> 天未支付自动过期取消
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 五、商品展示 -->
+    <div class="section-block">
+      <div class="section-header">
+        <input type="checkbox" checked disabled class="check">
+        <span>商品展示</span>
+        <span class="info-icon">ℹ️
+          <span class="tooltip">以下设置适用于：微商城、秒杀、拼团、积分等订单</span>
+        </span>
+      </div>
+      <div class="section-body">
+        <div class="checkbox-group">
+          <label class="checkbox-item" onclick="toggleCheck(this)">
+            <div class="checkbox-box checked"></div>
+            <span>显示商城会员价</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)">
+            <div class="checkbox-box"></div>
+            <span>显示已售数量</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)">
+            <div class="checkbox-box"></div>
+            <span>显示库存</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)">
+            <div class="checkbox-box"></div>
+            <span>显示差评</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)">
+            <div class="checkbox-box checked"></div>
+            <span>可上门自提</span>
+          </label>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:14px;color:var(--text-2);">热门搜索项设置（<span style="color:var(--accent);font-weight:700;">0</span>/5）</div>
+        <div class="tag-list">
+          <button class="btn-add">+ 新增搜索项</button>
+        </div>
+      </div>
+    </div>
+    <div class="section-block">
+      <div class="section-header">
+        <span>≡</span>
+        <span>仅限现金支付</span>
+        <span class="info-icon">ℹ️
+          <span class="tooltip">设置仅支持现金支付的特殊商品或疗程，该商品不参与任何优惠叠加</span>
+        </span>
+      </div>
+      <div class="section-body">
+        <div>
+          <span style="font-size:13px;color:var(--text-2);">适用品项范围</span>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+            <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot checked"></div><span>全部品项</span></div>
+            <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot"></div><span>指定品项</span></div>
+            <span style="color:var(--accent);font-size:13px;cursor:pointer;">[配置品项范围 →]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 优惠计价规则 -->
+    <div class="section-block">
+      <div class="section-header" style="background:#fafafa;">
+        <span>≡</span>
+        <span style="font-weight:700;">优惠计价规则</span>
+        <div style="margin-left:auto;margin-right:8px;display:flex;align-items:center;gap:10px;">
+          <div class="mode-tabs" id="modeTabs">
+            <div class="mode-tab selected" onclick="switchDiscountMode('off')" id="tabOff">
+              <span class="tab-dot"></span>
+              <span class="tab-label">标准模式</span>
+            </div>
+            <div class="mode-tab" onclick="switchDiscountMode('on')" id="tabOn">
+              <span class="tab-dot"></span>
+              <span class="tab-label">电商模式</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- 单一优惠配置区块 -->
+        <div class="mode-block" id="blockOff">
+          <div class="mode-block-header mode-block-header-off">
+            <div class="mode-block-header-inner">
+              <span class="mode-block-dot mode-block-dot-off">●</span>
+              <span class="mode-block-title">标准模式</span>
+              <span class="mode-block-desc">当前模式仅支持单一优惠，分别配置各优惠的启用状态，仅对微商城订单生效</span>
+            </div>
+          </div>
+          <div class="mode-block-body">
+
+          <!-- 使用会员卡折扣 -->
+          <div class="sub-section">
+            <div class="sub-title">▌ 使用会员卡折扣</div>
+            <div class="sub-card">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;" id="singleCardDiscountToggle">
+                <span style="font-size:13px;">可使用会员卡折扣</span>
+                <div class="toggle" onclick="toggleSwitch(this);toggleCardSection('singleCardDiscount')"><div class="toggle-track on"><div class="toggle-thumb"></div></div></div>
+              </div>
+              <div id="singleCardDiscountContent">
+                <div>
+                  <span style="font-size:13px;color:var(--text-2);">适用品项范围</span>
+                  <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+                    <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot checked"></div><span>全部品项</span></div>
+                    <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot"></div><span>指定品项</span></div>
+                    <span style="color:var(--accent);font-size:13px;cursor:pointer;">[配置品项范围 →]</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- 会员卡支付（卡金） -->
+          <div class="sub-section">
+            <div class="sub-title">▌ 使用会员卡卡金支付</div>
+            <div class="sub-card">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;" id="singleCardCashToggle">
+                <span style="font-size:13px;">可使用会员卡卡金</span>
+                <div class="toggle" onclick="toggleSwitch(this);toggleCardSection('singleCardCash')"><div class="toggle-track on"><div class="toggle-thumb"></div></div></div>
+              </div>
+              <div id="singleCardCashContent">
+                <div style="font-size:12px;color:var(--text-2);">关闭后只能用微信或支付宝支付，不可再使用会员卡卡金支付</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- 退款退货规则 -->
+          <div class="sub-section">
+            <div class="sub-title">▌ 退款退货规则</div>
+            <div class="sub-card">
+              <label class="checkbox-item" onclick="toggleCheck(this)" style="margin-bottom:6px;">
+                <div class="checkbox-box"></div>
+                <span>非分账的微商城物流订单，开启退款退货功能</span>
+              </label>
+              <label class="checkbox-item" onclick="toggleCheck(this)">
+                <div class="checkbox-box"></div>
+                <span>现金支付的线上订单，小程序端，用户不可退款</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- 相关规则配置 -->
+          <div class="sub-section">
+            <div class="sub-title">▌ 相关规则配置</div>
+            <div style="font-size:12px;color:var(--text-2);margin-bottom:10px;">以下规则均针对微商城生效，点击可前往对应页面查看或修改</div>
+            <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+              <div class="rule-link" style="padding:12px 16px;" onclick="alert('跳转至使用会员卡折扣与优惠券共用计价规则配置页')">
+                <div class="rule-link-left">
+                  <span>🏷️</span>
+                  <span class="rule-tag">使用会员卡折扣与优惠券共用时计价规则</span>
+                </div>
+                <span class="rule-arrow">[前往配置 →]</span>
+              </div>
+              <div class="rule-link" style="padding:12px 16px;" onclick="alert('跳转至积分兑换线上使用规则配置页')">
+                <div class="rule-link-left">
+                  <span>💎</span>
+                  <span class="rule-tag">积分兑换线上使用规则</span>
+                </div>
+                <span class="rule-arrow">[前往配置 →]</span>
+              </div>
+              <div class="rule-link" style="padding:12px 16px;" onclick="alert('跳转至优惠券线上使用规则配置页')">
+                <div class="rule-link-left">
+                  <span>🎫</span>
+                  <span class="rule-tag">优惠券线上使用规则</span>
+                </div>
+                <span class="rule-arrow">[前往配置 →]</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+        </div>
+
+        <!-- 多优惠叠加配置区块 -->
+        <div class="mode-block" id="blockOn">
+          <div class="mode-block-header mode-block-header-on">
+            <div class="mode-block-header-inner">
+              <span class="mode-block-dot mode-block-dot-on">●</span>
+              <span class="mode-block-title">电商模式</span>
+              <span class="mode-block-desc">支持多优惠叠加使用，请在下方完成规则配置</span>
+            </div>
+          </div>
+          <div class="mode-block-body">
+
+          <!-- 会员资产配置 -->
+          <div class="collapsible open" id="zone1">
+            <div class="zone-header" onclick="toggleCollapsible('zone1')">
+              <span>会员资产配置</span>
+            </div>
+            <div class="collapsible-body">
+              <div style="margin-bottom:14px;">
+                <div class="sub-title">▌ 使用会员卡折扣</div>
+                <div class="sub-card">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;" id="cardDiscountToggle">
+                    <span style="font-size:13px;">可使用会员卡折扣</span>
+                    <div class="toggle" onclick="toggleSwitch(this);toggleCardSection('cardDiscount')"><div class="toggle-track on"><div class="toggle-thumb"></div></div></div>
+                  </div>
+                  <div id="cardDiscountContent">
+                  <div style="margin-bottom:10px;">
+                    <span style="font-size:13px;color:var(--text-2);">适用订单类型</span>
+                    <div class="checkbox-group" style="margin-top:6px;">
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>微商城</span></label>
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>秒杀</span></label>
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>拼团</span></label>
+                    </div>
+                  </div>
+                  <div>
+                    <span style="font-size:13px;color:var(--text-2);">适用品项范围</span>
+                    <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+                      <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot"></div><span>全部品项</span></div>
+                      <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot checked"></div><span>指定品项</span></div>
+                      <span style="color:var(--accent);font-size:13px;cursor:pointer;">[配置品项范围 →]</span>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-bottom:14px;">
+                <div class="sub-title">▌ 使用会员卡赠送金</div>
+                <div class="sub-card">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;" id="cardGiftToggle">
+                    <span style="font-size:13px;">可使用会员卡赠送金</span>
+                    <div class="toggle" onclick="toggleSwitch(this);toggleCardSection('cardGift')"><div class="toggle-track on"><div class="toggle-thumb"></div></div></div>
+                  </div>
+                  <div id="cardGiftContent">
+                  <div style="margin-bottom:10px;">
+                    <span style="font-size:13px;color:var(--text-2);">适用订单类型</span>
+                    <div class="checkbox-group" style="margin-top:6px;">
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>微商城</span></label>
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box"></div><span>秒杀</span></label>
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box"></div><span>拼团</span></label>
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>积分商城</span></label>
+                    </div>
+                  </div>
+                  <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px;">
+                    <span style="font-size:13px;">是否享有使用会员卡折扣</span>
+                    <div style="display:flex;align-items:center;gap:16px;margin-top:6px;">
+                      <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot checked"></div><span>是</span></div>
+                      <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot"></div><span>否（不可叠加会员折扣）</span></div>
+                    </div>
+                  </div>
+                  <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px;">
+                    <span style="font-size:13px;color:var(--text-2);">适用品项范围</span>
+                    <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+                      <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot checked"></div><span>全部品项</span></div>
+                      <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot"></div><span>指定品项</span></div>
+                      <span style="color:var(--accent);font-size:13px;cursor:pointer;">[配置品项范围 →]</span>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="sub-title">▌ 使用会员卡本金</div>
+                <div class="sub-card">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;" id="cardCashToggle">
+                    <span style="font-size:13px;">可使用会员卡本金</span>
+                    <div class="toggle" onclick="toggleSwitch(this);toggleCardSection('cardCash')"><div class="toggle-track on"><div class="toggle-thumb"></div></div></div>
+                  </div>
+                  <div id="cardCashContent">
+                  <div style="margin-bottom:10px;">
+                    <span style="font-size:13px;color:var(--text-2);">适用订单类型</span>
+                    <div class="checkbox-group" style="margin-top:6px;">
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>微商城</span></label>
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>秒杀</span></label>
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>拼团</span></label>
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>积分商城</span></label>
+                    </div>
+                  </div>
+                  <div>
+                    <span style="font-size:13px;color:var(--text-2);">适用品项范围</span>
+                    <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+                      <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot"></div><span>全部品项</span></div>
+                      <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot checked"></div><span>指定品项</span></div>
+                      <span style="color:var(--accent);font-size:13px;cursor:pointer;">[配置品项范围 →]</span>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 邮费规则配置 -->
+          <div class="collapsible open" id="zoneFreight">
+            <div class="zone-header" onclick="toggleCollapsible('zoneFreight')">
+              <span>邮费规则配置</span>
+            </div>
+            <div class="collapsible-body">
+              <div class="sub-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;" id="freightCardToggle">
+                  <div>
+                    <span style="font-size:13px;">邮费可使用卡金支付</span>
+                    <div style="font-size:12px;color:var(--text-2);margin-top:2px;">关闭后邮费只能使用微信或支付宝支付</div>
+                  </div>
+                  <div class="toggle" onclick="toggleSwitch(this);toggleCardSection('freightCard')"><div class="toggle-track"><div class="toggle-thumb"></div></div></div>
+                </div>
+                <div id="freightCardContent" style="display:none;">
+                  <div style="font-size:12px;color:var(--text-2);margin-top:8px;">邮费基于整笔订单计算，支持卡金支付</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 积分抵扣规则 -->
+          <div class="collapsible open" id="zone3">
+            <div class="zone-header" onclick="toggleCollapsible('zone3')">
+              <span>积分抵扣规则</span>
+            </div>
+            <div class="collapsible-body">
+              <div class="sub-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;" id="pointToggle">
+                  <span style="font-size:13px;">可使用积分抵扣</span>
+                  <div class="toggle" onclick="toggleSwitch(this);togglePointSection()"><div class="toggle-track on"><div class="toggle-thumb"></div></div></div>
+                </div>
+                <div id="pointContent">
+                  <div class="checkbox-group" style="margin-bottom:10px;flex-direction:column;gap:6px;">
+                    <span style="font-size:13px;color:var(--text-2);">适用订单类型</span>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>微商城</span></label>
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>秒杀</span></label>
+                      <label class="checkbox-item" onclick="toggleCheck(this)"><div class="checkbox-box checked"></div><span>拼团</span></label>
+                    </div>
+                  </div>
+                  <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px;">
+                    <span style="font-size:13px;color:var(--text-2);">兑换规则</span>
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+                      <input type="text" class="input-sm" value="100" style="width:56px;">
+                      <span style="font-size:13px;">积分 = 1 元</span>
+                    </div>
+                  </div>
+                  <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px;">
+                    <span style="font-size:13px;color:var(--text-2);">兑换门槛</span>
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+                      <span style="font-size:13px;">最少有</span>
+                      <input type="text" class="input-sm" value="100" style="width:56px;">
+                      <span style="font-size:13px;">积分才可使用</span>
+                    </div>
+                  </div>
+                  <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px;">
+                    <span style="font-size:13px;color:var(--text-2);">兑换限制</span>
+                    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;">
+                      <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:13px;">最多抵扣金额</span><input type="text" class="input-sm" value="50" style="width:48px;"><span style="font-size:13px;">元</span></div>
+                      <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:13px;">最高抵扣比例</span><input type="text" class="input-sm" value="30" style="width:48px;"><span style="font-size:13px;">%</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 优惠券叠加规则 -->
+          <div class="collapsible open" id="zone2">
+            <div class="zone-header" onclick="toggleCollapsible('zone2')">
+              <span>优惠券叠加规则</span>
+            </div>
+            <div class="collapsible-body">
+              <div style="margin-bottom:14px;">
+                <div class="sub-title">▌ 每单券张数上限</div>
+                <div class="sub-card">
+                  <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <span style="font-size:13px;">总张数上限</span>
+                      <input type="text" class="input-sm" value="1" style="width:48px;">
+                      <span style="font-size:12px;color:var(--text-2);">张（0 = 不限）</span>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:8px;">
+                    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:13px;">项目抵用券</span><input type="text" class="input-sm" value="1" style="width:48px;"><span style="font-size:12px;color:var(--text-2);">张</span></div>
+                    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:13px;">现金券</span><input type="text" class="input-sm" value="1" style="width:48px;"><span style="font-size:12px;color:var(--text-2);">张</span></div>
+                    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:13px;">折扣券</span><input type="text" class="input-sm" value="1" style="width:48px;"><span style="font-size:12px;color:var(--text-2);">张</span></div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-bottom:14px;">
+                <div class="sub-title">▌ 券组合叠加开关</div>
+                <div class="sub-card">
+                  <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                    <tr style="border-bottom:1px solid var(--border);">
+                      <td style="padding:8px 0;color:var(--text-2);">券组合</td>
+                      <td style="padding:8px 0;text-align:center;color:var(--text-2);">是否可叠加</td>
+                      <td style="padding:8px 0;text-align:right;color:var(--text-2);">说明</td>
+                    </tr>
+                    <tr><td style="padding:8px 0;">项目抵用券 + 现金券</td><td style="padding:8px 0;text-align:center;"><div class="toggle" onclick="toggleSwitch(this)" style="justify-content:center;"><div class="toggle-track"><div class="toggle-thumb"></div></div></div></td><td style="padding:8px 0;text-align:right;font-size:12px;color:var(--text-2);">默认关</td></tr>
+                    <tr><td style="padding:8px 0;">项目抵用券 + 折扣券</td><td style="padding:8px 0;text-align:center;"><div class="toggle" onclick="toggleSwitch(this)" style="justify-content:center;"><div class="toggle-track"><div class="toggle-thumb"></div></div></div></td><td style="padding:8px 0;text-align:right;font-size:12px;color:var(--text-2);">默认关</td></tr>
+                    <tr><td style="padding:8px 0;">现金券 + 现金券</td><td style="padding:8px 0;text-align:center;"><div class="toggle" onclick="toggleSwitch(this)" style="justify-content:center;"><div class="toggle-track"><div class="toggle-thumb"></div></div></div></td><td style="padding:8px 0;text-align:right;font-size:12px;color:var(--text-2);">默认关，力度大</td></tr>
+                    <tr><td style="padding:8px 0;">折扣券 + 折扣券</td><td style="padding:8px 0;text-align:center;"><div class="toggle" onclick="toggleSwitch(this)" style="justify-content:center;"><div class="toggle-track"><div class="toggle-thumb"></div></div></div></td><td style="padding:8px 0;text-align:right;font-size:12px;color:var(--text-2);">默认关，折上折</td></tr>
+                    <tr><td style="padding:8px 0;">现金券 + 折扣券</td><td style="padding:8px 0;text-align:center;"><div class="toggle" onclick="toggleSwitch(this)" style="justify-content:center;"><div class="toggle-track"><div class="toggle-thumb"></div></div></div></td><td style="padding:8px 0;text-align:right;font-size:12px;color:var(--text-2);">默认关，组合强</td></tr>
+                  </table>
+                </div>
+              </div>
+              <div>
+                <div class="sub-title">▌ 优惠券门槛设置</div>
+                <div class="sub-card">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                    <div>
+                      <div style="font-size:13px;font-weight:600;">门槛计算口径</div>
+                      <div style="font-size:12px;color:var(--text-2);margin-top:2px;">电商模式下统一固定口径，运营无需再单独选择</div>
+                    </div>
+                    <span style="font-size:12px;color:var(--accent);background:#eef2ff;border-radius:999px;padding:4px 10px;">统一按券前价快照校验</span>
+                  </div>
+                  <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text-2);line-height:1.7;">
+                    <div>① 项目抵用券：无门槛，命中绑定品/SKU 即可使用</div>
+                    <div>② 现金券 / 折扣券：满金额、满件数门槛均基于“券前价快照”判断</div>
+                    <div>③ 券前价快照 = 会员卡折扣、预定金抵扣后，且在任意优惠券核销前冻结的适用品金额/件数</div>
+                    <div>④ 项目抵用券会影响实付金额，但不回刷现金券、折扣券的门槛判断，避免前一张券导致后一张券失效</div>
+                  </div>
+                  <div style="margin-top:10px;padding:10px 12px;background:#f9fafb;border:1px solid var(--border);border-radius:8px;">
+                    <div style="font-size:12px;color:var(--text-2);line-height:1.7;">
+                      多张券依次执行时，统一先按同一份门槛快照判断可用性，再按优先级核销并分摊优惠金额。
+                      优先级：满金额门槛高→低，门槛相同按优惠力度大→小；其后再处理满件数门槛券。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 退款风控规则 -->
+          <div class="collapsible open" id="zone5">
+            <div class="zone-header" onclick="toggleCollapsible('zone5')">
+              <span>退款风控规则</span>
+            </div>
+            <div class="collapsible-body">
+              <div class="sub-card">
+                <div style="font-size:13px;color:var(--text-2);margin-bottom:8px;">退款退货规则</div>
+                <label class="checkbox-item" onclick="toggleCheck(this)" style="margin-bottom:6px;">
+                  <div class="checkbox-box"></div>
+                  <span>非分账的微商城、秒杀、拼团、积分商城的物流订单，开启退款退货功能</span>
+                </label>
+                <label class="checkbox-item" onclick="toggleCheck(this)">
+                  <div class="checkbox-box"></div>
+                  <span>现金支付的线上订单，小程序端，用户不可退款</span>
+                </label>
+              </div>
+              <div class="sub-card" style="margin-top:10px;">
+                <div style="font-size:13px;color:var(--text-2);margin-bottom:8px;">部分退款时优惠券处理：券不退回（推荐）</div>
+                <div style="font-size:13px;color:var(--text-2);">全额退款时优惠券处理：原路退回（系统固定逻辑，不可修改）</div>
+              </div>
+              <div class="sub-card" style="margin-top:10px;">
+                <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;">
+                  <span>①</span><span>退现金</span><span style="color:var(--text-3);">→</span><span>②</span><span>退卡金</span><span style="color:var(--text-3);">→</span><span>③</span><span>退赠送金</span><span style="color:var(--text-3);">→</span><span>④</span><span>退积分</span>
+                </div>
+              </div>
+              <div class="sub-card" style="margin-top:10px;">
+                <div style="font-size:13px;color:var(--text-2);margin-bottom:8px;">退款时积分已被消费，如何处理退款积分？</div>
+                <div class="radio-item" onclick="checkRadio(this)"><div class="radio-dot checked"></div><span>选项一（推荐）：若退款积分已被使用，则够退回则可退款，不够退回则不可退款</span></div>
+                <div class="radio-item" onclick="checkRadio(this)" style="margin-top:8px;"><div class="radio-dot"></div><span>选项二：若退款积分已被使用，可正常退款，不足部分扣至客户积分账户为 0 止</span></div>
+                <div style="font-size:12px;color:var(--warn);margin-top:6px;">⚠️ 客户积分余额不足时将扣至 0，不产生负积分</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 计价顺序 -->
+          <div class="collapsible open" id="zone6">
+            <div class="zone-header" onclick="toggleCollapsible('zone6')">
+              <span>计价顺序</span>
+            </div>
+            <div class="collapsible-body">
+              <div class="sub-card" style="background:#f8f9ff;">
+                <div style="font-size:12px;color:var(--accent);margin-bottom:8px;font-weight:600;">核心原则：先折价定基准 → 冻结券门槛快照 → 再核销优惠 → 随机立减 → 最后支付结清</div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">STEP 1</span>
+                    <span style="font-size:13px;">会员卡折扣</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 改变计价基准，最先执行</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">STEP 2</span>
+                    <span style="font-size:13px;">预定金抵扣</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 先抵扣活动预付金额，生成券门槛前的订单价格</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:#6366f1;color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">SNAPSHOT</span>
+                    <span style="font-size:13px;">冻结优惠券门槛快照</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 记录适用品金额/件数，后续核券不再回刷门槛</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">STEP 3</span>
+                    <span style="font-size:13px;">项目抵用券</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 直接作用于绑定品，不参与分摊，但不改变已冻结的券门槛</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">STEP 4</span>
+                    <span style="font-size:13px;">现金券</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 先按门槛快照校验，再按适用品当前价比例分摊</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">STEP 5</span>
+                    <span style="font-size:13px;">折扣券</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 与现金券共用门槛快照，核销后按当前价分摊</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">STEP 6</span>
+                    <span style="font-size:13px;">积分抵扣</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 按分摊池内各品当前价比例分摊</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">STEP 7</span>
+                    <span style="font-size:13px;">赠送金</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 仅在适用范围内按当前价分摊</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">STEP 8</span>
+                    <span style="font-size:13px;">卡金支付</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 仅在适用范围内按当前价分摊</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:#f59e0b;color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">STEP 9</span>
+                    <span style="font-size:13px;">预定金随机立减</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 支付流程中实时计算，按预定金活动商品当前价比例分摊</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:#10b981;color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;">STEP 10</span>
+                    <span style="font-size:13px;">现金兜底</span>
+                    <span style="color:var(--text-3);font-size:12px;">— 微信/支付宝，结清随机立减后的尾款</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sub-card" style="margin-top:10px;">
+                <div style="font-size:13px;color:var(--text-2);margin-bottom:8px;">多券优先级与校验规则</div>
+                <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--text-2);">
+                  <div>① 所有现金券、折扣券先基于同一份门槛快照完成可用性判断</div>
+                  <div>② 满金额门槛券优先，门槛从高→低</div>
+                  <div>③ 同门槛下按优惠力度从大→小；现金券与折扣券按运营配置的叠加规则决定是否同时生效</div>
+                  <div>④ 满件数门槛券在金额门槛券之后执行，件数从高→低</div>
+                </div>
+              </div>
+              <div class="sub-card" style="margin-top:10px;">
+                <div style="font-size:13px;color:var(--text-2);margin-bottom:8px;">分摊尾差处理（最大余数法）</div>
+                <div style="font-size:12px;color:var(--text-2);line-height:1.6;">
+                  每品按比例计算，向下截断到分（保留2位小数，截断不四舍五入），尾差按"小数部分从大到小"逐一补¥0.01给各品，直到补完。保证分摊无损，所有品之和 = 订单总额。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-hint"></div>
+    <div class="footer-actions">
+      <button class="btn btn-ghost">返回</button>
+      <button class="btn" onclick="alert('已复制配置到分店')">复制配置给分店</button>
+      <button class="btn btn-primary" onclick="saveAlert()">保存设置</button>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // Multi discount mode switch (tab style)
+  function switchDiscountMode(mode) {
+    const tabOff = document.getElementById('tabOff');
+    const tabOn = document.getElementById('tabOn');
+    const blockOff = document.getElementById('blockOff');
+    const blockOn = document.getElementById('blockOn');
+    if (mode === 'off') {
+      tabOff.classList.add('selected');
+      tabOn.classList.remove('selected');
+      blockOff.style.display = 'block';
+      blockOn.style.display = 'none';
+    } else {
+      tabOn.classList.add('selected');
+      tabOff.classList.remove('selected');
+      blockOff.style.display = 'none';
+      blockOn.style.display = 'block';
+    }
+  }
+
+  // Toggle switch
+  function toggleSwitch(el) {
+    const track = el.querySelector('.toggle-track');
+    track.classList.toggle('on');
+  }
+
+  // Radio
+  function checkRadio(el) {
+    const group = el.closest('.sub-card, .section-body');
+    group.querySelectorAll('.radio-dot').forEach(dot => dot.classList.remove('checked'));
+    el.querySelector('.radio-dot').classList.add('checked');
+  }
+
+  // Checkbox
+  function toggleCheck(el) {
+    const box = el.querySelector('.checkbox-box');
+    if (box) box.classList.toggle('checked');
+  }
+
+  // Collapsible
+  function toggleCollapsible(id) {
+    const col = document.getElementById(id);
+    const isOpen = col.classList.contains('open');
+    col.classList.toggle('open');
+    const tag = col.querySelector('.zone-tag');
+    if (tag) tag.textContent = isOpen ? '展开 ▷' : '收起 ▴';
+  }
+
+  // Cash main section toggle
+  function toggleCashMain(el) {
+    const section = el.closest('.cash-section');
+    section.classList.toggle('collapsed');
+  }
+
+  // Cash category
+  function toggleCashCategory(id) {
+    const cat = document.getElementById(id);
+    cat.classList.toggle('open');
+    const arrow = cat.querySelector('.cash-category-header span:first-child');
+    arrow.textContent = cat.classList.contains('open') ? '▼' : '▶';
+  }
+
+  // Cash item
+  function toggleCashItem(el) {
+    const box = el.querySelector('.checkbox-box');
+    box.classList.toggle('checked');
+  }
+
+  function selectAllCash(btn) {
+    btn.closest('.cash-category').querySelectorAll('.checkbox-box').forEach(b => b.classList.add('checked'));
+  }
+  function reverseAllCash(btn) {
+    btn.closest('.cash-category').querySelectorAll('.checkbox-box').forEach(b => b.classList.toggle('checked'));
+  }
+
+  // Card section toggle (show/hide based on switch)
+  function toggleCardSection(section) {
+    const content = document.getElementById(section + 'Content');
+    if (!content) return;
+    const toggleRow = content.previousElementSibling;
+    const track = toggleRow ? toggleRow.querySelector('.toggle-track') : null;
+    const isOn = track && track.classList.contains('on');
+    content.style.display = isOn ? 'block' : 'none';
+  }
+
+  // Point section toggle
+  function togglePointSection() {
+    const content = document.getElementById('pointContent');
+    if (!content) return;
+    const toggleRow = document.getElementById('pointToggle');
+    const track = toggleRow ? toggleRow.querySelector('.toggle-track') : null;
+    const isOn = track && track.classList.contains('on');
+    content.style.display = isOn ? 'block' : 'none';
+  }
+
+  // Save
+  function saveAlert() {
+    alert('✅ 配置已保存并同步到门店！\n\n（此为交互演示，实际保存需调用后端接口）');
+  }
+
+  // Initial state
+  document.body.classList.add('state-a');
+</script>
+
+</body>
+</html>
