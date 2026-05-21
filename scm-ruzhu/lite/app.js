@@ -1067,32 +1067,16 @@ function renderSupplyChainGoods() {
                             <th>销售价格</th>
                             <th>原价</th>
                             <th>您的预计收益</th>
-<<<<<<< HEAD
                             <th>更新时间</th>
-=======
-                            <th>成本价</th>
-                            <th>毛利率</th>
-                            <th>更新时间</th>
-                            <th>操作</th>
->>>>>>> ea643204a28cdfa500bf188db734b98a9d58e1b0
                         </tr>
                     </thead>
                     <tbody id="goods-tbody">
                         ${goods.map(item => {
-<<<<<<< HEAD
                             // 您的预计收益 = (售价 * (1 - 手续费费率)) * 给商家的比例
                             // 手续费费率为 0.6%，即 (1 - 0.006) = 0.994
                             // 该收益是商家的毛利，后续如下分给总部的分成和推广佣金支出是从这笔收益中支出
                             const actualProfit = item.salePrice * 0.994 * (merchantRatio / 100);
 
-=======
-                            // 计算商家实际利润
-                            const netPrice = item.salePrice * 0.994; // 扣除0.6%手续费
-                            const merchantProfit = netPrice * (merchantRatio / 100);
-                            const actualProfit = merchantProfit * (1 - brandRatio / 100);
-                            const profitMargin = ((actualProfit / item.salePrice) * 100).toFixed(1);
-                            
->>>>>>> ea643204a28cdfa500bf188db734b98a9d58e1b0
                             return `
                             <tr data-category="${item.categoryId}" data-name="${item.name.toLowerCase()}" data-spu="${item.id.toLowerCase()}">
                                 <td>
@@ -1118,29 +1102,11 @@ function renderSupplyChainGoods() {
                                 </td>
                                 <td>
                                     <div style="font-weight: 600; color: #52c41a; font-size: 16px;">¥${actualProfit.toFixed(2)}</div>
-<<<<<<< HEAD
                                     <div style="font-size: 11px; color: #999;">商家毛利</div>
-=======
-                                    ${brandRatio > 0 ? `<div style="font-size: 11px; color: #999;">（扣除总部${brandRatio}%）</div>` : ''}
-                                </td>
-                                <td>
-                                    <span style="color: #666;">¥${item.costPrice}</span>
-                                </td>
-                                <td>
-                                    <span style="color: ${profitMargin > 15 ? '#52c41a' : profitMargin > 8 ? '#faad14' : '#ff4d4f'}; font-weight: 600;">
-                                        ${profitMargin}%
-                                    </span>
->>>>>>> ea643204a28cdfa500bf188db734b98a9d58e1b0
                                 </td>
                                 <td>
                                     <span style="font-size: 12px; color: #999;">${item.updateTime}</span>
                                 </td>
-<<<<<<< HEAD
-=======
-                                <td>
-                                    <button class="btn btn-link" onclick="viewGoodsDetail('${item.id}')">详情</button>
-                                </td>
->>>>>>> ea643204a28cdfa500bf188db734b98a9d58e1b0
                             </tr>
                         `}).join('')}
                     </tbody>
@@ -2134,132 +2100,6 @@ function filterGoods() {
     });
 }
 
-<<<<<<< HEAD
-=======
-function viewGoodsDetail(goodsId) {
-    const goods = DataStore.findById('goods', goodsId);
-    const apps = DataStore.findBy('applications', 'merchantId', currentMerchantId);
-    const signedApp = apps.find(a => a.status === 'signed');
-    const merchantRatio = signedApp?.merchantRatio || 10;
-    const brandRatio = signedApp?.brandRatio || 0;
-    
-    // 计算收益详情
-    const netPrice = goods.salePrice * 0.994; // 扣除0.6%手续费
-    const merchantProfit = netPrice * (merchantRatio / 100);
-    const actualProfit = merchantProfit * (1 - brandRatio / 100);
-    const brandProfit = merchantProfit * (brandRatio / 100);
-    const platformProfit = netPrice * 0.7; // 假设平台70%
-    const operationProfit = netPrice * 0.2; // 假设运营20%
-    
-    openModal('商品详情', `
-        <div class="goods-detail">
-            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-                <div style="width: 120px; height: 120px; background: #f5f5f5; border: 1px solid #d9d9d9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px;">
-                    封面图
-                </div>
-                <div style="flex: 1;">
-                    <h3 style="margin: 0 0 8px 0; color: #333;">${goods.name}</h3>
-                    <p style="margin: 4px 0; color: #666;"><strong>SPU ID:</strong> ${goods.id}</p>
-                    <p style="margin: 4px 0; color: #666;"><strong>分类:</strong> ${goods.category}</p>
-                    <p style="margin: 4px 0; color: #666;"><strong>发货方式:</strong> ${goods.deliveryMethod}</p>
-                    <p style="margin: 4px 0; color: #666;"><strong>更新时间:</strong> ${goods.updateTime}</p>
-                </div>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div>
-                    <h4 style="margin-bottom: 10px; color: #333;">价格信息</h4>
-                    <div class="detail-list">
-                        <div class="detail-item"><span class="label">销售价格</span><span class="value" style="color: #ff4d4f; font-weight: 600;">¥${goods.salePrice}</span></div>
-                        <div class="detail-item"><span class="label">商城原价</span><span class="value" style="color: #999;">¥${goods.originalPrice}</span></div>
-                        <div class="detail-item"><span class="label">成本价格</span><span class="value">¥${goods.costPrice}</span></div>
-                        <div class="detail-item"><span class="label">毛利率</span><span class="value">${(((goods.salePrice - goods.costPrice) / goods.salePrice) * 100).toFixed(1)}%</span></div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 style="margin-bottom: 10px; color: #333;">您的收益分析</h4>
-                    <div class="detail-list">
-                        <div class="detail-item"><span class="label">扣除手续费后</span><span class="value">¥${netPrice.toFixed(2)}</span></div>
-                        <div class="detail-item"><span class="label">商家总收益</span><span class="value">¥${merchantProfit.toFixed(2)} (${merchantRatio}%)</span></div>
-                        ${brandRatio > 0 ? `<div class="detail-item"><span class="label">品牌总部分成</span><span class="value" style="color: #faad14;">¥${brandProfit.toFixed(2)} (${brandRatio}%)</span></div>` : ''}
-                        <div class="detail-item"><span class="label">您的实际收益</span><span class="value" style="color: #52c41a; font-weight: 600;">¥${actualProfit.toFixed(2)}</span></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <h4 style="margin-bottom: 10px; color: #333;">组合产品明细</h4>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr><th>产品ID</th><th>产品名称</th><th>数量</th><th>单价</th><th>小计</th></tr>
-                        </thead>
-                        <tbody>
-                            ${goods.products.map(p => `
-                                <tr>
-                                    <td>${p.productId}</td>
-                                    <td>${p.productName}</td>
-                                    <td>${p.quantity}</td>
-                                    <td>¥${p.lockedPrice}</td>
-                                    <td>¥${(p.quantity * p.lockedPrice).toFixed(2)}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <h4 style="margin-bottom: 10px; color: #333;">分账明细预览</h4>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr><th>分账方</th><th>分账金额</th><th>分账比例</th><th>说明</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>您（商家）</td>
-                                <td style="color: #52c41a; font-weight: 600;">¥${actualProfit.toFixed(2)}</td>
-                                <td>${merchantRatio}%</td>
-                                <td>${brandRatio > 0 ? `扣除品牌总部${brandRatio}%后` : '直接到账'}</td>
-                            </tr>
-                            ${brandRatio > 0 ? `
-                            <tr>
-                                <td>品牌总部</td>
-                                <td style="color: #faad14; font-weight: 600;">¥${brandProfit.toFixed(2)}</td>
-                                <td>${brandRatio}%</td>
-                                <td>占商家收益比例</td>
-                            </tr>
-                            ` : ''}
-                            <tr>
-                                <td>供应链平台</td>
-                                <td>¥${platformProfit.toFixed(2)}</td>
-                                <td>70%</td>
-                                <td>负责发货和售后</td>
-                            </tr>
-                            <tr>
-                                <td>私域运营平台</td>
-                                <td>¥${operationProfit.toFixed(2)}</td>
-                                <td>20%</td>
-                                <td>提供运营服务</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div style="padding: 15px; background: #f6ffed; border-radius: 8px; border: 1px solid #b7eb8f;">
-                <p style="margin: 0; color: #52c41a; font-size: 14px;">
-                    <strong>💡 温馨提示：</strong>
-                    以上收益为预估值，实际收益以订单完成后的分账结算为准。消费者使用不同支付方式可能影响实际分账金额。
-                </p>
-            </div>
-        </div>
-    `, '<button class="btn btn-outline" onclick="closeModal()">关闭</button>');
-}
-
->>>>>>> ea643204a28cdfa500bf188db734b98a9d58e1b0
 function goToSign(appId) {
     const app = DataStore.findById('applications', appId);
     currentMerchantId = app.merchantId;
