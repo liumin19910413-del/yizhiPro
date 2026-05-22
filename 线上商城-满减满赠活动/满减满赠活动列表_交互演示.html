@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>营销应用 / 满减/送</title>
+  <style>
+    :root {
+      --blue: #2f7cf6;
+      --bg: #f5f6f8;
+      --white: #fff;
+      --line: #e5e6eb;
+      --line-dark: #d8dadf;
+      --head: #f4f4f6;
+      --text-1: #1f2329;
+      --text-2: #646a73;
+      --text-3: #9aa0a6;
+      --orange: #ff7d00;
+      --orange-bg: #fff3e8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-width: 1500px;
+      min-height: 100vh;
+      color: var(--text-1);
+      background:
+        repeating-linear-gradient(-12deg, rgba(31, 35, 41, .035) 0 1px, transparent 1px 220px),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 13px;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 64px 1fr;
+    }
+
+    .sidebar {
+      background: #fff;
+      border-right: 1px solid var(--line);
+      padding-top: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .side-item {
+      width: 64px;
+      min-height: 58px;
+      padding: 6px 4px;
+      color: #8a9099;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .side-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: #d5d8de;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .side-item.active {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .side-item.active .side-icon {
+      background: rgba(255, 255, 255, .26);
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 42px;
+      padding: 0 18px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .crumb {
+      color: var(--text-2);
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      height: 28px;
+      padding: 0 12px;
+      border: 1px solid #c9cdd4;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text-1);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .page {
+      padding: 18px 16px;
+    }
+
+    .toolbar {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0;
+    }
+
+    .tabs {
+      display: flex;
+      border: 1px solid var(--line-dark);
+      border-bottom: 0;
+      width: fit-content;
+    }
+
+    .tab {
+      min-width: 58px;
+      height: 38px;
+      border: 0;
+      border-right: 1px solid var(--line-dark);
+      background: #fff;
+      color: var(--text-1);
+      cursor: pointer;
+    }
+
+    .tab:last-child {
+      border-right: 0;
+    }
+
+    .tab.active {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .search-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .search-box {
+      width: 220px;
+      height: 28px;
+      border: 1px solid var(--line-dark);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text-3);
+      padding: 0 9px 0 26px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap::before {
+      content: "⌕";
+      position: absolute;
+      left: 9px;
+      top: 5px;
+      margin-right: 6px;
+      color: var(--text-3);
+    }
+
+    .table-wrap {
+      background: #fff;
+      border: 1px solid var(--line);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+      line-height: 20px;
+    }
+
+    th {
+      height: 36px;
+      padding: 0 12px;
+      background: var(--head);
+      color: var(--text-1);
+      font-weight: 500;
+    }
+
+    td {
+      height: 96px;
+      padding: 12px;
+      background: #fff;
+      color: var(--text-1);
+    }
+
+    tbody tr.selected td {
+      background: #edf4ff;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: 0;
+    }
+
+    .w-name { width: 230px; }
+    .w-store { width: 140px; }
+    .w-type { width: 155px; }
+    .w-time { width: 190px; }
+    .w-content { width: 260px; }
+    .w-share { width: 220px; }
+    .w-data { width: 220px; }
+    .w-status { width: 130px; }
+    .w-op { width: 110px; text-align: center; }
+
+    .link {
+      color: var(--blue);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .muted {
+      color: var(--text-2);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 3px;
+      color: var(--orange);
+      background: var(--orange-bg);
+    }
+
+    .status.end {
+      color: var(--text-2);
+      background: #f2f3f5;
+    }
+
+    .empty-row td {
+      height: 96px;
+      text-align: center;
+      color: var(--text-3);
+      background: #fff;
+    }
+
+    .ops {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pager {
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+      color: var(--text-1);
+    }
+
+    .page-size {
+      height: 28px;
+      min-width: 78px;
+      border: 1px solid var(--line-dark);
+      border-radius: 3px;
+      background: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .page-arrow {
+      color: var(--text-3);
+      font-size: 16px;
+    }
+
+    .page-no {
+      color: var(--blue);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 64px;
+      transform: translateX(-50%);
+      min-width: 140px;
+      height: 34px;
+      padding: 0 16px;
+      border-radius: 4px;
+      background: rgba(31, 35, 41, .9);
+      color: #fff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="logo">营</div>
+      <div class="side-item">
+        <div class="side-icon">链</div>
+        <div>伊智品牌连锁</div>
+      </div>
+      <div class="side-item">
+        <div class="side-icon">书</div>
+        <div>小红书</div>
+      </div>
+      <div class="side-item">
+        <div class="side-icon">构</div>
+        <div>连锁架构</div>
+      </div>
+      <div class="side-item">
+        <div class="side-icon">门</div>
+        <div>门店配置</div>
+      </div>
+      <div class="side-item">
+        <div class="side-icon">城</div>
+        <div>公域获客</div>
+      </div>
+      <div class="side-item">
+        <div class="side-icon">私</div>
+        <div>私域运营</div>
+      </div>
+      <div class="side-item">
+        <div class="side-icon">AI</div>
+        <div>AI 智能体</div>
+      </div>
+      <div class="side-item active">
+        <div class="side-icon">券</div>
+        <div>营销中心</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="crumb">营销应用 / 满减/送</div>
+        <div class="top-actions">
+          <button class="btn">分发日志</button>
+          <button class="btn">下载中心</button>
+        </div>
+      </header>
+
+      <section class="page">
+        <div class="toolbar">
+          <div class="tabs">
+            <button class="tab active" data-status="all">全部</button>
+            <button class="tab" data-status="pending">待开始</button>
+            <button class="tab" data-status="running">进行中</button>
+            <button class="tab" data-status="ended">已结束</button>
+          </div>
+          <div class="search-area">
+            <div class="search-wrap">
+              <input class="search-box" id="searchInput" type="text" placeholder="输入活动名称搜索活动">
+            </div>
+            <button class="btn" id="searchBtn">查询</button>
+            <button class="btn primary" onclick="location.href='新建满减满赠活动_交互演示.html'">创建活动</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="w-name">活动名称</th>
+                <th class="w-store">适用门店</th>
+                <th class="w-type">适用类型</th>
+                <th class="w-time">活动时间</th>
+                <th class="w-content">活动内容</th>
+                <th class="w-share">叠加规则</th>
+                <th class="w-data">活动数据</th>
+                <th class="w-status">活动状态</th>
+                <th class="w-op">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="selected" data-status="running">
+                <td class="activity-name">满减活动_copy</td>
+                <td><a class="link">共3家门店</a></td>
+                <td>
+                  微商城订单<br>
+                  秒杀订单<br>
+                  拼团订单
+                </td>
+                <td>
+                  2025-06-30 18:11:24<br>
+                  至<br>
+                  2026-05-31 00:00:00
+                </td>
+                <td>
+                  门槛1：满300减40<br>
+                  门槛2：满600减80<br>
+                  门槛3：满900减120
+                </td>
+                <td>
+                  优惠券：不可同享<br>
+                  预定金：可同享<br>
+                  赠送金/积分：不可同享
+                </td>
+                <td>
+                  参与客数：0人<br>
+                  活动单数：0单<br>
+                  贡献业绩：0元<br>
+                  笔单价：0元
+                </td>
+                <td><span class="status">进行中</span></td>
+                <td>
+                  <div class="ops">
+                    <a class="link" href="新建满减满赠活动_交互演示.html">编辑</a>
+                    <a class="link js-copy">复制</a>
+                    <a class="link js-end">提前结束</a>
+                  </div>
+                </td>
+              </tr>
+              <tr data-status="running">
+                <td class="activity-name">满减活动</td>
+                <td><a class="link">共3家门店</a></td>
+                <td>
+                  线下订单<br>
+                  微商城订单
+                </td>
+                <td>
+                  2025-06-30 18:11:24<br>
+                  至<br>
+                  2026-06-30 00:00:00
+                </td>
+                <td>
+                  门槛1：满300减40<br>
+                  门槛2：满600减80<br>
+                  门槛3：满900减120
+                </td>
+                <td>
+                  优惠券：可同享<br>
+                  预定金：不可同享<br>
+                  赠送金/积分：可同享
+                </td>
+                <td>
+                  参与客数：1人<br>
+                  活动单数：1单<br>
+                  贡献业绩：350元<br>
+                  笔单价：350元
+                </td>
+                <td><span class="status">进行中</span></td>
+                <td>
+                  <div class="ops">
+                    <a class="link" href="新建满减满赠活动_交互演示.html">编辑</a>
+                    <a class="link js-copy">复制</a>
+                    <a class="link js-end">提前结束</a>
+                  </div>
+                </td>
+              </tr>
+              <tr class="empty-row" id="emptyRow" style="display:none;">
+                <td colspan="9">暂无符合条件的活动</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <span>共 2 条</span>
+          <span class="page-size">15条/页⌄</span>
+          <span class="page-arrow">‹</span>
+          <span class="page-no">1</span>
+          <span class="page-arrow">›</span>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast">已更新</div>
+  <script>
+    let activeStatus = 'all';
+    const tabs = document.querySelectorAll('.tab');
+    const searchInput = document.getElementById('searchInput');
+    const emptyRow = document.getElementById('emptyRow');
+    const toast = document.getElementById('toast');
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove('show'), 1400);
+    }
+
+    function activityRows() {
+      return Array.from(document.querySelectorAll('tbody tr:not(.empty-row)'));
+    }
+
+    function refreshList() {
+      const keyword = searchInput.value.trim();
+      let visibleCount = 0;
+      activityRows().forEach((row) => {
+        const statusMatched = activeStatus === 'all' || row.dataset.status === activeStatus;
+        const nameMatched = !keyword || row.querySelector('.activity-name').textContent.includes(keyword);
+        const visible = statusMatched && nameMatched;
+        row.style.display = visible ? '' : 'none';
+        if (visible) visibleCount += 1;
+      });
+      emptyRow.style.display = visibleCount ? 'none' : '';
+      document.querySelector('.pager span').textContent = `共 ${visibleCount} 条`;
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((item) => item.classList.remove('active'));
+        tab.classList.add('active');
+        activeStatus = tab.dataset.status;
+        refreshList();
+      });
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', refreshList);
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') refreshList();
+    });
+
+    document.querySelector('tbody').addEventListener('click', (event) => {
+      const copy = event.target.closest('.js-copy');
+      const end = event.target.closest('.js-end');
+      if (copy) {
+        const source = copy.closest('tr');
+        const cloned = source.cloneNode(true);
+        cloned.classList.remove('selected');
+        cloned.querySelector('.activity-name').textContent = `${source.querySelector('.activity-name').textContent}_copy`;
+        emptyRow.before(cloned);
+        showToast('已复制活动');
+        refreshList();
+      }
+      if (end) {
+        const row = end.closest('tr');
+        const status = row.querySelector('.status');
+        row.dataset.status = 'ended';
+        status.textContent = '已结束';
+        status.classList.add('end');
+        end.remove();
+        showToast('活动已提前结束');
+        refreshList();
+      }
+    });
+  </script>
+</body>
+</html>
