@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>评论管理-交互演示</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #fff;
+      --line: #e7edf5;
+      --text: #1f2937;
+      --sub: #667085;
+      --brand: #2563eb;
+      --brand-soft: #edf4ff;
+      --green: #16a34a;
+      --green-soft: #eaf8ee;
+      --orange: #f59e0b;
+      --orange-soft: #fff6df;
+      --shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      background: transparent;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 88px 180px 1fr;
+      min-height: 100vh;
+    }
+
+    .rail {
+      background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
+      color: rgba(255, 255, 255, 0.76);
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.2;
+      box-shadow: 0 10px 18px rgba(37, 99, 235, 0.3);
+    }
+
+    .rail-item {
+      width: 100%;
+      padding: 10px 4px;
+      border-radius: 14px;
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .rail-item.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .sub-nav {
+      background: #fff;
+      border-right: 1px solid var(--line);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sub-card {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #f8fbff;
+    }
+
+    .sub-card strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .sub-card span {
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    .menu-item {
+      padding: 12px;
+      border-radius: 14px;
+      color: #475467;
+      text-align: left;
+    }
+
+    .menu-item.active {
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-weight: 600;
+    }
+
+    .workspace {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .crumb small {
+      color: var(--sub);
+      font-size: 12px;
+    }
+
+    .crumb h1 {
+      margin: 6px 0 0;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .tabs {
+      display: inline-flex;
+      padding: 4px;
+      background: #eef2f8;
+      border-radius: 999px;
+      gap: 4px;
+    }
+
+    .tabs button {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 999px;
+      color: #475467;
+      font-weight: 600;
+    }
+
+    .tabs button.active {
+      background: #fff;
+      color: var(--brand);
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.14);
+    }
+
+    .sub-tabs {
+      display: inline-flex;
+      padding: 4px;
+      background: #f4f7fb;
+      border-radius: 999px;
+      gap: 4px;
+    }
+
+    .sub-tabs button {
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 999px;
+      color: #667085;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .sub-tabs button.active {
+      background: #fff;
+      color: var(--brand);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
+    }
+
+    .toolbar {
+      padding: 16px 18px;
+    }
+
+    .toolbar-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 0.92fr 0.92fr 0.82fr 1fr 1.5fr;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 11px;
+      color: var(--sub);
+    }
+
+    .field input,
+    .field select {
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 0 12px;
+      background: #fff;
+      min-width: 0;
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: nowrap;
+      flex-shrink: 0;
+      align-items: center;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      height: 38px;
+      padding: 0 15px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--brand);
+      border: 1px solid #d8e4ff;
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.16);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-top: 1px solid var(--line);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1160px;
+    }
+
+    th,
+    td {
+      padding: 14px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--sub);
+      font-weight: 600;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tag.ai {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .tag.real {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .member-cell strong,
+    .rating-cell strong {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .member-cell span,
+    .rating-cell span {
+      color: var(--sub);
+      font-size: 12px;
+    }
+
+    .stars {
+      letter-spacing: 1px;
+      color: #f59e0b;
+      font-size: 14px;
+    }
+
+    .comment-cell {
+      min-width: 260px;
+    }
+
+    .comment-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .comment-text {
+      line-height: 1.7;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.32);
+    }
+
+    .drawer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .drawer-head h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f3f6fb;
+      color: #475467;
+      font-size: 18px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 30;
+    }
+
+    .modal.show {
+      display: block;
+    }
+
+    .modal-card {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(920px, calc(100vw - 24px));
+      background: #fff;
+      border-radius: 26px;
+      box-shadow: 0 28px 60px rgba(15, 23, 42, 0.2);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .option-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .modal-hero {
+      padding: 20px 22px 18px;
+      background: linear-gradient(135deg, #eef4ff 0%, #ffffff 55%, #f8fbff 100%);
+      border-bottom: 1px solid #e9eef7;
+    }
+
+    .modal-hero p {
+      margin: 6px 0 0;
+      color: var(--sub);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .modal-body {
+      padding: 18px 22px 20px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+      background: #fcfdff;
+    }
+
+    .config-panel,
+    .preview-panel {
+      background: #fff;
+      border: 1px solid #e8eef6;
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #1f2937;
+    }
+
+    .section-subtitle {
+      color: var(--sub);
+      font-size: 12px;
+      line-height: 1.6;
+      margin: -4px 0 12px;
+    }
+
+    .pill {
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #475467;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .pill.active {
+      background: linear-gradient(135deg, #edf4ff, #f6f9ff);
+      border-color: #cddcff;
+      color: var(--brand);
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.05);
+    }
+
+    .product-list {
+      display: grid;
+      gap: 10px;
+      max-height: 240px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .product-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    .product-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .product-item span {
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    .preview-panel {
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+      border-color: #dce8ff;
+    }
+
+    .preview-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ebf3ff;
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .preview-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3b82f6;
+    }
+
+    .preview-summary {
+      display: grid;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid #e3ecfb;
+      margin-bottom: 14px;
+    }
+
+    .summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .summary-row span:first-child {
+      color: var(--sub);
+    }
+
+    .summary-row strong {
+      color: #1f2937;
+    }
+
+    .preview-phone {
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 28px;
+      padding: 14px 14px 12px;
+      border: 1px solid #e4ebf5;
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .phone-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 0 2px;
+    }
+
+    .phone-title {
+      flex: 1;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      margin-right: 24px;
+    }
+
+    .phone-back,
+    .phone-menu {
+      color: #111827;
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .preview-list {
+      display: grid;
+      gap: 14px;
+      max-height: 430px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .preview-comment {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: #1d4ed8;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      font-weight: 700;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .comment-main {
+      min-width: 0;
+    }
+
+    .comment-user {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 2px;
+    }
+
+    .comment-time {
+      font-size: 11px;
+      color: #98a2b3;
+      margin-bottom: 8px;
+    }
+
+    .comment-body {
+      font-size: 14px;
+      line-height: 1.75;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    .comment-stars {
+      color: #fb923c;
+      letter-spacing: 1px;
+      font-size: 14px;
+      padding-top: 2px;
+      white-space: nowrap;
+    }
+
+    .result-box {
+      display: none;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid #d9ebdd;
+      background: #eefaf1;
+      color: #166534;
+      line-height: 1.75;
+    }
+
+    .result-box.show {
+      display: block;
+    }
+
+    @media (max-width: 1100px) {
+      .app {
+        grid-template-columns: 88px 1fr;
+      }
+
+      .sub-nav {
+        display: none;
+      }
+
+      .filters,
+      .modal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar-row {
+        flex-wrap: wrap;
+      }
+
+      .actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .modal-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .rail {
+        display: none;
+      }
+
+      .workspace {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div class="brand">伊站<br>供应链</div>
+      <div class="rail-item">工作台</div>
+      <div class="rail-item">商品</div>
+      <div class="rail-item">订单</div>
+      <div class="rail-item active">电商<br>供应链</div>
+      <div class="rail-item">售后</div>
+    </aside>
+
+    <aside class="sub-nav">
+      <div class="sub-card">
+        <strong>电商供应链</strong>
+        <span>评论管理</span>
+      </div>
+      <button class="menu-item">商品同步</button>
+      <button class="menu-item active">评论管理</button>
+      <button class="menu-item">物流跟踪</button>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar panel">
+        <div class="crumb">
+          <small>电商供应链 &gt; 评论管理</small>
+          <h1 id="pageTitle">供应链后台</h1>
+        </div>
+        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div class="tabs">
+            <button id="supplyTab" class="active" type="button">供应链后台</button>
+            <button id="merchantTab" type="button">商家后台</button>
+          </div>
+          <div class="sub-tabs" id="merchantSubTabs" style="display:none;">
+            <button id="merchantHeadTab" class="active" type="button">总部后台</button>
+            <button id="merchantStoreTab" type="button">分店后台</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="toolbar">
+          <div class="toolbar-row">
+            <div class="filters" id="filtersWrap">
+              <div class="field">
+                <label>评论时间</label>
+                <select id="timeFilter">
+                  <option value="all">全部时间</option>
+                  <option value="today">今天</option>
+                  <option value="week">近7天</option>
+                  <option value="month">近30天</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>评论来源</label>
+                <select id="sourceFilter">
+                  <option value="all">全部</option>
+                  <option value="AI评论">AI评论</option>
+                  <option value="真实评论">真实评论</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>星级</label>
+                <select id="ratingFilter">
+                  <option value="all">全部星级</option>
+                  <option value="5">5星</option>
+                  <option value="4">4星</option>
+                  <option value="3">3星</option>
+                  <option value="2">2星</option>
+                  <option value="1">1星</option>
+                </select>
+              </div>
+              <div class="field" id="storeFilterField">
+                <label id="storeFilterLabel">归属门店</label>
+                <select id="storeFilter">
+                  <option value="all">全部门店</option>
+                  <option value="星选咖啡深圳湾店">星选咖啡深圳湾店</option>
+                  <option value="星选咖啡南山万象店">星选咖啡南山万象店</option>
+                  <option value="山野生活杭州店">山野生活杭州店</option>
+                  <option value="轻食优选上海店">轻食优选上海店</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>关键字搜索</label>
+                <input id="keywordFilter" placeholder="可按商品名、会员昵称、手机号搜索">
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn-secondary" type="button" id="resetBtn">清空筛选</button>
+              <button class="btn-primary" type="button" id="searchBtn">查询</button>
+              <button class="btn-primary btn-accent" type="button" id="openAiBtn">AI写评论</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr id="tableHeadRow"></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="aiModal">
+    <div class="overlay" data-close-modal="true"></div>
+    <div class="modal-card">
+      <div class="modal-hero">
+        <div class="drawer-head">
+          <div>
+            <h3>AI刷评论</h3>
+            <p>选择刷评论范围后，系统会对满足条件的商品随机刷评论，右侧仅预览刷评后在消费者端的展示效果。</p>
+          </div>
+          <button class="close-btn" type="button" data-close-modal="true">×</button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="config-panel">
+          <div class="section-title">基础配置</div>
+          <div class="section-subtitle">先决定刷评论范围，再配置筛选条件和每个商品的刷评论条数；满足条件的商品都会进入本次随机刷评范围。</div>
+
+          <div class="field">
+            <label>刷评论范围</label>
+            <div class="option-row" id="scopeGroup">
+              <button class="pill active" type="button" data-scope="all">全部商品</button>
+              <button class="pill" type="button" data-scope="lessThan">评论少于指定条数</button>
+            </div>
+          </div>
+
+          <div class="field" id="lessThanBlock" style="display:none; margin-top:14px;">
+            <div class="section-title" style="margin-bottom:10px;">筛选条件</div>
+            <div class="modal-grid">
+              <div class="field">
+                <label>评论少于多少条</label>
+                <input id="lessThanInput" type="number" min="0" value="3" placeholder="输入条数">
+              </div>
+              <div class="field">
+                <label>符合条件商品数</label>
+                <input id="lessThanPreview" value="2 个商品" readonly>
+              </div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <div class="section-title" style="margin-bottom:10px;">每个商品刷评论条数</div>
+            <div class="option-row" id="countGroup">
+              <button class="pill active" type="button" data-count="3-5">3-5条</button>
+              <button class="pill" type="button" data-count="3-10">3-10条</button>
+              <button class="pill" type="button" data-count="3-20">3-20条</button>
+            </div>
+          </div>
+
+          <div class="actions" style="margin-top:18px;">
+            <button class="btn-secondary" type="button" id="cancelAiBtn">取消</button>
+            <button class="btn-primary" type="button" id="submitAiBtn">确认刷评论</button>
+          </div>
+
+          <div class="result-box" id="aiResultBox" style="margin-top:14px;"></div>
+        </div>
+
+        <div class="preview-panel">
+          <div class="preview-badge">消费者端效果预览</div>
+          <div class="preview-summary">
+            <div class="summary-row"><span>预览商品</span><strong id="previewProductName">云南小粒咖啡豆</strong></div>
+            <div class="summary-row"><span>本次刷评商品</span><strong id="previewMatchText">2 个商品</strong></div>
+            <div class="summary-row"><span>预览口径</span><strong>仅展示消费者端评论样式</strong></div>
+          </div>
+
+          <div class="preview-phone">
+            <div class="phone-head">
+              <div class="phone-back">‹</div>
+              <div class="phone-title">评价</div>
+              <div class="phone-menu">⋯</div>
+            </div>
+            <div class="preview-list" id="previewList">
+              <div class="preview-comment">
+                <div class="avatar">小</div>
+                <div class="comment-main">
+                  <div class="comment-user">小***头</div>
+                  <div class="comment-time">05-23 08:38:32</div>
+                  <div class="comment-body">保湿效果确实不错，就是物流稍微慢了点，不过东西值这个价。</div>
+                </div>
+                <div class="comment-stars">★★★★☆</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const comments = [
+      {
+        id: 1,
+        store: "星选咖啡深圳湾店",
+        product: "云南小粒咖啡豆",
+        orderNo: "SO202606010001",
+        member: "王**",
+        phone: "138****1024",
+        rating: 5,
+        source: "真实评论",
+        content: "口感顺，香味比较足，平时做美式和拿铁都可以。",
+        time: "2026-06-01 11:20"
+      },
+      {
+        id: 2,
+        store: null,
+        product: "云南小粒咖啡豆",
+        orderNo: "-",
+        member: "AI生成",
+        phone: "-",
+        rating: 5,
+        source: "AI评论",
+        content: "早上喝起来很顺口，苦味不重，日常囤着挺合适。",
+        time: "2026-06-01 14:10"
+      },
+      {
+        id: 3,
+        store: "山野生活杭州店",
+        product: "轻便折叠露营椅",
+        orderNo: "SO202605310128",
+        member: "李**",
+        phone: "139****6621",
+        rating: 4,
+        source: "真实评论",
+        content: "收纳方便，坐着挺稳，周末露营带出去很省事。",
+        time: "2026-05-31 18:32"
+      },
+      {
+        id: 4,
+        store: null,
+        product: "冷萃挂耳组合装",
+        orderNo: "-",
+        member: "AI生成",
+        phone: "-",
+        rating: 4,
+        source: "AI评论",
+        content: "冰水一泡就能喝，夏天放办公室很方便，味道也比较清爽。",
+        time: "2026-06-01 14:15"
+      },
+      {
+        id: 5,
+        store: "轻食优选上海店",
+        product: "低糖坚果燕麦脆",
+        orderNo: "SO202605300066",
+        member: "陈**",
+        phone: "136****4890",
+        rating: 5,
+        source: "真实评论",
+        content: "早餐泡酸奶很方便，不会太甜，家里人都能接受。",
+        time: "2026-05-30 09:18"
+      },
+      {
+        id: 6,
+        store: "星选咖啡南山万象店",
+        product: "冷萃挂耳组合装",
+        orderNo: "SO202605310211",
+        member: "赵**",
+        phone: "137****7712",
+        rating: 5,
+        source: "真实评论",
+        content: "带去公司冲泡很方便，味道比较清爽，冰的热的都能接受。",
+        time: "2026-05-31 10:06"
+      }
+    ];
+
+    const merchantChainStores = ["星选咖啡深圳湾店", "星选咖啡南山万象店"];
+    const merchantStore = "星选咖啡深圳湾店";
+    let currentView = "supply";
+    let currentScope = "all";
+    let currentCount = "3-5";
+    const productOptions = [
+      { name: "云南小粒咖啡豆", reviewCount: 2 },
+      { name: "冷萃挂耳组合装", reviewCount: 1 },
+      { name: "低糖坚果燕麦脆", reviewCount: 4 },
+      { name: "轻便折叠露营椅", reviewCount: 1 }
+    ];
+
+    const pageTitle = document.getElementById("pageTitle");
+    const storeFilterLabel = document.getElementById("storeFilterLabel");
+    const tableHeadRow = document.getElementById("tableHeadRow");
+    const tableBody = document.getElementById("tableBody");
+    const storeFilterField = document.getElementById("storeFilterField");
+    const storeFilter = document.getElementById("storeFilter");
+    const keywordFilter = document.getElementById("keywordFilter");
+    const sourceFilter = document.getElementById("sourceFilter");
+    const ratingFilter = document.getElementById("ratingFilter");
+    const timeFilter = document.getElementById("timeFilter");
+    const aiModal = document.getElementById("aiModal");
+    const aiResultBox = document.getElementById("aiResultBox");
+    const openAiBtn = document.getElementById("openAiBtn");
+    const merchantSubTabs = document.getElementById("merchantSubTabs");
+    const scopeGroup = document.getElementById("scopeGroup");
+    const countGroup = document.getElementById("countGroup");
+    const lessThanBlock = document.getElementById("lessThanBlock");
+    const lessThanInput = document.getElementById("lessThanInput");
+    const lessThanPreview = document.getElementById("lessThanPreview");
+    const previewMatchText = document.getElementById("previewMatchText");
+    const previewProductName = document.getElementById("previewProductName");
+    const previewList = document.getElementById("previewList");
+    const previewTemplates = {
+      "云南小粒咖啡豆": [
+        { avatar: "小", name: "小***头", time: "05-23 08:38:32", stars: 4, text: "香味出来得比较快，早上冲一杯很顺口，日常喝没什么负担。" },
+        { avatar: "猫", name: "猫***鹰", time: "05-22 08:49:07", stars: 4, text: "拿来做美式挺合适，苦味不重，办公室囤着喝刚刚好。" },
+        { avatar: "青", name: "青***树", time: "05-20 23:55:13", stars: 5, text: "口感比我预期更稳，冷热都能接受，性价比挺高的。" }
+      ],
+      "冷萃挂耳组合装": [
+        { avatar: "棉", name: "棉***糖", time: "05-20 09:47:22", stars: 4, text: "冰水一泡就能喝，夏天放公司很方便，不用再单独准备咖啡液。" },
+        { avatar: "皮", name: "皮***虾", time: "05-20 07:00:49", stars: 4, text: "味道偏清爽，不会特别厚重，下午提神用挺合适的。" },
+        { avatar: "葡", name: "葡***柚", time: "05-19 21:47:44", stars: 5, text: "出门带着省事，包装也干净，出差的时候用起来很方便。" }
+      ],
+      "低糖坚果燕麦脆": [
+        { avatar: "云", name: "云***朵", time: "05-18 13:45:10", stars: 5, text: "早餐拌酸奶很方便，不会太甜，吃完饱腹感也还可以。" },
+        { avatar: "大", name: "大***狼", time: "05-18 13:31:46", stars: 4, text: "坚果和燕麦比例还不错，口感脆，但不会过分甜腻。" },
+        { avatar: "青", name: "青***果", time: "05-18 11:46:56", stars: 4, text: "下午嘴馋的时候抓一把挺合适，控糖期吃着压力没那么大。" }
+      ],
+      "轻便折叠露营椅": [
+        { avatar: "木", name: "木***林", time: "05-17 17:15:33", stars: 4, text: "收起来不占地方，女生一个人拎着也不算重。" },
+        { avatar: "星", name: "星***河", time: "05-17 12:09:18", stars: 5, text: "周末露营带着很方便，坐感比想象中更稳一些。" },
+        { avatar: "海", name: "海***风", time: "05-16 20:21:05", stars: 4, text: "临时放后备箱里不占地方，朋友来露营时多备一把很实用。" }
+      ]
+    };
+
+    function parseDate(value) {
+      return new Date(value.replace(/-/g, "/"));
+    }
+
+    function withinTime(itemTime, range) {
+      if (range === "all") return true;
+      const base = new Date("2026/06/01 23:59");
+      const target = parseDate(itemTime);
+      const diff = (base - target) / (1000 * 60 * 60 * 24);
+      if (range === "today") return target.toDateString() === new Date("2026/06/01").toDateString();
+      if (range === "week") return diff <= 7;
+      if (range === "month") return diff <= 30;
+      return true;
+    }
+
+    function getFilteredComments() {
+      return comments.filter((item) => {
+        const keyword = keywordFilter.value.trim();
+        const keywordMatched = !keyword
+          || item.product.includes(keyword)
+          || item.member.includes(keyword)
+          || item.phone.includes(keyword);
+        if (currentView === "merchantHead" && item.source === "真实评论" && !merchantChainStores.includes(item.store)) return false;
+        if (currentView === "merchantHead" && item.source === "AI评论") return true;
+        if (currentView === "merchantStore" && item.source === "真实评论" && item.store !== merchantStore) return false;
+        if (currentView === "merchantStore" && item.source === "AI评论") return true;
+        if (currentView === "supply" && storeFilter.value !== "all" && item.source === "真实评论" && item.store !== storeFilter.value) return false;
+        if (!keywordMatched) return false;
+        if (sourceFilter.value !== "all" && item.source !== sourceFilter.value) return false;
+        if (ratingFilter.value !== "all" && String(item.rating) !== ratingFilter.value) return false;
+        if (!withinTime(item.time, timeFilter.value)) return false;
+        return true;
+      });
+    }
+
+    function renderHeaders() {
+      const headers = currentView === "supply"
+        ? ["评论时间", "会员信息", "评论来源", "商品信息", "评论内容", "关联订单号", "归属门店"]
+        : currentView === "merchantHead"
+          ? ["评论时间", "会员信息", "评论来源", "商品信息", "评论内容", "关联订单号", "所属门店"]
+          : ["评论时间", "会员信息", "评论来源", "商品信息", "评论内容", "关联订单号"];
+      tableHeadRow.innerHTML = headers.map((item) => `<th>${item}</th>`).join("");
+    }
+
+    function renderTable() {
+      const rows = getFilteredComments();
+      tableBody.innerHTML = rows.map((item) => {
+        const storeCell = currentView === "supply" || currentView === "merchantHead"
+          ? `<td>${item.source === "AI评论" ? "门店通用" : item.store}</td>`
+          : "";
+        return `
+          <tr>
+            <td>${item.time}</td>
+            <td class="member-cell"><strong>${item.member}</strong><span>${item.phone}</span></td>
+            <td><span class="tag ${item.source === "AI评论" ? "ai" : "real"}">${item.source}</span></td>
+            <td>${item.product}</td>
+            <td class="comment-cell">
+              <div class="comment-head">
+                <strong class="stars">${"★".repeat(item.rating)}${"☆".repeat(5 - item.rating)}</strong>
+              </div>
+              <div class="comment-text">${item.content}</div>
+            </td>
+            <td>${item.orderNo}</td>
+            ${storeCell}
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderView() {
+      document.getElementById("supplyTab").classList.toggle("active", currentView === "supply");
+      document.getElementById("merchantTab").classList.toggle("active", currentView === "merchantHead" || currentView === "merchantStore");
+      document.getElementById("merchantHeadTab").classList.toggle("active", currentView === "merchantHead");
+      document.getElementById("merchantStoreTab").classList.toggle("active", currentView === "merchantStore");
+      merchantSubTabs.style.display = currentView === "supply" ? "none" : "inline-flex";
+      if (currentView === "supply") {
+        pageTitle.textContent = "供应链后台";
+        storeFilterLabel.textContent = "归属门店";
+      } else if (currentView === "merchantHead") {
+        pageTitle.textContent = "商家后台-总部后台";
+        storeFilterLabel.textContent = "所属门店";
+      } else {
+        pageTitle.textContent = "商家后台-分店后台";
+      }
+      storeFilterField.style.display = currentView === "supply" || currentView === "merchantHead" ? "flex" : "none";
+      openAiBtn.style.display = currentView === "supply" ? "inline-flex" : "none";
+      if (currentView === "merchantHead") {
+        Array.from(storeFilter.options).forEach((option) => {
+          if (option.value === "all") return;
+          option.hidden = !merchantChainStores.includes(option.value);
+        });
+        if (storeFilter.value !== "all" && !merchantChainStores.includes(storeFilter.value)) {
+          storeFilter.value = "all";
+        }
+      } else {
+        Array.from(storeFilter.options).forEach((option) => {
+          option.hidden = false;
+        });
+      }
+      renderHeaders();
+      renderTable();
+    }
+
+    function togglePill(group, button) {
+      group.querySelectorAll(".pill").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+    }
+
+    function getProductsByThreshold() {
+      const limit = Number(lessThanInput.value || 0);
+      return productOptions.filter((item) => item.reviewCount < limit);
+    }
+
+    function refreshThresholdPreview() {
+      const matched = getProductsByThreshold();
+      lessThanPreview.value = matched.length
+        ? `${matched.length} 个商品`
+        : "暂无符合条件商品";
+      previewMatchText.textContent = matched.length
+        ? matched.map((item) => `${item.name}(${item.reviewCount}条)`).join("、")
+        : "暂无符合条件商品";
+      refreshPreviewList();
+    }
+
+    function getPreviewProductName() {
+      if (currentScope === "lessThan") {
+        const matched = getProductsByThreshold();
+        return matched[0] ? matched[0].name : "云南小粒咖啡豆";
+      }
+      return "云南小粒咖啡豆";
+    }
+
+    function renderPreviewComments(productName) {
+      const list = previewTemplates[productName] || previewTemplates["云南小粒咖啡豆"];
+      previewList.innerHTML = list.map((item) => `
+        <div class="preview-comment">
+          <div class="avatar">${item.avatar}</div>
+          <div class="comment-main">
+            <div class="comment-user">${item.name}</div>
+            <div class="comment-time">${item.time}</div>
+            <div class="comment-body">${item.text}</div>
+          </div>
+          <div class="comment-stars">${"★".repeat(item.stars)}${"☆".repeat(5 - item.stars)}</div>
+        </div>
+      `).join("");
+    }
+
+    function refreshPreviewList() {
+      const productName = getPreviewProductName();
+      previewProductName.textContent = productName;
+      if (currentScope === "all") {
+        previewMatchText.textContent = "全部上架商品";
+      }
+      renderPreviewComments(productName);
+    }
+
+    document.getElementById("supplyTab").addEventListener("click", () => {
+      currentView = "supply";
+      renderView();
+    });
+
+    document.getElementById("merchantTab").addEventListener("click", () => {
+      currentView = "merchantHead";
+      renderView();
+    });
+
+    document.getElementById("merchantHeadTab").addEventListener("click", () => {
+      currentView = "merchantHead";
+      renderView();
+    });
+
+    document.getElementById("merchantStoreTab").addEventListener("click", () => {
+      currentView = "merchantStore";
+      renderView();
+    });
+
+    document.getElementById("searchBtn").addEventListener("click", renderTable);
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      storeFilter.value = "all";
+      keywordFilter.value = "";
+      sourceFilter.value = "all";
+      ratingFilter.value = "all";
+      timeFilter.value = "all";
+      renderTable();
+    });
+
+    openAiBtn.addEventListener("click", () => {
+      aiModal.classList.add("show");
+    });
+
+    document.querySelectorAll("[data-close-modal='true']").forEach((node) => {
+      node.addEventListener("click", () => aiModal.classList.remove("show"));
+    });
+
+    document.getElementById("cancelAiBtn").addEventListener("click", () => {
+      aiModal.classList.remove("show");
+    });
+
+    scopeGroup.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-scope]");
+      if (!button) return;
+      currentScope = button.dataset.scope;
+      togglePill(scopeGroup, button);
+      lessThanBlock.style.display = currentScope === "lessThan" ? "block" : "none";
+      refreshPreviewList();
+    });
+
+    countGroup.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-count]");
+      if (!button) return;
+      currentCount = button.dataset.count;
+      togglePill(countGroup, button);
+    });
+
+    document.getElementById("submitAiBtn").addEventListener("click", () => {
+      const thresholdProducts = getProductsByThreshold();
+      if (currentScope === "lessThan" && thresholdProducts.length === 0) {
+        aiResultBox.classList.add("show");
+        aiResultBox.textContent = "当前筛选条件下暂无符合条件商品。";
+        return;
+      }
+
+      aiResultBox.classList.add("show");
+      if (currentScope === "all") {
+        aiResultBox.innerHTML = `已提交：对全部上架商品刷 ${currentCount} 条评论。`;
+      } else {
+        aiResultBox.innerHTML = `已提交：对评论少于 ${lessThanInput.value} 条的商品随机刷 ${currentCount} 条评论。<br>符合条件商品：${thresholdProducts.map((item) => item.name).join("、")}`;
+      }
+    });
+
+    lessThanInput.addEventListener("input", refreshThresholdPreview);
+
+    refreshThresholdPreview();
+    refreshPreviewList();
+    renderView();
+  </script>
+</body>
+</html>
