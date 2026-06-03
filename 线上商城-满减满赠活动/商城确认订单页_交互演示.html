@@ -181,6 +181,11 @@
       background: #fce7f3;
       color: #be185d;
     }
+    .product-desc {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-bottom: 4px;
+    }
     .product-price {
       display: flex;
       align-items: center;
@@ -1128,6 +1133,27 @@
     .promo-summary {
       background: linear-gradient(135deg, #f97316, #ec4899);
     }
+    .promo-summary-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .promo-restore-btn {
+      border: none;
+      background: transparent;
+      padding: 0;
+      font-size: 12px;
+      color: rgba(255,255,255,0.9);
+      cursor: pointer;
+    }
+    .promo-restore-btn:active {
+      opacity: 0.8;
+    }
+    .promo-restore-btn.hidden {
+      display: none;
+    }
     .promo-card {
       display: flex;
       align-items: flex-start;
@@ -1395,18 +1421,6 @@
   </div>
 </div>
 
-<!-- C: Optimization Notice -->
-<div class="opt-notice" onclick="showModal('compareModal')">
-  <div class="opt-notice-row1">
-    <div class="opt-notice-title">
-      <span class="tip-icon">💡</span>
-      <span>已为您自动找到最省钱方案</span>
-    </div>
-    <div class="opt-notice-arrow">查看方案对比 ›</div>
-  </div>
-  <div class="opt-notice-desc" id="optNoticeDesc">以下优惠已帮您选好，预计共省 ¥507.20</div>
-</div>
-
 <!-- G: Cost Detail + Selection -->
 <div class="card">
   <div class="card-header">💰 费用明细</div>
@@ -1462,9 +1476,9 @@
       </div>
       <div class="cost-detail-selected" id="promotionSelectedInfo">
         <span class="selected-tag" id="promotionSelectedTag">未使用活动</span>
-        <span class="selected-tip" id="promotionSelectedTip">支持切换活动或恢复系统推荐</span>
+        <span class="selected-tip" id="promotionSelectedTip">支持切换活动</span>
       </div>
-      <div class="promo-detail-note" id="promotionDetailNote">当前订单未命中满减满赠活动</div>
+      <div class="promo-detail-note" id="promotionDetailNote" style="display:none;"></div>
     </div>
 
     <!-- 优惠券 - 可点击选择 -->
@@ -1638,7 +1652,8 @@
         <div style="font-size:12px;color:var(--text-2);line-height:1.8;">
           · 会员卡折扣 / 预定金后先命中满减活动<br>
           · 若活动配置互斥，系统自动禁用券或赠送金<br>
-          · 满赠商品会直接加入订单，赠券在支付后发放<br>
+          · 满减满赠赠品会直接加入订单，赠券在支付后发放<br>
+          · 当前示例为自提单，实物赠品同步转为门店自提<br>
           · <strong>系统按最终实付金额选择最优路径</strong>
         </div>
       </div>
@@ -1831,14 +1846,9 @@
           <span class="coupon-summary-tag" id="promotionSummaryTag">系统推荐</span>
           <span class="coupon-summary-text" id="promotionSummaryText">当前活动预计优惠 -¥0.00</span>
         </div>
-        <div class="coupon-summary-discount" id="promotionSummaryDiscount">-¥0.00</div>
-      </div>
-
-      <div class="promo-card selected" data-promo="auto" onclick="selectPromotionCard(this)">
-        <div class="promo-card-radio"></div>
-        <div class="promo-card-content">
-          <div class="promo-card-name">恢复系统推荐</div>
-          <div class="promo-card-info">系统会在可用活动与原有优惠之间自动选择更省钱的方案</div>
+        <div class="promo-summary-right">
+          <button class="promo-restore-btn hidden" id="promotionRestoreBtn" type="button" onclick="restorePromotionAuto()">恢复系统推荐</button>
+          <div class="coupon-summary-discount" id="promotionSummaryDiscount">-¥0.00</div>
         </div>
       </div>
 
@@ -1907,7 +1917,7 @@
       name: '春日焕肤礼',
       threshold: 300,
       discount: 50,
-      giftProduct: { name: '修护面膜礼盒', icon: '🎁', qty: 1 },
+      giftProduct: { name: '修护面膜礼盒', icon: '🎁', qty: 1, deliveryText: '自提订单赠品，需到门店自提' },
       giftCouponText: '支付成功后发放满100减10现金券 1 张',
       excludes: { coupons: true, points: false, gift: true }
     },
@@ -2103,7 +2113,8 @@
         <div class="product-img">${giftProduct.icon}</div>
         <div class="product-info">
           <div class="product-name">${giftProduct.name}</div>
-          <div class="product-tag gift">满赠商品</div>
+          <div class="product-tag gift">满减满赠赠品</div>
+          <div class="product-desc">满赠活动赠送 · ${giftProduct.deliveryText || '实物赠品'}</div>
           <div class="product-price">
             <div><span class="product-price-main">¥0.00</span></div>
             <span class="product-qty">× ${giftProduct.qty}</span>
@@ -2166,11 +2177,23 @@
     document.getElementById('promotionSelectedTag').textContent = getPromotionLabel(result);
     document.getElementById('promotionSelectedTip').textContent =
       orderState.promotionChoice === 'auto'
-        ? (result.promotionApplied ? '系统已自动匹配最优活动' : '系统判断当前不使用活动更划算')
-        : '您已手动选择活动，可切换或恢复系统推荐';
-    document.getElementById('promotionDetailNote').innerHTML = result.promotionApplied
-      ? `门槛按会员价计算，当前已减 <strong>¥${result.promotionAmount.toFixed(2)}</strong>${result.promotionApplied.giftProduct ? '，并已加入赠品' : ''}。${result.promotionApplied.giftCouponText}`
-      : '当前订单未命中满减满赠活动，原有会员卡、优惠券、积分、赠送金交互保持不变。';
+        ? (result.promotionApplied ? '系统已自动匹配活动' : '系统判断当前不使用活动更划算')
+        : '您已手动选择活动，可切换活动';
+    const promotionNotes = [];
+    if (result.promotionApplied && result.promotionApplied.giftProduct) {
+      promotionNotes.push('实物赠品已添加商品列表，随单发出');
+    }
+    if (result.promotionApplied && result.promotionApplied.giftCouponText) {
+      promotionNotes.push('优惠券支付成功后送至账户');
+    }
+    const promotionDetailNote = document.getElementById('promotionDetailNote');
+    if (promotionNotes.length) {
+      promotionDetailNote.style.display = 'block';
+      promotionDetailNote.textContent = promotionNotes.join('；');
+    } else {
+      promotionDetailNote.style.display = 'none';
+      promotionDetailNote.textContent = '';
+    }
     const couponLines = [];
     if (selectedCoupons.item1) couponLines.push(`<div class="coupon-used"><span class="coupon-name">${couponDefs.item1.name}</span><span class="coupon-amount">-¥${result.lines.find(line => line.id === 'neck').itemCoupon.toFixed(2)}</span></div>`);
     if (selectedCoupons.item2) couponLines.push(`<div class="coupon-used"><span class="coupon-name">${couponDefs.item2.name}</span><span class="coupon-amount">-¥${result.lines.find(line => line.id === 'hydra').itemCoupon.toFixed(2)}</span></div>`);
@@ -2199,9 +2222,6 @@
     document.getElementById('bottomNeedPay').textContent = `还需支付 ¥${result.finalPay.toFixed(2)}`;
     const itemCount = products.reduce((sum, item) => sum + item.qty, 0) + (result.promotionApplied && result.promotionApplied.giftProduct ? result.promotionApplied.giftProduct.qty : 0);
     document.querySelector('.bottom-save').textContent = `共${itemCount}件 · 已省 ¥${result.totalSaved.toFixed(2)}`;
-    document.getElementById('optNoticeDesc').textContent = result.promotionApplied
-      ? `以下优惠已帮您选好，已叠加 ${result.promotionApplied.name}，预计共省 ¥${result.totalSaved.toFixed(2)}`
-      : `以下优惠已帮您选好，预计共省 ¥${result.totalSaved.toFixed(2)}`;
     document.querySelectorAll('.pay-choice-amount').forEach(el => {
       el.textContent = `¥${result.finalPay.toFixed(2)}`;
     });
@@ -2368,10 +2388,11 @@
     document.getElementById('promotionSummaryTag').textContent = orderState.promotionChoice === 'auto' ? '系统推荐' : '当前选择';
     document.getElementById('promotionSummaryText').textContent = summaryText;
     document.getElementById('promotionSummaryDiscount').textContent = `-¥${result.promotionAmount.toFixed(2)}`;
+    document.getElementById('promotionRestoreBtn').classList.toggle('hidden', orderState.promotionChoice === 'auto');
 
     const selectedKey = orderState.promotionChoice;
     document.querySelectorAll('#promotionModal .promo-card').forEach(card => {
-      card.classList.toggle('selected', card.dataset.promo === selectedKey);
+      card.classList.toggle('selected', selectedKey !== 'auto' && card.dataset.promo === selectedKey);
     });
   }
 
@@ -2382,12 +2403,21 @@
 
   function confirmPromotionSelection() {
     const selected = document.querySelector('#promotionModal .promo-card.selected');
-    orderState.promotionChoice = selected ? selected.dataset.promo : 'auto';
+    if (selected) orderState.promotionChoice = selected.dataset.promo;
     hideModal('promotionModal');
     updateCouponCardLocks();
     updateCouponSummary();
     updateOrderSummary();
-    showToast(orderState.promotionChoice === 'auto' ? '已恢复系统推荐活动' : '已更新满减满赠活动');
+    if (selected) showToast('已更新满减满赠活动');
+  }
+
+  function restorePromotionAuto() {
+    orderState.promotionChoice = 'auto';
+    updateCouponCardLocks();
+    updateCouponSummary();
+    updateOrderSummary();
+    updatePromotionModal(computePricingScenario());
+    showToast('已恢复系统推荐活动');
   }
 
   function confirmCouponSelection() {

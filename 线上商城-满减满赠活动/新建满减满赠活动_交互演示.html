@@ -253,6 +253,23 @@
       background: #f7f8fa;
     }
 
+    .order-type-box .check-line {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .order-type-box label {
+      font-size: 13px;
+      line-height: 20px;
+    }
+
+    .order-type-note {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
     .order-type-box .hint {
       margin-top: 8px;
       color: var(--text-3);
@@ -828,9 +845,13 @@
           <div class="order-type-box">
             <div class="check-line">
               <label><input type="checkbox">微商城订单</label>
-              <label><input type="checkbox">秒杀订单</label>
-              <label><input type="checkbox">拼团订单</label>
               <label><input type="checkbox">线下订单</label>
+            </div>
+            <div class="orange order-type-note">
+              微商城订单需在门店商城设置中启用电商模式后，该满减配置才会生效。
+            </div>
+            <div class="orange order-type-note" style="margin-top:2px;">
+              线下订单暂时仅可使用1张优惠券，且不受人群限制和优惠共享限制，其余逻辑沿用原有线下规则。
             </div>
           </div>
         </div>
@@ -925,6 +946,9 @@
             <label><input type="radio" name="audience" value="include">指定人群参与</label>
             <label><input type="radio" name="audience" value="exclude">指定人群不可参与</label>
           </div>
+          <div class="orange" style="margin-top:4px;font-size:13px;">
+            参与限制仅控制微商城订单，线下订单不受限制。
+          </div>
           <div class="audience-panel" id="audiencePanel">
             <div class="audience-row">
               <a class="link" id="openAudience">选择参与人群</a>
@@ -939,12 +963,11 @@
         <div class="form-control">
           <div class="check-line" style="min-height:32px;">
             <label><input type="checkbox">与优惠券优惠共享</label>
-            <label><input type="checkbox">可与预定金活动共用</label>
             <label><input type="checkbox">可与赠送金共用</label>
             <label><input type="checkbox">可与积分抵扣共用</label>
           </div>
           <div class="orange" style="margin-top:4px;font-size:13px;">
-            勾选则代表与对应优惠可以共享，并且都是基于会员价的基础上来算是否达成了门槛条件
+            优惠同享仅控制微商城订单，线下订单不受限制；线下订单最多仅使用1张券。
           </div>
         </div>
       </div>
@@ -969,7 +992,7 @@
               <tr>
                 <th style="width:64px;">选择</th>
                 <th>商品名称</th>
-                <th style="width:96px;">库存</th>
+                <th style="width:96px;">库存参考</th>
                 <th style="width:96px;">数量</th>
               </tr>
             </thead>
@@ -1027,6 +1050,11 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="orange" style="margin-top:10px;font-size:13px;line-height:20px;">
+          赠送实物商品时，自提单跟单自提，物流单跟单发货；实物赠品下单时不校验库存，库存不足允许扣为负库存。<br>
+          赠送优惠券时，支付成功后自动发放到客户资产。<br>
+          订单全额退款时，优惠券会原路回退，实物赠品也会跟单回退。
         </div>
       </div>
       <div class="modal-foot">
