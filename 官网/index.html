@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI店商变现 - 伊智科技 | 把线上会员超市开进您的门店私域里</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-mark">YZ</div>
+                <span class="logo-text">伊智科技</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#hero">首页</a></li>
+                <li><a href="#calculator">变现测算</a></li>
+                <li><a href="#solution">合作模式</a></li>
+                <li><a href="#trust">实力背书</a></li>
+                <li><a href="#cta-final">联系我们</a></li>
+            </ul>
+            <button class="nav-cta" onclick="openModalFull()">
+                <span class="cta-dot"></span>
+                免费测算
+            </button>
+        </div>
+    </nav>
+
+    <!-- 第1屏：Hero -->
+    <section id="hero" class="hero-section">
+        <!-- 背景动效 -->
+        <div class="hero-bg">
+            <div class="mesh-backdrop"></div>
+            <div class="mesh-grain"></div>
+            <div class="grid-lines"></div>
+        </div>
+        
+        <div class="container hero-container">
+            <div class="hero-content">
+                <div class="hero-eyebrow">
+                    <span class="eyebrow-icon">⚡</span>
+                    <span>AI店商变现 · 让会员信任变成持续收入</span>
+                </div>
+                <h1 class="hero-title">
+                    把一座<span class="gradient-text">会运营、会卖货、会复购</span>的<br>
+                    线上会员超市，<br>
+                    开进您的门店私域里
+                </h1>
+                <p class="hero-desc">
+                    伊智 AI店商变现，帮美业门店接入货盘、AI运营、销售团队与履约能力，让会员信任变成持续复购的线上零售收入。
+                </p>
+                <div class="hero-tags">
+                    <span class="hero-tag">不用压货</span>
+                    <span class="hero-tag">不用招电商团队</span>
+                    <span class="hero-tag">不用自己摸索运营</span>
+                    <span class="hero-tag">交易在您的商城，会员还是您的</span>
+                </div>
+                <div class="hero-actions">
+                    <button class="btn-glow" onclick="openModalFull()">
+                        免费测算会员变现潜力
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    <button class="btn-ghost" onclick="scrollToCalculator()">
+                        看看我的门店适不适合
+                    </button>
+                </div>
+            </div>
+
+            <!-- 右侧：手机商城 + 数据面板叠加 -->
+            <div class="hero-visual">
+                <!-- 手机框 + 真实商城截图 -->
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen-content">
+                        <img src="首页商城1.jpg" alt="精选商城" class="phone-screen-img">
+                    </div>
+                </div>
+
+                <!-- 叠加数据面板 -->
+                <div class="overlay-dashboard">
+                    <div class="od-header">
+                        <span class="od-title">实时经营数据</span>
+                        <span class="od-live">● LIVE</span>
+                    </div>
+                    <div class="od-metrics">
+                        <div class="od-metric">
+                            <span class="od-val" id="animGmv">86,400</span>
+                            <span class="od-label">本月GMV(元)</span>
+                        </div>
+                        <div class="od-metric">
+                            <span class="od-val" id="animOrders">324</span>
+                            <span class="od-label">本月订单</span>
+                        </div>
+                        <div class="od-metric">
+                            <span class="od-val">76%</span>
+                            <span class="od-label">复购率</span>
+                        </div>
+                    </div>
+                    <div class="od-chart">
+                        <svg viewBox="0 0 200 50" class="od-svg">
+                            <defs>
+                                <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:rgba(79,110,247,0.3)"/>
+                                    <stop offset="100%" style="stop-color:rgba(79,110,247,0)"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M0,40 C20,35 40,28 60,30 C80,32 100,18 120,15 C140,12 160,20 180,8 L200,5 L200,50 L0,50 Z" fill="url(#chartGrad)"/>
+                            <path d="M0,40 C20,35 40,28 60,30 C80,32 100,18 120,15 C140,12 160,20 180,8 L200,5" fill="none" stroke="rgba(79,110,247,0.8)" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="od-footer">↑ 23.5% 较上月增长</div>
+                </div>
+
+                <!-- 浮动子卡片 -->
+                <div class="floating-card fc-1">
+                    <div class="fc-icon">🛒</div>
+                    <div class="fc-info">
+                        <span class="fc-title">新增订单</span>
+                        <span class="fc-value">+12单</span>
+                    </div>
+                </div>
+                <div class="floating-card fc-2">
+                    <div class="fc-icon">🤖</div>
+                    <div class="fc-info">
+                        <span class="fc-title">AI触达会员</span>
+                        <span class="fc-value">2,180人</span>
+                    </div>
+                </div>
+                <div class="floating-card fc-3">
+                    <div class="fc-icon">💰</div>
+                    <div class="fc-info">
+                        <span class="fc-title">今日分润</span>
+                        <span class="fc-value">¥1,260</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部滚动提示 -->
+        <div class="scroll-hint">
+            <div class="scroll-mouse">
+                <div class="scroll-dot"></div>
+            </div>
+            <span>向下滚动探索</span>
+        </div>
+    </section>
+
+    <!-- 第2屏：痛点 -->
+    <section id="pain-points" class="section pain-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">痛点洞察</span>
+                <h2 class="section-title">你不是没有客户<br><span class="gradient-text">而是会员离店后没有继续帮你赚钱</span></h2>
+                <p class="section-desc">门店靠服务赚钱，一天就那么多小时、那么多床位。但您积累的会员，离了店就再没帮您产生过一分钱。</p>
+            </div>
+            <div class="pain-grid">
+                <div class="pain-card" data-index="01">
+                    <div class="pain-glow"></div>
+                    <div class="pain-number">01</div>
+                    <h3>有会员</h3>
+                    <p>除了到店消费，很少线上复购</p>
+                </div>
+                <div class="pain-card" data-index="02">
+                    <div class="pain-glow"></div>
+                    <div class="pain-number">02</div>
+                    <h3>有信任</h3>
+                    <p>客户认可门店，但信任没转成持续购买</p>
+                </div>
+                <div class="pain-card" data-index="03">
+                    <div class="pain-glow"></div>
+                    <div class="pain-number">03</div>
+                    <h3>有门店</h3>
+                    <p>线下坪效人效接近天花板，增长越来越吃力</p>
+                </div>
+                <div class="pain-card" data-index="04">
+                    <div class="pain-glow"></div>
+                    <div class="pain-number">04</div>
+                    <h3>想卖货</h3>
+                    <p>缺货盘缺团队缺运营，不知怎么卖</p>
+                </div>
+            </div>
+            <div class="section-cta">
+                <button class="btn-glow" onclick="scrollToCalculator()">测测我的会员还能创造多少收入 <span class="btn-arrow">→</span></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 社会证明带 -->
+    <section class="section social-proof-strip">
+        <div class="container">
+            <div class="sp-inner">
+                <div class="sp-header">
+                    <span class="sp-number">860+</span>
+                    <span class="sp-text">家美业门店已接入 AI店商变现</span>
+                </div>
+                <div class="sp-cases">
+                    <div class="sp-case">
+                        <div class="sp-case-top">
+                            <span class="sp-case-type">养生连锁 · 5店</span>
+                            <span class="sp-case-time">接入3个月</span>
+                        </div>
+                        <div class="sp-case-data">
+                            <div class="sp-metric"><span class="sp-val">8.6万</span><span class="sp-label">月GMV</span></div>
+                            <div class="sp-metric"><span class="sp-val">34%</span><span class="sp-label">会员复购率</span></div>
+                        </div>
+                    </div>
+                    <div class="sp-case">
+                        <div class="sp-case-top">
+                            <span class="sp-case-type">皮肤管理 · 3店</span>
+                            <span class="sp-case-time">接入2个月</span>
+                        </div>
+                        <div class="sp-case-data">
+                            <div class="sp-metric"><span class="sp-val">3.2万</span><span class="sp-label">月GMV</span></div>
+                            <div class="sp-metric"><span class="sp-val">28%</span><span class="sp-label">会员复购率</span></div>
+                        </div>
+                    </div>
+                    <div class="sp-case">
+                        <div class="sp-case-top">
+                            <span class="sp-case-type">美业连锁 · 12店</span>
+                            <span class="sp-case-time">接入6个月</span>
+                        </div>
+                        <div class="sp-case-data">
+                            <div class="sp-metric"><span class="sp-val">21万</span><span class="sp-label">月GMV</span></div>
+                            <div class="sp-metric"><span class="sp-val">41%</span><span class="sp-label">会员复购率</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第3屏：测算 -->
+    <section id="calculator" class="section calc-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">变现测算</span>
+                <h2 class="section-title">算一算，您的会员资产<br><span class="gradient-text">每月可能多出多少收入？</span></h2>
+                <p class="section-desc">输入门店数量和活跃会员数，看看您的私域会员具备多大的店商变现潜力</p>
+            </div>
+            <div class="calc-panel">
+                <div class="calc-left">
+                    <div class="calc-form-title">
+                        <span class="form-icon">📊</span>
+                        输入您的门店信息
+                    </div>
+                    <div class="calc-form">
+                        <div class="form-item">
+                            <label>门店数量</label>
+                            <div class="select-wrap">
+                                <select id="storeCount">
+                                    <option value="1">1家门店</option>
+                                    <option value="2">2家门店</option>
+                                    <option value="3" selected>3家门店</option>
+                                    <option value="5">5家门店</option>
+                                    <option value="8">8家门店</option>
+                                    <option value="10">10家以上</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label>活跃会员数</label>
+                            <input type="number" id="memberCount" placeholder="近3个月有互动的会员数" value="3000">
+                        </div>
+                        <div class="form-item">
+                            <label>所属行业</label>
+                            <div class="select-wrap">
+                                <select id="industry">
+                                    <option value="beauty">美业连锁</option>
+                                    <option value="health">养生/头疗</option>
+                                    <option value="skin">皮肤管理</option>
+                                    <option value="wellness">大健康</option>
+                                    <option value="nail">美甲美睫</option>
+                                    <option value="other">其他行业</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn-glow btn-full" onclick="calculateResult()">生成测算结果 <span class="btn-arrow">→</span></button>
+                    </div>
+                </div>
+                <div class="calc-right">
+                    <div class="calc-placeholder" id="calcPlaceholder">
+                        <div class="preview-report-card">
+                            <div class="preview-report-header">
+                                <span class="preview-badge">高潜型</span>
+                                <span class="preview-label">会员资产测算报告</span>
+                            </div>
+                            <div class="preview-report-body">
+                                <div class="preview-row">
+                                    <span class="pr-label">月GMV潜力</span>
+                                    <span class="pr-value blurred">约 5.2万 - 12万</span>
+                                </div>
+                                <div class="preview-row">
+                                    <span class="pr-label">月分润参考</span>
+                                    <span class="pr-value blurred">约 6,200 - 18,000</span>
+                                </div>
+                                <div class="preview-row">
+                                    <span class="pr-label">推荐合作路径</span>
+                                    <span class="pr-value blurred">私域销售团队代运营分成</span>
+                                </div>
+                                <div class="preview-bars">
+                                    <div class="preview-bar bar-1"></div>
+                                    <div class="preview-bar bar-2"></div>
+                                    <div class="preview-bar bar-3"></div>
+                                </div>
+                            </div>
+                            <div class="preview-unlock-hint">
+                                <span class="unlock-icon">🔓</span>
+                                填写左侧信息，解锁您的专属测算结果
+                            </div>
+                        </div>
+                    </div>
+                    <div class="calc-result" id="calcResult" style="display:none;">
+                        <div class="result-top">
+                            <div class="result-badge" id="resultBadge">高潜型</div>
+                            <span class="result-label">会员资产测算报告</span>
+                        </div>
+                        <div class="result-main">
+                            <div class="result-row">
+                                <span class="rr-label">月GMV潜力</span>
+                                <span class="rr-value" id="resGmv">约 1.8万 - 12万</span>
+                            </div>
+                            <div class="result-row">
+                                <span class="rr-label">月分润参考</span>
+                                <span class="rr-value" id="resProfit">约 2,200 - 18,000</span>
+                            </div>
+                            <div class="result-row highlight-row">
+                                <span class="rr-label">推荐合作路径</span>
+                                <span class="rr-value accent" id="resModel">私域销售团队代运营</span>
+                            </div>
+                        </div>
+                        <div class="result-growth-curve">
+                            <p class="curve-hint">随运营深入，您的月GMV将持续增长</p>
+                            <div class="curve-chart">
+                                <svg viewBox="0 0 300 120" class="growth-svg" id="growthSvg">
+                                    <defs>
+                                        <linearGradient id="curveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" style="stop-color:rgba(99,179,255,0.8)"/>
+                                            <stop offset="50%" style="stop-color:rgba(79,110,247,0.9)"/>
+                                            <stop offset="100%" style="stop-color:rgba(56,200,171,1)"/>
+                                        </linearGradient>
+                                        <linearGradient id="curveFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" style="stop-color:rgba(79,110,247,0.15)"/>
+                                            <stop offset="100%" style="stop-color:rgba(79,110,247,0)"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <!-- 网格线 -->
+                                    <line x1="60" y1="100" x2="280" y2="100" stroke="rgba(0,0,0,0.05)" stroke-width="1"/>
+                                    <line x1="60" y1="70" x2="280" y2="70" stroke="rgba(0,0,0,0.03)" stroke-width="1" stroke-dasharray="3"/>
+                                    <line x1="60" y1="40" x2="280" y2="40" stroke="rgba(0,0,0,0.03)" stroke-width="1" stroke-dasharray="3"/>
+                                    <!-- 填充区域 -->
+                                    <path id="curveFillPath" d="M60,100 C110,95 160,75 190,55 C220,35 260,20 280,15 L280,100 L60,100 Z" fill="url(#curveFill)" opacity="0"/>
+                                    <!-- 曲线 -->
+                                    <path id="curveLine" d="M60,100 C110,95 160,75 190,55 C220,35 260,20 280,15" fill="none" stroke="url(#curveGrad)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="300" stroke-dashoffset="300"/>
+                                    <!-- 节点 -->
+                                    <circle id="dot1" cx="60" cy="100" r="0" fill="rgba(99,179,255,0.9)"/>
+                                    <circle id="dot2" cx="170" cy="62" r="0" fill="rgba(79,110,247,0.9)"/>
+                                    <circle id="dot3" cx="280" cy="15" r="0" fill="rgba(56,200,171,1)"/>
+                                </svg>
+                                <!-- 标注 -->
+                                <div class="curve-labels">
+                                    <div class="curve-label cl-1">
+                                        <span class="cl-month">第1个月</span>
+                                        <span class="cl-value" id="barVal1">1.8万</span>
+                                    </div>
+                                    <div class="curve-label cl-2">
+                                        <span class="cl-month">第3个月</span>
+                                        <span class="cl-value" id="barVal2">5万</span>
+                                    </div>
+                                    <div class="curve-label cl-3">
+                                        <span class="cl-month">第6个月</span>
+                                        <span class="cl-value" id="barVal3">12万</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="result-cta-section">
+                            <div class="annual-profit-highlight">
+                                <span class="annual-label">年度变现潜力</span>
+                                <span class="annual-value" id="resAnnualProfit">****</span>
+                            </div>
+                            <div class="annual-breakdown" id="annualBreakdown" style="display:none;">
+                                <span class="ab-item">活跃会员：<strong id="annualActive">****</strong></span>
+                                <span class="ab-divider">+</span>
+                                <span class="ab-item">流失唤醒增量：<strong id="annualLost">****</strong></span>
+                            </div>
+                            <p class="result-guide-text">填写手机号获取专属落地方案，含货盘推荐、分润测算和启动节奏</p>
+                            <button class="btn-glow btn-full" onclick="openModal()">获取我的专属落地方案 <span class="btn-arrow">→</span></button>
+                        </div>
+                        <p class="disclaimer">测算结果基于伊智历史私域电商运营模型估算，仅作为经营潜力参考。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第4屏：伊智解法 -->
+    <section id="solution-how" class="section solution-how-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">伊智解法</span>
+                <h2 class="section-title">不是给您一批货<br><span class="gradient-text">而是把一套私域卖货体系装进您的门店</span></h2>
+                <p class="section-desc">您提供会员和品牌阵地，伊智提供货、人、运营、AI和交付能力。</p>
+            </div>
+            <div class="solution-how-grid">
+                <div class="sh-card">
+                    <div class="sh-icon-wrap"><span class="sh-icon">📦</span></div>
+                    <h3>货盘能力</h3>
+                    <p>与山姆、沃尔玛、胖东来同源工厂直供，生活刚需品拉活跃、建复购；利润品做深转化、放大利润。</p>
+                    <div class="sh-tags">
+                        <span>大商超同源工厂</span>
+                        <span>双货盘结构</span>
+                    </div>
+                </div>
+                <div class="sh-card">
+                    <div class="sh-icon-wrap"><span class="sh-icon">🤖</span></div>
+                    <h3>AI运营能力</h3>
+                    <p>美业独有的用户记忆系统，AI自动分群、千人千面运营，智能体矩阵完成种草、触达、转化全链路。</p>
+                    <div class="sh-tags">
+                        <span>用户记忆系统</span>
+                        <span>千人千面</span>
+                        <span>智能体矩阵</span>
+                    </div>
+                </div>
+                <div class="sh-card">
+                    <div class="sh-icon-wrap"><span class="sh-icon">👥</span></div>
+                    <h3>销售团队能力</h3>
+                    <p>百万大神带团队加持，成熟私域销售团队进场帮您承接私聊转化、复购经营和持续成交。</p>
+                    <div class="sh-tags">
+                        <span>百万大神带队</span>
+                        <span>按结果分成</span>
+                    </div>
+                </div>
+                <div class="sh-card">
+                    <div class="sh-icon-wrap"><span class="sh-icon">🚚</span></div>
+                    <h3>履约售后能力</h3>
+                    <p>全国9大配送中心，京东承接最后一公里，售后与分润结算统一承接，门店零负担。</p>
+                    <div class="sh-tags">
+                        <span>9大配送中心</span>
+                        <span>京东最后一公里</span>
+                        <span>售后全包</span>
+                    </div>
+                </div>
+            </div>
+            <div class="section-cta">
+                <button class="btn-glow" onclick="openModalFull()">了解我适合哪种接入方式 <span class="btn-arrow">→</span></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第5屏：实力背书 -->
+    <section id="trust" class="section trust-section">
+        <!-- 大厦图片：固定在右侧，清晰可见 -->
+        <img src="大厦.png" class="trust-building-img" alt="伊智大厦" />
+        <div class="trust-bg-overlay"></div>
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">实力背书</span>
+                <h2 class="section-title">我们不是让您从零摸索<br><span class="gradient-text">而是把18年跑通的体系直接帮您用起来</span></h2>
+                <p class="section-desc trust-desc">200亿GMV、一栋大厦——都是我们在私域卖出来的。现在，同样的团队帮您卖。</p>
+            </div>
+            <div class="trust-numbers">
+                <div class="tn-item">
+                    <div class="tn-value"><span class="tn-num" data-target="18">0</span>年</div>
+                    <div class="tn-label">私域电商经营经验</div>
+                </div>
+                <div class="tn-item">
+                    <div class="tn-value"><span class="tn-num" data-target="200">0</span>亿+</div>
+                    <div class="tn-label">累计 GMV</div>
+                </div>
+                <div class="tn-item">
+                    <div class="tn-value"><span class="tn-num" data-target="35000">0</span>+</div>
+                    <div class="tn-label">合作品牌</div>
+                </div>
+                <div class="tn-item">
+                    <div class="tn-value"><span class="tn-num" data-target="100">0</span>+</div>
+                    <div class="tn-label">百万级私域销售高手</div>
+                </div>
+            </div>
+            <div class="trust-dual">
+                <div class="td-card">
+                    <div class="td-card-body">
+                        <div class="td-text">
+                            <div class="td-header">
+                                <span class="td-emoji">🛒</span>
+                                <h4>生活刚需品</h4>
+                            </div>
+                            <p class="td-role">拉活跃 · 建复购 · 养习惯</p>
+                            <div class="td-stats">
+                                <div class="td-stat"><span class="tds-val">8000万+</span><span class="tds-label">年GMV</span></div>
+                                <div class="td-stat"><span class="tds-val">100万+</span><span class="tds-label">年订单</span></div>
+                                <div class="td-stat"><span class="tds-val">20万+</span><span class="tds-label">年购买会员</span></div>
+                            </div>
+                        </div>
+                        <div class="td-photo">
+                            <img src="生活品.png" alt="生活刚需品供应链" />
+                        </div>
+                    </div>
+                </div>
+                <div class="td-arrow">
+                    <div class="arrow-pulse"></div>
+                    <span>先用高频品养活跃<br>再转化利润品</span>
+                </div>
+                <div class="td-card premium">
+                    <div class="td-card-body">
+                        <div class="td-text">
+                            <div class="td-header">
+                                <span class="td-emoji">💎</span>
+                                <h4>利润品</h4>
+                            </div>
+                            <p class="td-role">做深转化 · 拉高客单 · 放大利润</p>
+                            <div class="td-stats">
+                                <div class="td-stat"><span class="tds-val">10亿+</span><span class="tds-label">年GMV</span></div>
+                                <div class="td-stat"><span class="tds-val">76%</span><span class="tds-label">转化率</span></div>
+                                <div class="td-stat"><span class="tds-val">50万+</span><span class="tds-label">年购买会员</span></div>
+                            </div>
+                        </div>
+                        <div class="td-photo">
+                            <img src="内调品.png" alt="大健康内调品供应链" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="section-cta">
+                <button class="btn-glow" onclick="openModalFull()">预约顾问了解真实案例 <span class="btn-arrow">→</span></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第5屏：合作模式 -->
+    <section id="solution" class="section solution-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">合作模式</span>
+                <h2 class="section-title">一套完整体系装进您的门店<br><span class="gradient-text">您只需选择适合的启动方式</span></h2>
+                <p class="section-desc">您提供会员和品牌私域阵地，伊智带着货盘、运营团队、销售团队、AI工具和履约能力进场帮您变现</p>
+            </div>
+            <!-- 三种合作路径 -->
+            <div class="models-grid models-inline">
+                <div class="model-card">
+                    <div class="mc-badge">模式一</div>
+                    <div class="mc-condition">您有会员、想低风险试水 → 选这个</div>
+                    <h3>帮您备好货</h3>
+                    <p class="mc-fit">我们管货、管活动、管发货，会员下单您分钱</p>
+                    <ul class="mc-list">
+                        <li>根据客户画像选品上架</li>
+                        <li>策划活动 + 直播带货</li>
+                        <li>物流售后全承接</li>
+                        <li>不派人进您的私域</li>
+                    </ul>
+                    <div class="mc-keywords">低风险试跑 · 您做引流，其余我们包</div>
+                    <button class="btn-outline-light" onclick="openModalFull()">我符合这个条件</button>
+                </div>
+                <div class="model-card featured">
+                    <div class="mc-badge">模式二 · 推荐</div>
+                    <div class="mc-condition">您有私域但没人卖 → 选这个</div>
+                    <h3>帮您卖出去</h3>
+                    <p class="mc-fit">在模式一基础上，我们直接派人帮您聊客户、做成交</p>
+                    <ul class="mc-list">
+                        <li>百万销冠接管您的私域账号</li>
+                        <li>朋友圈种草 + 主动聊天</li>
+                        <li>转化成交 + 复购维护</li>
+                        <li>按结果分成</li>
+                    </ul>
+                    <div class="mc-keywords">您提供账号，我们帮您卖</div>
+                    <button class="btn-glow btn-full" onclick="openModalFull()">我符合这个条件 <span class="btn-arrow">→</span></button>
+                </div>
+                <div class="model-card">
+                    <div class="mc-badge">模式三</div>
+                    <div class="mc-condition">您是10+连锁、想做自有品牌 → 选这个</div>
+                    <h3>帮您造品牌</h3>
+                    <p class="mc-fit">我们帮您造货、帮您建团队、帮您在私域卖好自己的品牌</p>
+                    <ul class="mc-list">
+                        <li>自有工厂OEM代工</li>
+                        <li>打造您的品牌货盘</li>
+                        <li>私域团队搭建 + 陪跑</li>
+                        <li>从生产到变现全链路支撑</li>
+                    </ul>
+                    <div class="mc-keywords">大型连锁 · 沉淀自有品牌资产</div>
+                    <button class="btn-outline-light" onclick="openModalFull()">我符合这个条件</button>
+                </div>
+            </div>
+            <p class="models-note">交易在您的商城，会员是您的，数据是您的，伊智只帮您在自己的私域里做结果。</p>
+            <div class="section-cta">
+                <button class="btn-glow" onclick="openModalFull()">让顾问帮我判断适合哪种 <span class="btn-arrow">→</span></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第6屏：安全承诺 -->
+    <section id="guarantee" class="section guarantee-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">安全承诺</span>
+                <h2 class="section-title">您担心的会员、数据和口碑<br><span class="gradient-text">我们正面承诺</span></h2>
+                <p class="section-desc">我们卖的不只是货，更是在保护您和会员之间长期积累的信任。</p>
+            </div>
+            <div class="guarantee-grid">
+                <div class="guarantee-card">
+                    <span class="gc-icon">🔒</span>
+                    <h3>私域资产不迁移</h3>
+                    <p>客户不导走，会员仍属于品牌</p>
+                </div>
+                <div class="guarantee-card">
+                    <span class="gc-icon">🏠</span>
+                    <h3>交易阵地不改变</h3>
+                    <p>商品在您的线上商城成交</p>
+                </div>
+                <div class="guarantee-card">
+                    <span class="gc-icon">✅</span>
+                    <h3>货品品控有标准</h3>
+                    <p>供应商准入 → 资质审核 → 样品体验 → 动态淘汰</p>
+                </div>
+                <div class="guarantee-card">
+                    <span class="gc-icon">🛡️</span>
+                    <h3>售后风险有承接</h3>
+                    <p>物流退换、会员投诉专人处理</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第7屏：最终留资 CTA -->
+    <section id="cta-final" class="section final-section">
+        <div class="final-bg">
+            <div class="gradient-orb orb-4"></div>
+            <div class="gradient-orb orb-5"></div>
+        </div>
+        <div class="container">
+            <div class="final-wrapper">
+                <div class="final-left">
+                    <div class="section-header" style="text-align:left; margin-bottom: 24px;">
+                        <span class="section-tag">开始行动</span>
+                        <h2 class="section-title" style="text-align:left; margin-bottom: 0;">您的会员<br><span class="gradient-text">可能已经具备变现潜力</span></h2>
+                    </div>
+
+                    <div class="final-preview-card">
+                        <div class="fpc-header">
+                            <span class="fpc-badge">专属报告</span>
+                            <span class="fpc-label">会员变现测算报告</span>
+                        </div>
+                        <div class="fpc-body">
+                            <div class="fpc-row"><span>会员资产等级</span><span class="fpc-val blurred">高潜型</span></div>
+                            <div class="fpc-row"><span>月GMV潜力</span><span class="fpc-val blurred">约 X.X万 - X.X万</span></div>
+                            <div class="fpc-row"><span>推荐合作路径</span><span class="fpc-val blurred">私域销售团队代运营</span></div>
+                        </div>
+                        <div class="fpc-hint">填写信息后解锁您的专属测算结果</div>
+                    </div>
+                </div>
+                <div class="final-right">
+                    <div class="final-form-card">
+                        <h3>免费获取会员变现测算</h3>
+                        <form class="final-form" onsubmit="submitForm(event)">
+                            <input type="text" placeholder="您的姓名" required>
+                            <input type="tel" placeholder="手机号码" required>
+                            <div class="form-row-2">
+                                <select>
+                                    <option value="">门店数量</option>
+                                    <option>1家</option><option>2-3家</option><option>4-5家</option><option>6-10家</option><option>10+</option>
+                                </select>
+                                <input type="number" placeholder="活跃会员数">
+                            </div>
+                            <select>
+                                <option value="">所属行业</option>
+                                <option>美业连锁</option><option>养生/头疗</option><option>皮肤管理</option><option>大健康</option><option>美甲美睫</option><option>其他</option>
+                            </select>
+                            <button type="submit" class="btn-glow btn-full">免费获取会员变现测算 <span class="btn-arrow">→</span></button>
+                        </form>
+                        <p class="form-note">您的信息仅用于测算和诊断，不会透露给第三方</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="logo-mark">YZ</div>
+                    <span class="logo-text">伊智科技</span>
+                </div>
+                <p class="footer-slogan">围绕实体连锁门店经营增长的完整解决方案</p>
+            </div>
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>产品体系</h4>
+                    <a href="#">数字化基建</a><a href="#">AI私域运营</a><a href="#">AI数智员工</a><a href="#">私域陪跑</a><a href="#">AI店商变现</a>
+                </div>
+                <div class="footer-col">
+                    <h4>合作模式</h4>
+                    <a href="#">全托管供货分润</a><a href="#">销售团队代运营</a><a href="#">OEM定制赋能</a>
+                </div>
+                <div class="footer-col">
+                    <h4>关于我们</h4>
+                    <a href="#">公司介绍</a><a href="#">客户案例</a><a href="#">联系我们</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 伊智科技 版权所有 | 粤ICP备XXXXXXXX号</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 留资弹窗（精简版 - 测算解锁用） -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModalDirect()">✕</button>
+            <h3>获取您的专属落地方案</h3>
+            <p class="modal-desc">填写姓名和手机号，顾问将在30分钟内为您定制货盘推荐、分润测算和启动节奏方案</p>
+            <form class="modal-form" onsubmit="submitModalForm(event)">
+                <input type="text" placeholder="您的姓名" required>
+                <input type="tel" placeholder="手机号码" required>
+                <button type="submit" class="btn-glow btn-full">立即获取方案 <span class="btn-arrow">→</span></button>
+            </form>
+            <p class="form-note">您的信息仅用于测算和诊断，不会透露给第三方</p>
+        </div>
+    </div>
+
+    <!-- 留资弹窗（完整版 - 其他入口用） -->
+    <div class="modal-overlay" id="modalFullOverlay" onclick="closeModalFull(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModalFullDirect()">✕</button>
+            <h3>免费测算会员变现潜力</h3>
+            <p class="modal-desc">填写信息后，顾问将在30分钟内联系您沟通变现落地方案</p>
+            <form class="modal-form" onsubmit="submitModalFullForm(event)">
+                <input type="text" placeholder="您的姓名" required>
+                <input type="tel" placeholder="手机号码" required>
+                <select><option value="">门店数量</option><option>1家</option><option>2-3家</option><option>4-5家</option><option>6-10家</option><option>10+</option></select>
+                <input type="number" placeholder="活跃会员数">
+                <input type="number" placeholder="沉睡/流失会员数（选填）">
+                <select><option value="">所属行业</option><option>美业连锁</option><option>养生/头疗</option><option>皮肤管理</option><option>大健康</option><option>美甲美睫</option><option>其他</option></select>
+                <button type="submit" class="btn-glow btn-full">免费获取会员变现测算 <span class="btn-arrow">→</span></button>
+            </form>
+            <p class="form-note">您的信息仅用于测算和诊断，不会透露给第三方</p>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <div class="toast-icon">✅</div>
+        <div class="toast-body">
+            <strong>已收到！</strong>
+            <p>顾问老师将在30分钟内联系您沟通变现落地方案。</p>
+        </div>
+    </div>
+
+    <!-- 悬浮按钮 -->
+    <div class="fab" onclick="openModalFull()">
+        <span class="fab-pulse"></span>
+        <span class="fab-icon">📊</span>
+        <span class="fab-text">免费测算</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
