@@ -364,3 +364,33 @@ document.addEventListener('DOMContentLoaded', () => {
         spObserver.observe(spSection);
     }
 });
+
+
+// ========== 专属顾问二维码弹窗 ==========
+function openQrModal() {
+    const overlay = document.getElementById('qrModalOverlay');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeQrModal(e) {
+    if (e.target === e.currentTarget) {
+        closeQrModalDirect();
+    }
+}
+
+function closeQrModalDirect() {
+    const overlay = document.getElementById('qrModalOverlay');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// ESC键关闭二维码弹窗
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const qrOverlay = document.getElementById('qrModalOverlay');
+        if (qrOverlay && qrOverlay.classList.contains('active')) {
+            closeQrModalDirect();
+        }
+    }
+});

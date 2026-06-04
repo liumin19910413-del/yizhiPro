@@ -18,11 +18,12 @@
                 <span class="logo-text">伊智科技</span>
             </div>
             <ul class="nav-links">
-                <li><a href="#hero">首页</a></li>
-                <li><a href="#calculator">变现测算</a></li>
-                <li><a href="#solution">合作模式</a></li>
-                <li><a href="#trust">实力背书</a></li>
-                <li><a href="#cta-final">联系我们</a></li>
+                <li><a href="#">首页</a></li>
+                <li><a href="#">智能店务</a></li>
+                <li><a href="#">AI私域运营</a></li>
+                <li><a href="#">AI数智员工</a></li>
+                <li><a href="#">私域陪跑</a></li>
+                <li><a href="#" class="nav-active">AI店商</a></li>
             </ul>
             <button class="nav-cta" onclick="openModalFull()">
                 <span class="cta-dot"></span>
@@ -750,11 +751,51 @@
         </div>
     </div>
 
-    <!-- 悬浮按钮 -->
+    <!-- 右侧悬浮工具栏 -->
+    <div class="floating-toolbar">
+        <div class="ft-item ft-item-wechat" onclick="openQrModal()" title="专属顾问">
+            <div class="ft-icon ft-icon-wechat">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05a6.27 6.27 0 0 1-.233-1.676c0-3.558 3.09-6.448 6.91-6.448.237 0 .467.02.7.04C16.086 4.79 12.722 2.187 8.691 2.187zm-2.6 4.408c.58 0 1.049.47 1.049 1.049 0 .58-.47 1.049-1.049 1.049a1.05 1.05 0 0 1 0-2.098zm5.2 0c.58 0 1.049.47 1.049 1.049 0 .58-.47 1.049-1.049 1.049a1.05 1.05 0 0 1 0-2.098zM16.18 8.985c-3.39 0-6.17 2.55-6.17 5.688 0 3.14 2.78 5.688 6.17 5.688.67 0 1.32-.1 1.95-.28a.61.61 0 0 1 .5.07l1.32.77c.04.03.09.04.13.04.12 0 .21-.09.21-.21 0-.05-.02-.1-.03-.15l-.27-1.03a.43.43 0 0 1 .15-.46c1.36-1.05 2.24-2.62 2.24-4.37 0-3.14-2.78-5.69-6.17-5.69zm-2.27 3.79c-.44 0-.8-.36-.8-.8s.36-.8.8-.8.8.36.8.8-.36.8-.8.8zm4.54 0c-.44 0-.8-.36-.8-.8s.36-.8.8-.8.8.36.8.8-.36.8-.8.8z"/></svg>
+            </div>
+            <span class="ft-label">专属顾问</span>
+        </div>
+        <div class="ft-item" onclick="openModalFull()" title="免费测算">
+            <div class="ft-icon ft-icon-calc">📊</div>
+            <span class="ft-label">免费测算</span>
+        </div>
+    </div>
+
+    <!-- 悬浮测算按钮 -->
     <div class="fab" onclick="openModalFull()">
         <span class="fab-pulse"></span>
         <span class="fab-icon">📊</span>
         <span class="fab-text">免费测算</span>
+    </div>
+
+    <!-- 专属顾问二维码弹窗 -->
+    <div class="qr-modal-overlay" id="qrModalOverlay" onclick="closeQrModal(event)">
+        <div class="qr-modal-card" onclick="event.stopPropagation()">
+            <button class="qr-modal-close" onclick="closeQrModalDirect()">✕</button>
+            <div class="qr-modal-header">
+                <h3>添加您的专属顾问</h3>
+                <p>领取私域增长解决方案</p>
+            </div>
+            <div class="qr-code-area">
+                <div class="qr-code-placeholder">
+                    <div class="qr-avatar">
+                        <img src="顾问头像.jpg" alt="专属顾问" onerror="this.style.display='none'">
+                    </div>
+                    <div class="qr-code-img">
+                        <!-- 实际项目中替换为真实二维码图片 -->
+                        <img src="微信二维码.jpg" alt="扫码添加专属顾问" onerror="this.parentElement.innerHTML='<div class=qr-fallback>请替换为真实二维码图片<br>微信二维码.jpg</div>'">
+                    </div>
+                </div>
+            </div>
+            <div class="qr-modal-footer">
+                <button class="qr-scan-btn">手机扫码添加微信</button>
+            </div>
+            <p class="qr-note">添加后获取：门店诊断 + 变现方案 + 货盘推荐</p>
+        </div>
     </div>
 
     <script src="script.js"></script>
