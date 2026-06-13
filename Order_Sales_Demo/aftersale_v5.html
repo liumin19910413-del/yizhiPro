@@ -5,9 +5,13 @@
 body{font-family:-apple-system,'PingFang SC',sans-serif;}
 .wrap{padding:16px;background:#f4f2ec;min-height:100vh;}
 .demo-shell{width:100%;max-width:1120px;margin:0 auto;}
-.demo-tabs{display:flex;gap:8px;align-items:center;margin-bottom:16px;}
+.demo-header{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.demo-tabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .page-tab{height:38px;padding:0 18px;border-radius:20px;border:1px solid #D2D0CA;background:#fff;color:#4A4A4A;font-size:14px;font-weight:600;cursor:pointer;}
 .page-tab.on{border-color:#FF5722;background:#FFF8F6;color:#FF5722;}
+.client-switch{display:inline-flex;align-items:center;gap:4px;padding:4px;border:1px solid #D2D0CA;border-radius:22px;background:#fff;box-shadow:0 8px 20px rgba(39,36,28,.04);flex-shrink:0;}
+.client-switch-tab{height:30px;min-width:58px;padding:0 14px;border:0;border-radius:16px;background:transparent;color:#666;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.client-switch-tab.on{background:#FF5722;color:#fff;}
 .demo-layout{display:grid;grid-template-columns:180px minmax(0,1fr);gap:22px;align-items:start;}
 .scenario-panel{position:sticky;top:16px;background:#fff;border:1px solid #E2E0DA;border-radius:14px;padding:12px;box-shadow:0 12px 28px rgba(39,36,28,.05);}
 .scenario-title{font-size:13px;font-weight:700;color:#111;margin-bottom:10px;}
@@ -313,10 +317,16 @@ body{font-family:-apple-system,'PingFang SC',sans-serif;}
 
 <div class="wrap">
 <div class="demo-shell">
-  <div class="demo-tabs">
-    <button class="page-tab on" data-page="list" onclick="switchPage('list')">售后列表页</button>
-    <button class="page-tab" data-page="apply" onclick="switchPage('apply')">售后申请页</button>
-    <button class="page-tab" data-page="detail" onclick="switchPage('detail')">售后详情页</button>
+  <div class="demo-header">
+    <div class="client-switch" aria-label="端切换">
+      <span class="client-switch-tab on" aria-current="page">C端</span>
+      <a class="client-switch-tab" href="old/商家自营-售后管理-demo.html">B端</a>
+    </div>
+    <div class="demo-tabs">
+      <button class="page-tab on" data-page="list" onclick="switchPage('list')">售后列表页</button>
+      <button class="page-tab" data-page="apply" onclick="switchPage('apply')">售后申请页</button>
+      <button class="page-tab" data-page="detail" onclick="switchPage('detail')">售后详情页</button>
+    </div>
   </div>
   <div class="demo-layout">
     <aside class="scenario-panel">

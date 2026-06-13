@@ -3480,6 +3480,48 @@
             border-radius: 999px 999px 0 0;
             background: var(--primary);
         }
+        .terminal-switch-block {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 12px;
+            padding: 4px 4px 4px 10px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #f8fbff;
+        }
+        .terminal-switch-label {
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+        .terminal-switch-tabs {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 10px;
+            background: #eef4ff;
+        }
+        .terminal-switch-tab {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 46px;
+            height: 30px;
+            border-radius: 8px;
+            padding: 0 12px;
+            color: #667085;
+            background: transparent;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .terminal-switch-tab.active {
+            background: var(--primary);
+            color: #fff;
+        }
         .shell-secondary-nav {
             grid-column: 2;
             grid-row: 2;
@@ -4663,6 +4705,13 @@
 
         <!-- 顶栏 -->
         <header class="shell-topbar">
+            <div class="terminal-switch-block">
+                <span class="terminal-switch-label">端切换</span>
+                <div class="terminal-switch-tabs" aria-label="B端C端切换">
+                    <span class="terminal-switch-tab active">B端</span>
+                    <a class="terminal-switch-tab" href="../aftersale_v5.html">C端</a>
+                </div>
+            </div>
             <div class="shell-topbar-tabs">
                 <span class="shell-topbar-tab">营销应用</span>
                 <span class="shell-topbar-tab active">小程序订单</span>
