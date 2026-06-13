@@ -1,0 +1,2785 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商户后台 - 售后管理</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --surface: #ffffff;
+      --line: #e5e6eb;
+      --line-soft: #f0f1f4;
+      --head: #f7f8fa;
+      --text: #1f1f1f;
+      --text-2: #4b5563;
+      --text-3: #8b93a1;
+      --blue: #2f7dff;
+      --blue-soft: #edf4ff;
+      --red: #ff4d4f;
+      --green: #16a34a;
+      --green-soft: #eaf8ee;
+      --red-soft: #fff1f0;
+      --gray-soft: #f2f3f5;
+      --shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    }
+
+    body { min-width: 1500px; }
+    button, input, select { font: inherit; }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 76px 136px minmax(1200px, 1fr);
+      grid-template-rows: 56px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .primary-nav, .secondary-nav, .topbar { background: var(--bg); }
+
+    .primary-nav {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      border-right: 1px solid var(--line);
+      padding: 18px 12px;
+    }
+
+    .brand {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 24px;
+      border-radius: 12px;
+      background: linear-gradient(160deg, #3f8cff 0%, #2256d8 100%);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .nav-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .nav-icon {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      margin: 0 auto;
+      border-radius: 12px;
+      color: #8b93a1;
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .nav-icon.active {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(47, 125, 255, 0.22);
+    }
+
+    .topbar {
+      grid-column: 2 / 4;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar-tabs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 100%;
+    }
+
+    .topbar-tab {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 18px;
+      color: var(--text-2);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .topbar-tab.active {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .topbar-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 0;
+      height: 3px;
+      border-radius: 999px 999px 0 0;
+      background: var(--blue);
+    }
+
+    .secondary-nav {
+      grid-column: 2;
+      grid-row: 2;
+      border-right: 1px solid var(--line);
+      padding: 20px 0;
+    }
+
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 4px 10px;
+      padding: 10px;
+      border-radius: 8px;
+      color: #667085;
+      font-size: 14px;
+    }
+
+    .menu-item.active {
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .content {
+      grid-column: 3;
+      grid-row: 2;
+      padding: 16px 20px 24px;
+    }
+
+    .panel {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .filters {
+      display: grid;
+      gap: 14px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .filters-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .filters-left,
+    .filters-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .field select,
+    .search-group input,
+    .btn {
+      height: 40px;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .field select {
+      min-width: 138px;
+      padding: 0 12px;
+      color: var(--text);
+    }
+
+    .date-icon, .status-icon, .search-prefix { color: #6b7280; }
+    .dash { color: var(--text-3); }
+
+    .search-group {
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      height: 40px;
+    }
+
+    .search-prefix {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      flex: 0 0 auto;
+    }
+
+    .search-group input {
+      width: 320px;
+      padding: 0 12px;
+      border: 0;
+      border-left: 1px solid #eceef2;
+      border-radius: 0;
+      color: var(--text);
+      outline: none;
+      height: 100%;
+    }
+
+    .btn {
+      padding: 0 20px;
+      color: var(--text-2);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .status-tabs {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: nowrap;
+      min-height: 48px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #c7cfdb transparent;
+    }
+
+    .status-tabs::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .status-tabs::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: #c7cfdb;
+    }
+
+    .status-tab {
+      flex: 0 0 auto;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 48px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--text-2);
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .status-icon {
+      font-size: 12px;
+    }
+
+    .status-tab.active {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .status-tab.active::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: var(--blue);
+    }
+
+    .status-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: #f2f3f5;
+      color: #8b93a1;
+      font-size: 11px;
+      line-height: 20px;
+    }
+
+    .status-tab.active .status-count {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .status-count.alert {
+      background: var(--red);
+      color: #fff;
+    }
+
+    /* =============================================
+       表格：中间列横向滚动，首列+末2列固定
+    ============================================= */
+    .table-outer {
+      position: relative;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* 固定左侧区域 */
+    .table-fixed-left {
+      flex: 0 0 auto;
+      overflow: hidden;
+      border-right: 2px solid var(--line);
+      z-index: 2;
+      background: #fff;
+    }
+
+    /* 固定右侧区域 */
+    .table-fixed-right {
+      flex: 0 0 auto;
+      overflow: hidden;
+      border-left: 2px solid var(--line);
+      z-index: 2;
+      background: #fff;
+    }
+
+    /* 中间滚动区域 */
+    .table-scroll-middle {
+      flex: 1 1 auto;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #c7cfdb transparent;
+    }
+
+    .table-scroll-middle::-webkit-scrollbar {
+      height: 6px;
+    }
+    .table-scroll-middle::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: #c7cfdb;
+    }
+
+    table {
+      border-collapse: collapse;
+      font-size: 13px;
+      table-layout: fixed;
+    }
+
+    /* 固定左侧表格 */
+    .table-fixed-left table {
+      width: 200px;
+    }
+
+    /* 固定右侧表格 */
+    .table-fixed-right table {
+      width: 224px;
+    }
+
+    /* 中间滚动表格 */
+    .table-scroll-middle table {
+      width: 100%;
+      min-width: 860px;
+    }
+
+    thead th {
+      padding: 14px 16px;
+      background: var(--head);
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      color: #444;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    thead th:last-child,
+    tbody td:last-child { border-right: 0; }
+
+    tbody td {
+      padding: 16px;
+      border-bottom: 1px solid var(--line-soft);
+      border-right: 1px solid var(--line-soft);
+      vertical-align: top;
+      color: #555;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    tbody tr:hover td { background: #eef4ff; }
+
+    /* 行高同步 */
+    .table-fixed-left tbody tr,
+    .table-fixed-right tbody tr,
+    .table-scroll-middle tbody tr {
+      height: 1px; /* will be overridden by JS sync */
+    }
+
+    .link {
+      color: var(--blue);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .muted { color: var(--text-3); }
+    .money { color: var(--red); font-weight: 600; }
+
+    .row-stack, .goods-stack, .ops {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ops-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* 列宽定义 */
+    .col-id      { width: 200px; }
+    .col-type    { width: 80px; }
+    .col-order-type { width: 100px; }
+    .col-goods   { width: 240px; }
+    .col-user    { width: 120px; }
+    .col-reason  { width: 160px; }
+    .col-amount  { width: 168px; }
+    .col-duty    { width: 148px; }
+    .col-logistics { width: 130px; }
+    .col-store   { width: 120px; }
+    .col-status  { width: 120px; }
+    .col-actions { width: 104px; }
+
+    .cell-type {
+      color: var(--text-2);
+      font-weight: 500;
+    }
+
+    .status-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      line-height: 1.4;
+    }
+
+    .status-main {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .status-sub {
+      color: var(--text-3);
+      font-size: 12px;
+    }
+
+    .cell-id-content .link,
+    .cell-id-content .muted {
+      display: block;
+      line-height: 1.45;
+      word-break: break-all;
+    }
+
+    .cell-id-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .apply-time {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    .duty-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      line-height: 1.45;
+      font-size: 12px;
+    }
+
+    .duty-cell span {
+      display: block;
+      word-break: break-all;
+    }
+
+    .logistics-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      line-height: 1.45;
+      font-size: 12px;
+    }
+
+    .logistics-label {
+      color: var(--text-3);
+    }
+
+    .logistics-company {
+      color: var(--text-2);
+    }
+
+    .logistics-code {
+      color: #555;
+      word-break: break-all;
+    }
+
+    .goods-item {
+      display: flex;
+      align-items: flex-start;
+      min-width: 0;
+    }
+
+    .goods-name-qty {
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    .amount-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .amount-label {
+      color: var(--text-3);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 88px;
+      height: 28px;
+      padding: 0 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .pill-blue { background: var(--blue-soft); color: var(--blue); }
+    .pill-green { background: var(--green-soft); color: var(--green); }
+    .pill-red { background: var(--red-soft); color: var(--red); }
+    .pill-gray { background: var(--gray-soft); color: #737b87; }
+
+    .cell-actions .ops {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 18px;
+      color: var(--text-2);
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .pager {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text-2);
+    }
+
+    .page.active {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .drawer-mask, .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.44);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+    }
+
+    .drawer-mask.show, .modal-mask.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 820px;
+      max-width: calc(100vw - 120px);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      box-shadow: var(--shadow);
+      transform: translateX(100%);
+      transition: transform 180ms ease;
+      z-index: 20;
+    }
+
+    .drawer.show { transform: translateX(0); }
+
+    .drawer-header, .drawer-footer {
+      padding: 16px 20px;
+      background: #fff;
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .drawer-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .drawer-body {
+      flex: 1;
+      overflow: auto;
+      padding: 18px 20px 96px;
+    }
+
+    .drawer-section {
+      margin-bottom: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .drawer-section h3 {
+      margin: 0;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #f6f7f9;
+      font-size: 15px;
+    }
+
+    .section-body { padding: 16px; }
+
+    .notice {
+      padding: 12px 14px;
+      border: 1px solid #cfe2ff;
+      border-radius: 8px;
+      background: #f1f7ff;
+      color: var(--blue);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 18px;
+    }
+
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px dashed #eceef2;
+      font-size: 13px;
+    }
+
+    .kv:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .kv span:first-child { color: var(--text-3); }
+
+    .drawer-footer {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 480px;
+      max-width: calc(100vw - 40px);
+      overflow: hidden;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16);
+      transform: translate(-50%, -48%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease, transform 160ms ease;
+      z-index: 30;
+    }
+
+    .modal.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%);
+    }
+
+    .modal-header, .modal-footer {
+      padding: 16px 18px;
+      background: #fff;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid var(--line);
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .modal-body {
+      padding: 18px;
+      color: var(--text-2);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .textarea {
+      width: 100%;
+      min-height: 110px;
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      resize: vertical;
+      font: inherit;
+    }
+
+    /* ============================================================
+       抽屉升级：详情面板样式
+    ============================================================ */
+
+    /* 步骤条 */
+    .steps-wrap { background:#fff; border-radius:10px; border:1px solid var(--line); padding:20px 24px 16px; margin-bottom:14px; }
+    .steps-bar { display:flex; align-items:flex-start; }
+    .step { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; }
+    .step::before { content:''; position:absolute; top:15px; left:calc(50% + 18px); right:calc(-50% + 18px); height:2px; background:#e5e6eb; }
+    .step:last-child::before { display:none; }
+    .step.done::before { background:var(--blue); }
+    .step-circle { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; background:#e5e6eb; color:#9ca3af; position:relative; z-index:1; }
+    .step-circle.done { background:var(--blue); color:#fff; }
+    .step-circle.active { background:var(--blue); color:#fff; box-shadow:0 0 0 5px rgba(47,125,255,0.15); }
+    .step-label { margin-top:7px; font-size:11px; color:#9ca3af; text-align:center; white-space:nowrap; line-height:1.4; }
+    .step-label.active { color:var(--blue); font-weight:600; }
+    .step-label.done { color:#6b7280; }
+
+    /* 提示条 */
+    .status-notice { display:flex; align-items:flex-start; gap:10px; padding:12px 14px; margin-bottom:14px; border-radius:8px; background:#eff6ff; color:#1d4ed8; font-size:13px; line-height:1.6; border:1px solid #bfdbfe; }
+    .status-notice-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+
+    /* 摘要双栏卡 */
+    .summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+    .summary-card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; }
+    .user-row { display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; }
+    .user-avatar { width:40px; height:40px; border-radius:50%; background:#dbeafe; color:#2563eb; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; flex-shrink:0; }
+    .user-name { font-size:14px; font-weight:600; color:#111827; }
+    .user-store { font-size:12px; color:#6b7280; }
+    .user-phone { font-size:12px; color:#6b7280; margin-top:2px; }
+    .summary-amount-row { margin:10px 0 6px; font-size:13px; color:#6b7280; }
+    .summary-amount-row .money { font-size:18px; }
+    .summary-order-row { font-size:12px; color:#6b7280; margin-bottom:4px; }
+    .summary-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+    .dtag { display:inline-flex; align-items:center; height:20px; padding:0 8px; border-radius:4px; font-size:11px; background:#f0f1f4; color:#4b5563; }
+    .dtag-blue { background:#dbeafe; color:#1d4ed8; }
+    .dtag-orange { background:#fef3c7; color:#92400e; }
+
+    .goods-label { font-size:12px; color:#9ca3af; margin-bottom:10px; font-weight:500; letter-spacing:0.02em; }
+    .goods-detail-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px dashed #f0f1f4; }
+    .goods-detail-row:last-child { border-bottom:0; padding-bottom:0; }
+    .goods-thumb { width:42px; height:42px; border-radius:6px; background:linear-gradient(135deg,#fde68a 0%,#fca5a5 100%); flex-shrink:0; }
+    .goods-info { flex:1; min-width:0; }
+    .goods-title { font-size:13px; font-weight:500; color:#1f1f1f; line-height:1.4; }
+    .goods-price { font-size:11px; color:#9ca3af; margin-top:2px; }
+    .goods-qty { font-size:12px; color:#4b5563; white-space:nowrap; }
+    .goods-total { font-size:13px; font-weight:700; color:#ef4444; white-space:nowrap; }
+
+    /* 通用卡片 */
+    .detail-card { background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:12px; }
+    .detail-card-head { display:flex; align-items:center; justify-content:space-between; padding:11px 16px; background:#f7f8fa; border-bottom:1px solid var(--line); }
+    .detail-card-title { font-size:14px; font-weight:600; color:#111827; }
+    .detail-card-time { font-size:12px; color:#9ca3af; }
+    .detail-card-body { padding:14px 16px; }
+    .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px 24px; }
+    .detail-kv { display:flex; flex-direction:column; gap:2px; }
+    .detail-kv .k { font-size:11px; color:#9ca3af; }
+    .detail-kv .v { font-size:13px; color:#1f1f1f; font-weight:500; }
+    .detail-full { grid-column:1/-1; }
+    .detail-link { color:var(--blue); font-size:12px; cursor:pointer; text-decoration:none; }
+
+    /* 退款清单 */
+    .refund-sheet { background:#fafbfc; border-radius:8px; padding:12px 14px; }
+    .refund-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:13px; }
+    .refund-row .lbl { color:#6b7280; }
+    .refund-row .val { font-weight:500; color:#1f1f1f; }
+    .refund-hr { border:none; border-top:1px dashed #e5e6eb; margin:6px 0; }
+    .refund-total-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0 0; font-size:14px; font-weight:700; }
+    .refund-total-row .val { color:#ef4444; font-size:16px; }
+    .pay-breakdown { margin-top:8px; padding-top:8px; border-top:1px dashed #e5e6eb; }
+    .pay-item { display:flex; justify-content:space-between; font-size:12px; color:#6b7280; padding:2px 0; }
+
+    /* 质检表格 */
+    .qc-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:10px; }
+    .qc-table th { padding:7px 10px; background:#f7f8fa; border:1px solid var(--line); color:#6b7280; font-weight:500; text-align:center; white-space:nowrap; }
+    .qc-table td { padding:7px 10px; border:1px solid #f0f1f4; color:#374151; text-align:center; }
+    .qc-table tr:last-child td { border-bottom:1px solid #f0f1f4; }
+
+    /* 操作日志 */
+    .log-section { background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:12px; }
+    .log-toggle { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; cursor:pointer; font-size:14px; font-weight:600; color:#111827; user-select:none; }
+    .log-toggle:hover { background:#f9fafb; }
+    .log-arrow { font-size:12px; color:#9ca3af; transition:transform 160ms; }
+    .log-arrow.open { transform:rotate(180deg); }
+    .log-body { padding:4px 16px 14px; border-top:1px solid var(--line); }
+    .log-item { display:flex; align-items:flex-start; gap:8px; padding:6px 0; font-size:12px; color:#6b7280; border-bottom:1px dashed #f0f1f4; }
+    .log-item:last-child { border-bottom:0; }
+    .log-dot { width:6px; height:6px; border-radius:50%; background:var(--blue); margin-top:4px; flex-shrink:0; }
+
+    /* 弹窗表单 */
+    .modal-wide { width:560px !important; }
+    .form-group { margin-bottom:14px; }
+    .form-label { display:block; font-size:13px; color:#374151; margin-bottom:5px; font-weight:500; }
+    .form-input, .form-select, .form-textarea { width:100%; padding:8px 12px; border:1px solid #d9d9d9; border-radius:6px; font:inherit; font-size:13px; color:#1f1f1f; background:#fff; outline:none; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--blue); box-shadow:0 0 0 2px rgba(47,125,255,0.1); }
+    .form-textarea { min-height:80px; resize:vertical; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-hint { font-size:11px; color:#9ca3af; margin-top:4px; }
+    .radio-group { display:flex; gap:20px; }
+    .radio-item { display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; }
+    .qc-form-table { width:100%; border-collapse:collapse; font-size:12px; }
+    .qc-form-table th { padding:8px; background:#f7f8fa; border:1px solid var(--line); font-weight:500; text-align:center; color:#6b7280; white-space:nowrap; }
+    .qc-form-table td { padding:6px 8px; border:1px solid #f0f1f4; text-align:center; }
+    .qc-num-input { width:56px; padding:4px 6px; border:1px solid #d9d9d9; border-radius:4px; text-align:center; font:inherit; font-size:12px; }
+    .refund-confirm-sheet { background:#fafbfc; border-radius:6px; padding:12px; margin-bottom:14px; }
+    .rcs-row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; }
+    .rcs-row .lbl { color:#6b7280; }
+    .rcs-row .val { font-weight:500; }
+    .rcs-total { display:flex; justify-content:space-between; font-size:15px; font-weight:700; padding-top:8px; border-top:1px solid #e5e6eb; margin-top:4px; }
+    .rcs-total .val { color:#ef4444; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="primary-nav">
+      <div class="brand">SCM</div>
+      <div class="nav-stack">
+        <div class="nav-icon">工作台</div>
+        <div class="nav-icon">顾客</div>
+        <div class="nav-icon">营销</div>
+        <div class="nav-icon">报表</div>
+        <div class="nav-icon active">订单</div>
+        <div class="nav-icon">库存</div>
+        <div class="nav-icon">财务</div>
+      </div>
+    </aside>
+
+    <header class="topbar">
+      <div class="topbar-tabs">
+        <span class="topbar-tab">营销应用</span>
+        <span class="topbar-tab active">小程序订单</span>
+        <span class="topbar-tab">小程序装修</span>
+      </div>
+    </header>
+
+    <aside class="secondary-nav">
+      <div class="menu-item"><span>订单中心</span></div>
+      <div class="menu-item active"><span>售后管理</span><span>32</span></div>
+    </aside>
+
+    <main class="content">
+      <section class="panel">
+
+        <!-- 筛选栏：去掉时间筛选，只保留门店 + 搜索 -->
+        <div class="filters">
+          <div class="filters-row">
+            <div class="filters-left">
+              <div class="field">
+                <select>
+                  <option>交易门店</option>
+                  <option>全部门店</option>
+                  <option>热浪（蔷薇店）</option>
+                  <option>天河旗舰店</option>
+                  <option>珠江新城店</option>
+                </select>
+              </div>
+              <div class="search-group">
+                <div class="search-prefix">⌕</div>
+                <input id="keywordInput" placeholder="搜索售后单号/订单号/手机号">
+              </div>
+              <button class="btn btn-primary" id="searchBtn">查询</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-tabs" id="statusTabs"></div>
+
+        <!--
+          列顺序（从左到右）：
+          [固定左] 售后单号+申请时间
+          [滚动中] 类型 | 用户 | 商品信息 | 售后原因 | 金额 | 责任人 | 退回物流 | 门店
+          [固定右] 状态 | 操作
+        -->
+        <div class="table-outer" id="tableOuter">
+
+          <!-- 固定左侧：售后单号列 -->
+          <div class="table-fixed-left" id="fixedLeft">
+            <table>
+              <colgroup><col class="col-id"></colgroup>
+              <thead>
+                <tr><th>售后单号</th></tr>
+              </thead>
+              <tbody id="bodyLeft"></tbody>
+            </table>
+          </div>
+
+          <!-- 中间滚动区域 -->
+          <div class="table-scroll-middle" id="scrollMiddle">
+            <table>
+              <colgroup>
+                <col class="col-type">
+                <col class="col-order-type">
+                <col class="col-user">
+                <col class="col-goods">
+                <col class="col-reason">
+                <col class="col-amount">
+                <col class="col-duty">
+                <col class="col-logistics">
+                <col class="col-store">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>售后类型</th>
+                  <th>订单类型</th>
+                  <th>用户</th>
+                  <th>商品信息</th>
+                  <th>售后原因</th>
+                  <th>退款金额</th>
+                  <th>责任人</th>
+                  <th>退回物流</th>
+                  <th>门店</th>
+                </tr>
+              </thead>
+              <tbody id="bodyMiddle"></tbody>
+            </table>
+          </div>
+
+          <!-- 固定右侧：状态 + 操作 -->
+          <div class="table-fixed-right" id="fixedRight">
+            <table>
+              <colgroup>
+                <col class="col-status">
+                <col class="col-actions">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="bodyRight"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="pagination">
+          <div id="summaryText">共 0 条</div>
+          <div class="pager">
+            <div class="page active">1</div>
+            <div class="page">2</div>
+            <div class="page">3</div>
+            <div class="page">4</div>
+            <div class="page">5</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="drawer-mask" id="drawerMask"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <span>售后服务单</span>
+        <span class="dtag" id="drawerIdTag" style="font-size:12px;font-weight:500;"></span>
+        <span class="pill pill-blue" id="drawerStatusPill">待审核</span>
+      </div>
+      <button class="btn" id="closeDrawerBtn" style="padding:0 14px;font-size:18px;border:0;background:transparent;color:#9ca3af;">×</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-footer" id="drawerFooter"></div>
+  </aside>
+
+  <div class="modal-mask" id="modalMask"></div>
+  <section class="modal" id="modal">
+    <div class="modal-header" id="modalTitle">操作确认</div>
+    <div class="modal-body" id="modalBody" style="max-height:70vh;overflow-y:auto;"></div>
+    <div class="modal-footer">
+      <button class="btn" id="modalCancelBtn">取消</button>
+      <button class="btn btn-primary" id="modalConfirmBtn">确认</button>
+    </div>
+  </section>
+
+  <script>
+    const rows = [
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【1】微商城发货订单 · 待发货全额仅退款 · 待审核 · 包邮
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260606140012115458",
+        applyTime: "2026-06-06 14:00",
+        applicant: "林小麦",
+        phone: "13890214567",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "商家迟迟未发货",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥42.90",
+        refundAmount: "¥42.90",
+        applyFreight: null,   // 包邮，无运费
+        refundFreight: null,
+        store: "热浪（蔷薇店）",
+        status: "待审核",
+        subStatus: "待商家审核",
+        statusKey: "pending_review",
+        goods: [{ name: "Ulike 美眼仪黑眼圈护眼仪", qty: 1 }],
+        orderInfo: { orderNo: "20260605120438912581", orderType: "发货订单 / 微商城", orderStatus: "待发货 / 售后中", logistics: "未发货", orderAmount: "¥42.90" },
+        requestInfo: { applyType: "待发货全额仅退款", reason: "商家迟迟未发货", desc: "买家已提交申请，等待商家审核处理。", contact: "13890214567" },
+        operatorTrail: ["申请：2026-06-06 14:00", "待商家审核"],
+        actions: ["同意申请", "拒绝申请", "转补寄处理"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【2】拼团发货订单 · 待发货部分仅退款 · 待审核 · 不包邮
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260606090034227891",
+        applyTime: "2026-06-06 09:00",
+        applicant: "吴晓晴",
+        phone: "13512340001",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "拍错/多拍/买错了",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥89.00",
+        refundAmount: "¥89.00",
+        applyFreight: null,   // 部分退款，不退运费
+        refundFreight: null,
+        store: "天河旗舰店",
+        status: "待审核",
+        subStatus: "待商家审核",
+        statusKey: "pending_review",
+        goods: [
+          { name: "胶原蛋白精华液 50ml", qty: 2 },
+          { name: "烟酰胺爽肤水 150ml", qty: 1 }
+        ],
+        orderInfo: { orderNo: "20260605095231204591", orderType: "发货订单 / 拼团", orderStatus: "待发货 / 部分售后中", logistics: "未发货", orderAmount: "¥198.00" },
+        requestInfo: { applyType: "待发货部分仅退款", reason: "拍错/多拍/买错了", desc: "买家申请退部分商品，订单仍有剩余商品待发货。", contact: "13512340001" },
+        operatorTrail: ["申请：2026-06-06 09:00", "待商家审核"],
+        actions: ["同意申请", "拒绝申请"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【3】秒杀发货订单 · 已发货仅退款 · 待审核 · 不包邮（运费不可退）
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260605210055318842",
+        applyTime: "2026-06-05 21:00",
+        applicant: "赵冉",
+        phone: "13677124567",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "物流长时间未更新",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥98.00",
+        refundAmount: "¥98.00",
+        applyFreight: null,   // 已发货，运费不可退
+        refundFreight: null,
+        store: "天河旗舰店",
+        status: "待审核",
+        subStatus: "待商家审核",
+        statusKey: "pending_review",
+        goods: [{ name: "悦芙白修护安瓶套装（秒杀价）", qty: 1 }],
+        orderInfo: { orderNo: "20260601183150320112", orderType: "发货订单 / 秒杀", orderStatus: "已发货 / 售后中", logistics: "中通快递 88900121", orderAmount: "¥108.00" },
+        requestInfo: { applyType: "已发货仅退款", reason: "物流长时间未更新", desc: "买家反映物流无更新，已提交申请等待审核。", contact: "13677124567" },
+        operatorTrail: ["申请：2026-06-05 21:00", "待商家审核"],
+        actions: ["同意申请", "拒绝申请", "转补寄处理"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【4】积分商城发货订单 · 退货退款 · 待审核 · 包邮
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260605163301449917",
+        applyTime: "2026-06-05 16:33",
+        applicant: "陈芮",
+        phone: "13923194567",
+        category: "退货退款",
+        orderType: "商品发货订单",
+        reason: "商品质量问题",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥5.00",
+        refundAmount: "¥5.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "热浪（蔷薇店）",
+        status: "待审核",
+        subStatus: "待商家审核",
+        statusKey: "pending_review",
+        goods: [{ name: "珉捷贸易2号（积分兑换）", qty: 1 }],
+        orderInfo: { orderNo: "20260602192010547630", orderType: "发货订单 / 积分商城", orderStatus: "已完成 / 售后中", logistics: "百世快递 21412412", orderAmount: "¥5.00 + 500积分" },
+        requestInfo: { applyType: "退货退款（已收到货）", reason: "商品质量问题", desc: "买家提交退货退款申请，等待商家审核。", contact: "13923194567" },
+        operatorTrail: ["申请：2026-06-05 16:33", "待商家审核"],
+        actions: ["同意申请", "拒绝申请", "转补寄处理"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【5】微商城发货订单 · 退货退款 · 待寄回 · 不包邮（商家承担运费）
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260604155521332256",
+        applyTime: "2026-06-04 15:55",
+        applicant: "孙晓雯",
+        phone: "13800138005",
+        category: "退货退款",
+        orderType: "商品发货订单",
+        reason: "商家发错货",
+        returnDuty: "商家",
+        freightDuty: "商家",
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥259.00",
+        refundAmount: "¥259.00",
+        applyFreight: "¥12.00",
+        refundFreight: null,
+        store: "珠江新城店",
+        status: "待寄回",
+        subStatus: "待买家填写物流",
+        statusKey: "pending_return",
+        goods: [{ name: "水光针精华原液 10支装", qty: 1 }],
+        orderInfo: { orderNo: "20260601092510448130", orderType: "发货订单 / 微商城", orderStatus: "已完成 / 退货退款中", logistics: "顺丰速运 SF800100200", orderAmount: "¥259.00" },
+        requestInfo: { applyType: "退货退款（已收到货）", reason: "商家发错货", desc: "商家已同意退货退款，请买家寄回商品，寄回运费由商家承担。", contact: "13800138005" },
+        operatorTrail: ["申请：2026-06-04 15:55", "审核通过：2026-06-04 16:30", "等待买家寄回"],
+        actions: []
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【6】拼团发货订单 · 退货退款 · 待收货 · 不包邮（消费者承担运费）
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF2605141349351154502409",
+        applyTime: "2026-06-06 11:14",
+        applicant: "n10",
+        phone: "15827710010",
+        category: "退货退款",
+        orderType: "商品发货订单",
+        reason: "发错货 / 漏发",
+        returnDuty: "商家",
+        freightDuty: "消费者",
+        returnLogisticsData: {
+          customerReturn: { company: "韵达快递", trackNo: "421412988001" },
+          merchantReship: null
+        },
+        applyAmount: "¥11.00",
+        refundAmount: "¥11.00",
+        applyFreight: "¥5.00",
+        refundFreight: null,
+        store: "热浪（蔷薇店）",
+        status: "待收货",
+        subStatus: "待仓库签收",
+        statusKey: "pending_receive",
+        goods: [
+          { name: "珉捷贸易3号", qty: 1 },
+          { name: "珉捷贸易2号", qty: 1 }
+        ],
+        orderInfo: { orderNo: "2605140956071154508932", orderType: "发货订单 / 拼团", orderStatus: "已发货 / 售后中", logistics: "韵达快递 421412988001", orderAmount: "¥89.00" },
+        requestInfo: { applyType: "退货退款", reason: "发错货 / 漏发", desc: "买家已寄回商品，等待仓库签收质检。", contact: "15827710010" },
+        operatorTrail: ["申请：2026-06-06 11:14", "审核通过：2026-06-06 11:50", "寄回：2026-06-06 12:42"],
+        actions: ["签收质检"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【7】秒杀发货订单 · 退货退款 · 待退款 · 商家承担运费
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260605173922441015",
+        applyTime: "2026-06-05 17:39",
+        applicant: "赵冉",
+        phone: "13677127788",
+        category: "退货退款",
+        orderType: "商品发货订单",
+        reason: "收到商品破损",
+        returnDuty: "商家",
+        freightDuty: "商家",
+        returnLogisticsData: {
+          customerReturn: { company: "中通快递", trackNo: "88900234567" },
+          merchantReship: null
+        },
+        applyAmount: "¥98.00",
+        refundAmount: "¥98.00",
+        applyFreight: "¥8.00",
+        refundFreight: "¥8.00",
+        store: "天河旗舰店",
+        status: "待退款",
+        subStatus: "待财务操作退款",
+        statusKey: "pending_refund",
+        goods: [{ name: "悦芙白修护安瓶套装", qty: 1 }],
+        orderInfo: { orderNo: "20260601183150320112", orderType: "发货订单 / 秒杀", orderStatus: "已发货 / 售后中", logistics: "中通快递 88900121", orderAmount: "¥108.00" },
+        requestInfo: { applyType: "退货退款（已收到货）", reason: "收到商品破损", desc: "仓库验收通过，等待财务操作退款。", contact: "13677127788" },
+        operatorTrail: ["申请：2026-06-05 17:39", "审核通过：2026-06-05 18:11", "寄回：2026-06-05 19:20", "签收质检：2026-06-05 20:30"],
+        actions: ["操作退款"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【8】微商城发货订单 · 仅退款 · 待退款 · 包邮
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260605185512441992",
+        applyTime: "2026-06-05 18:55",
+        applicant: "徐安安",
+        phone: "13721894567",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "账户余额不足导致退款失败",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥168.00",
+        refundAmount: "¥168.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "天河旗舰店",
+        status: "待退款",
+        subStatus: "待财务操作退款",
+        statusKey: "pending_refund",
+        goods: [{ name: "胶原修护精华次抛 28支", qty: 1 }],
+        orderInfo: { orderNo: "20260604182750145120", orderType: "发货订单 / 微商城", orderStatus: "已发货 / 售后中", logistics: "顺丰速运 SF144512001", orderAmount: "¥168.00" },
+        requestInfo: { applyType: "已发货仅退款", reason: "一直未收到货", desc: "审核通过，等待财务操作退款。", contact: "13721894567" },
+        operatorTrail: ["申请：2026-06-05 18:55", "审核通过：2026-06-05 19:40"],
+        actions: ["操作退款"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【9】积分商城发货订单 · 仅退款 · 退款中 · 包邮
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260605091120558834",
+        applyTime: "2026-06-05 09:11",
+        applicant: "李梦然",
+        phone: "13900001234",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "包裹丢失",
+        returnDuty: "物流",
+        freightDuty: "物流",
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥66.00",
+        refundAmount: "¥66.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "热浪（蔷薇店）",
+        status: "退款中",
+        subStatus: "退款处理中",
+        statusKey: "refunding",
+        goods: [{ name: "玻尿酸面膜 10片（积分兑换）", qty: 1 }],
+        orderInfo: { orderNo: "20260603091000320301", orderType: "发货订单 / 积分商城", orderStatus: "已发货 / 售后中", logistics: "圆通快递 YT100200300", orderAmount: "¥66.00 + 200积分" },
+        requestInfo: { applyType: "已发货仅退款", reason: "包裹丢失", desc: "财务已发起退款，等待退款渠道回执。", contact: "13900001234" },
+        operatorTrail: ["申请：2026-06-05 09:11", "审核通过：2026-06-05 10:00", "退款发起：2026-06-05 14:30"],
+        actions: []
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【10】微商城发货订单 · 仅退款 · 退款失败 · 不包邮
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260604220155662278",
+        applyTime: "2026-06-04 22:01",
+        applicant: "徐安安",
+        phone: "13721894567",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "账户余额不足导致退款失败",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥168.00",
+        refundAmount: "¥168.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "天河旗舰店",
+        status: "退款失败",
+        subStatus: "需重新操作退款",
+        statusKey: "refund_failed",
+        goods: [{ name: "胶原修护精华次抛 28支", qty: 1 }],
+        orderInfo: { orderNo: "20260603182750145122", orderType: "发货订单 / 微商城", orderStatus: "已发货 / 退款失败", logistics: "顺丰速运 SF144512002", orderAmount: "¥178.00" },
+        requestInfo: { applyType: "已发货仅退款", reason: "账户余额不足导致退款失败", desc: "退款调用失败，需补足资金后重新操作退款。", contact: "13721894567" },
+        operatorTrail: ["申请：2026-06-04 22:01", "审核通过：2026-06-04 22:40", "退款失败：2026-06-04 23:10"],
+        actions: ["重新操作退款"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【11】微商城发货订单 · 仅退款 · 待补寄出库 · 漏发补寄
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260604103301779901",
+        applyTime: "2026-06-04 10:33",
+        applicant: "黄思远",
+        phone: "13755556789",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "少件/漏发",
+        returnDuty: "商家",
+        freightDuty: "商家",
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥36.00",
+        refundAmount: "¥36.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "热浪（蔷薇店）",
+        status: "待补寄出库",
+        subStatus: "等待创建出库申请",
+        statusKey: "pending_reship",
+        goods: [{ name: "补水保湿爽肤喷雾 150ml", qty: 1 }],
+        orderInfo: { orderNo: "20260602192010547630", orderType: "发货订单 / 微商城", orderStatus: "已发货 / 补寄中", logistics: "申通快递 ST200300400", orderAmount: "¥72.00" },
+        requestInfo: { applyType: "已发货仅退款（转补寄）", reason: "少件/漏发", desc: "商家已转补寄处理，等待创建补寄出库申请。", contact: "13755556789" },
+        operatorTrail: ["申请：2026-06-04 10:33", "审核通过：2026-06-04 11:00", "转补寄：2026-06-04 11:20"],
+        actions: []
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【12】拼团发货订单 · 补寄 · 待买家收货 · 已发出补寄物流
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260603141210883345",
+        applyTime: "2026-06-03 14:12",
+        applicant: "刘思思",
+        phone: "13611112222",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "少件/漏发",
+        returnDuty: "商家",
+        freightDuty: "商家",
+        returnLogisticsData: {
+          customerReturn: null,
+          merchantReship: { company: "顺丰速运", trackNo: "SF980100200300" }
+        },
+        applyAmount: "¥48.00",
+        refundAmount: "¥48.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "珠江新城店",
+        status: "待买家收货",
+        subStatus: "补寄商品已发出",
+        statusKey: "pending_buyer_receive",
+        goods: [{ name: "积雪草舒缓修护面霜 50g", qty: 2 }],
+        orderInfo: { orderNo: "20260601092510448132", orderType: "发货订单 / 拼团", orderStatus: "已发货 / 补寄待收货", logistics: "圆通快递 YT100200400", orderAmount: "¥96.00" },
+        requestInfo: { applyType: "补寄处理", reason: "少件/漏发", desc: "补寄商品已由云仓发出，等待买家确认收货。", contact: "13611112222" },
+        operatorTrail: ["申请：2026-06-03 14:12", "转补寄：2026-06-03 15:00", "出库申请：2026-06-03 16:00", "云仓发货：2026-06-03 17:30"],
+        actions: []
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【13】微商城发货订单 · 退货退款 · 已完成 · 不包邮（含运费退款）
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260604103015881216",
+        applyTime: "2026-06-04 10:30",
+        applicant: "陈芮",
+        phone: "13923194567",
+        category: "退货退款",
+        orderType: "商品发货订单",
+        reason: "收到商品破损",
+        returnDuty: "商家",
+        freightDuty: "商家",
+        returnLogisticsData: {
+          customerReturn: { company: "百世快递", trackNo: "214124120001" },
+          merchantReship: null
+        },
+        applyAmount: "¥38.00",
+        refundAmount: "¥38.00",
+        applyFreight: "¥10.00",
+        refundFreight: "¥10.00",
+        store: "热浪（蔷薇店）",
+        status: "已完成",
+        subStatus: "退款完成",
+        statusKey: "completed",
+        goods: [{ name: "珉捷贸易2号", qty: 1 }],
+        orderInfo: { orderNo: "20260602192010547630", orderType: "发货订单 / 微商城", orderStatus: "交易关闭，退款完成", logistics: "百世快递 214124120001", orderAmount: "¥38.00" },
+        requestInfo: { applyType: "退货退款（已收到货）", reason: "收到商品破损", desc: "已成功操作退款，售后流程完成。", contact: "13923194567" },
+        operatorTrail: ["申请：2026-06-04 10:30", "审核通过：2026-06-04 11:00", "寄回：2026-06-04 12:00", "质检：2026-06-04 13:00", "退款：2026-06-04 13:53"],
+        actions: []
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【14】秒杀发货订单 · 仅退款 · 已完成 · 包邮
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260602183301554821",
+        applyTime: "2026-06-02 18:33",
+        applicant: "王浩宇",
+        phone: "13988887777",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "包裹丢失",
+        returnDuty: "物流",
+        freightDuty: "物流",
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥199.00",
+        refundAmount: "¥199.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "天河旗舰店",
+        status: "已完成",
+        subStatus: "退款完成",
+        statusKey: "completed",
+        goods: [{ name: "多肽紧致眼霜 15ml（秒杀专属）", qty: 1 }],
+        orderInfo: { orderNo: "20260530182750111900", orderType: "发货订单 / 秒杀", orderStatus: "已完成", logistics: "圆通快递 YT10020030099", orderAmount: "¥199.00" },
+        requestInfo: { applyType: "已发货仅退款", reason: "包裹丢失", desc: "已成功退款，售后流程完成。", contact: "13988887777" },
+        operatorTrail: ["申请：2026-06-02 18:33", "审核通过：2026-06-02 19:00", "退款：2026-06-02 20:11"],
+        actions: []
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【15】微商城发货订单 · 已关闭（已拒绝）
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260603145618120778",
+        applyTime: "2026-06-03 14:56",
+        applicant: "肖蔓",
+        phone: "15166104567",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "不想要了",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥300.00",
+        refundAmount: null,
+        applyFreight: null,
+        refundFreight: null,
+        store: "珠江新城店",
+        status: "已关闭",
+        subStatus: "已拒绝",
+        statusKey: "closed",
+        closeType: "已拒绝",
+        goods: [{ name: "奢护修颜气垫BB霜 15g", qty: 2 }],
+        orderInfo: { orderNo: "20260602111287045126", orderType: "发货订单 / 微商城", orderStatus: "已完成", logistics: "申通快递 ST20050010", orderAmount: "¥300.00" },
+        requestInfo: { applyType: "已发货仅退款", reason: "不想要了", desc: "商家已拒绝申请，售后已关闭。", contact: "15166104567" },
+        operatorTrail: ["申请：2026-06-03 14:56", "驳回：2026-06-03 15:28"],
+        actions: []
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【16】拼团发货订单 · 已关闭（已撤销）
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260602103301448812",
+        applyTime: "2026-06-02 10:33",
+        applicant: "方宇杰",
+        phone: "13700009999",
+        category: "仅退款",
+        orderType: "商品发货订单",
+        reason: "不想要了",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥55.00",
+        refundAmount: null,
+        applyFreight: null,
+        refundFreight: null,
+        store: "热浪（蔷薇店）",
+        status: "已关闭",
+        subStatus: "已撤销",
+        statusKey: "closed",
+        closeType: "已撤销",
+        goods: [{ name: "轻透防晒乳 SPF50 50ml", qty: 1 }],
+        orderInfo: { orderNo: "20260601100200448101", orderType: "发货订单 / 拼团", orderStatus: "待发货", logistics: "未发货", orderAmount: "¥55.00" },
+        requestInfo: { applyType: "待发货仅退款", reason: "不想要了", desc: "消费者已主动撤销售后申请。", contact: "13700009999" },
+        operatorTrail: ["申请：2026-06-02 10:33", "撤销：2026-06-02 11:05"],
+        actions: []
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【17】退货退款 · 已关闭（超时关闭）— 待寄回超时未填物流
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260601092201338811",
+        applyTime: "2026-06-01 09:22",
+        applicant: "张紫薇",
+        phone: "13612345678",
+        category: "退货退款",
+        orderType: "商品发货订单",
+        reason: "尺码/规格不合适",
+        returnDuty: "消费者",
+        freightDuty: "消费者",
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥128.00",
+        refundAmount: null,
+        applyFreight: null,
+        refundFreight: null,
+        store: "天河旗舰店",
+        status: "已关闭",
+        subStatus: "超时关闭",
+        statusKey: "closed",
+        closeType: "超时关闭",
+        goods: [{ name: "显瘦高腰弹力裤 L码", qty: 1 }],
+        orderInfo: { orderNo: "20260530092000338800", orderType: "发货订单 / 微商城", orderStatus: "已完成", logistics: "韵达快递 YD200100300400", orderAmount: "¥128.00" },
+        requestInfo: { applyType: "退货退款（已收到货）", reason: "尺码/规格不合适", desc: "商家已同意退货，但买家超时未填写退货物流，系统自动关闭。", contact: "13612345678" },
+        operatorTrail: ["申请：2026-06-01 09:22", "审核通过：2026-06-01 10:00", "超时关闭：2026-06-04 10:00"],
+        actions: []
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【18】微商城自提订单 · 仅退款 · 待退款 · 非物流
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260606113301558901",
+        applyTime: "2026-06-06 11:33",
+        applicant: "郑佳欣",
+        phone: "13512109876",
+        category: "仅退款",
+        orderType: "商品自提订单",
+        reason: "不想要了",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥88.00",
+        refundAmount: "¥88.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "热浪（蔷薇店）",
+        status: "待退款",
+        subStatus: "待财务操作退款",
+        statusKey: "pending_refund",
+        goods: [{ name: "清透控油洁面乳 120ml", qty: 1 }],
+        orderInfo: { orderNo: "20260605113200558800", orderType: "自提订单 / 微商城", orderStatus: "待自提 / 售后中", logistics: "无需物流（门店自提）", orderAmount: "¥88.00" },
+        requestInfo: { applyType: "待自提仅退款（非物流）", reason: "不想要了", desc: "买家提交退款申请，等待财务处理退款。", contact: "13512109876" },
+        operatorTrail: ["申请：2026-06-06 11:33", "提交退款申请"],
+        actions: ["操作退款"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【19】套餐/次卡订单 · 仅退款 · 已完成 · 非物流
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260605152201448722",
+        applyTime: "2026-06-05 15:22",
+        applicant: "林文婷",
+        phone: "13966667777",
+        category: "仅退款",
+        orderType: "套餐订单",
+        reason: "不想要了",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥580.00",
+        refundAmount: "¥580.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "珠江新城店",
+        status: "已完成",
+        subStatus: "退款完成",
+        statusKey: "completed",
+        goods: [{ name: "深层清洁护理套餐（5次）", qty: 1 }],
+        orderInfo: { orderNo: "20260603152000448700", orderType: "套餐/次卡 / 直接到资产", orderStatus: "交易完成 / 资产已退回", logistics: "无需物流", orderAmount: "¥580.00" },
+        requestInfo: { applyType: "非物流退款（套餐/次卡）", reason: "不想要了", desc: "退款完成，套餐次数已回退至资产。", contact: "13966667777" },
+        operatorTrail: ["申请：2026-06-05 15:22", "退款：2026-06-05 16:00"],
+        actions: []
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【20】开充值卡订单 · 仅退款 · 待退款 · 非物流
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260604160022558630",
+        applyTime: "2026-06-04 16:00",
+        applicant: "肖蔓",
+        phone: "15166104567",
+        category: "仅退款",
+        orderType: "开充值订单",
+        reason: "不想要了",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥300.00",
+        refundAmount: "¥300.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "珠江新城店",
+        status: "待退款",
+        subStatus: "待财务操作退款",
+        statusKey: "pending_refund",
+        goods: [{ name: "会员储值卡开卡", qty: 1 }],
+        orderInfo: { orderNo: "20260602111287045126", orderType: "开充值卡 / 储值卡直接到资产", orderStatus: "售后中 / 待退款", logistics: "无需物流", orderAmount: "¥300.00" },
+        requestInfo: { applyType: "非物流退款（开充值卡）", reason: "不想要了", desc: "买家提交退款申请，等待财务处理退款。资产未使用，满足退款条件。", contact: "15166104567" },
+        operatorTrail: ["申请：2026-06-04 16:00", "提交退款申请"],
+        actions: ["操作退款"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【21】预定金订单 · 仅退款 · 待退款 · 非物流
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260604094401669933",
+        applyTime: "2026-06-04 09:44",
+        applicant: "何俊豪",
+        phone: "13800881234",
+        category: "仅退款",
+        orderType: "预定金订单",
+        reason: "不想要了",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥10.00",
+        refundAmount: "¥10.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "天河旗舰店",
+        status: "待退款",
+        subStatus: "待财务操作退款",
+        statusKey: "pending_refund",
+        goods: [{ name: "618大促预定金权益（抵扣¥20）", qty: 1 }],
+        orderInfo: { orderNo: "20260601094000669900", orderType: "预定金 / 权益直接到账", orderStatus: "售后中 / 待退款", logistics: "无需物流", orderAmount: "¥10.00" },
+        requestInfo: { applyType: "非物流退款（预定金）", reason: "不想要了", desc: "预定金权益未使用，满足退款条件，等待财务操作退款。", contact: "13800881234" },
+        operatorTrail: ["申请：2026-06-04 09:44", "提交退款申请"],
+        actions: ["操作退款"]
+      },
+      // ─────────────────────────────────────────────────────────────────────────
+      // 【22】积分商城自提订单 · 仅退款 · 已完成 · 非物流
+      // ─────────────────────────────────────────────────────────────────────────
+      {
+        id: "RF260603100201779022",
+        applyTime: "2026-06-03 10:02",
+        applicant: "钱梦琪",
+        phone: "13633334444",
+        category: "仅退款",
+        orderType: "商品自提订单",
+        reason: "不想要了",
+        returnDuty: null,
+        freightDuty: null,
+        returnLogisticsData: { customerReturn: null, merchantReship: null },
+        applyAmount: "¥0.00",
+        refundAmount: "¥0.00",
+        applyFreight: null,
+        refundFreight: null,
+        store: "热浪（蔷薇店）",
+        status: "已完成",
+        subStatus: "积分退回完成",
+        statusKey: "completed",
+        goods: [{ name: "积分兑换礼品（门店自取）", qty: 1 }],
+        orderInfo: { orderNo: "20260601100100779000", orderType: "自提订单 / 积分商城", orderStatus: "待自提 / 售后完成", logistics: "无需物流（门店自取）", orderAmount: "0积分 + ¥0.00" },
+        requestInfo: { applyType: "非物流退款（积分自提）", reason: "不想要了", desc: "已退回积分，售后完成。", contact: "13633334444" },
+        operatorTrail: ["申请：2026-06-03 10:02", "积分退回：2026-06-03 10:30"],
+        actions: []
+      }
+    ];
+
+    const statusOptions = [
+      { key: "pending_review", label: "待审核", icon: "◔", match: (row) => row.statusKey === "pending_review" },
+      { key: "pending_return", label: "待寄回", icon: "↩", match: (row) => row.statusKey === "pending_return" },
+      { key: "pending_receive", label: "待收货", icon: "▣", match: (row) => row.statusKey === "pending_receive" },
+      { key: "pending_refund", label: "待退款", icon: "◫", match: (row) => row.statusKey === "pending_refund" },
+      { key: "refunding", label: "退款中", icon: "◰", match: (row) => row.statusKey === "refunding" },
+      { key: "refund_failed", label: "退款失败", icon: "⚠", match: (row) => row.statusKey === "refund_failed" },
+      { key: "pending_reship", label: "待补寄出库", icon: "◎", match: (row) => row.statusKey === "pending_reship" },
+      { key: "pending_buyer_receive", label: "待买家收货", icon: "◌", match: (row) => row.statusKey === "pending_buyer_receive" },
+      { key: "completed", label: "已完成", icon: "✓", match: (row) => row.statusKey === "completed" },
+      { key: "closed", label: "已关闭", icon: "⊗", match: (row) => row.statusKey === "closed" },
+      { key: "all", label: "全部", icon: "▥", match: () => true }
+    ];
+
+    const state = {
+      activeStatus: "all",
+      activeRowId: rows[0].id,
+      keyword: ""
+    };
+
+    const statusTabsEl = document.getElementById("statusTabs");
+    const bodyLeft    = document.getElementById("bodyLeft");
+    const bodyMiddle  = document.getElementById("bodyMiddle");
+    const bodyRight   = document.getElementById("bodyRight");
+    const summaryText = document.getElementById("summaryText");
+    const drawer      = document.getElementById("drawer");
+    const drawerMask  = document.getElementById("drawerMask");
+    const drawerBody  = document.getElementById("drawerBody");
+    const drawerFooter = document.getElementById("drawerFooter");
+    const drawerStatusPill = document.getElementById("drawerStatusPill");
+    const modal       = document.getElementById("modal");
+    const modalMask   = document.getElementById("modalMask");
+    const modalTitle  = document.getElementById("modalTitle");
+    const modalBody   = document.getElementById("modalBody");
+    const keywordInput = document.getElementById("keywordInput");
+    const alertStatusKeys = new Set(["pending_review", "pending_refund", "refund_failed", "pending_reship"]);
+
+    function getStatusClass(statusKey) {
+      if (statusKey === "completed") return "pill-green";
+      if (statusKey === "closed" || statusKey === "refund_failed") return "pill-red";
+      if (statusKey === "pending_refund" || statusKey === "refunding") return "pill-gray";
+      return "pill-blue";
+    }
+
+    function getFilteredRows() {
+      const rule = statusOptions.find((item) => item.key === state.activeStatus);
+      return rows.filter((row) => {
+        const keywordHit = !state.keyword ||
+          [row.id, row.applicant, row.phone, row.orderInfo.orderNo, row.goods.map((item) => item.name).join(" ")]
+            .join(" ")
+            .includes(state.keyword);
+        return rule.match(row) && keywordHit;
+      });
+    }
+
+    function renderStatusTabs() {
+      statusTabsEl.innerHTML = statusOptions.map((item) => {
+        const count = rows.filter((row) => item.match(row)).length;
+        const countClass = alertStatusKeys.has(item.key) && count > 0 ? "status-count alert" : "status-count";
+        return `
+          <button class="status-tab ${state.activeStatus === item.key ? "active" : ""}" data-status="${item.key}">
+            <span class="status-icon">${item.icon}</span>
+            <span>${item.label}</span>
+            <span class="${countClass}">${count}</span>
+          </button>
+        `;
+      }).join("");
+
+      statusTabsEl.querySelectorAll("[data-status]").forEach((node) => {
+        node.addEventListener("click", () => {
+          state.activeStatus = node.getAttribute("data-status");
+          renderAll();
+        });
+      });
+    }
+
+    /* 退回物流：只显示快递公司名 + 物流单号，无数据显示 - */
+    function formatReturnLogistics(data) {
+      if (!data) return "<span class='muted'>-</span>";
+      const { customerReturn, merchantReship } = data;
+      // 优先取客户寄回，其次取商家补寄
+      const entry = (customerReturn && (customerReturn.company || customerReturn.trackNo))
+        ? customerReturn
+        : (merchantReship && (merchantReship.company || merchantReship.trackNo))
+          ? merchantReship
+          : null;
+      if (!entry) return "<span class='muted'>-</span>";
+      return `
+        <div class="logistics-stack">
+          <span class="logistics-company">${entry.company || ""}</span>
+          ${entry.trackNo ? `<span class="logistics-code">${entry.trackNo}</span>` : ""}
+        </div>
+      `;
+    }
+
+    /* 责任人：退货责任 + 退回运费责任，仅退款单（无需退货）显示 - */
+    function formatDuty(row) {
+      // category 为"仅退款"时视为无退货，责任显示 -
+      const noReturn = row.category === "仅退款";
+      if (noReturn) {
+        return `<span class="muted">-</span>`;
+      }
+      return `
+        <div class="duty-cell">
+          <span><span class="muted">退货责任：</span>${row.returnDuty || "-"}</span>
+          <span><span class="muted">退回运费责任：</span>${row.freightDuty || "-"}</span>
+        </div>
+      `;
+    }
+
+    /* 退款金额：未退款成功只显示申请金额；已完成才同时显示实退金额 */
+    function formatAmount(row) {
+      const applyFreightStr = row.applyFreight ? `<span class="muted" style="font-size:11px">（含运费 ${row.applyFreight}）</span>` : "";
+      const refundFreightStr = row.refundFreight ? `<span class="muted" style="font-size:11px">（含运费 ${row.refundFreight}）</span>` : "";
+      const showRefund = row.statusKey === "completed" && row.refundAmount;
+      return `
+        <div class="amount-cell">
+          <span><span class="amount-label">申请金额：</span><strong class="money">${row.applyAmount}</strong>${applyFreightStr}</span>
+          ${showRefund ? `<span><span class="amount-label">实退金额：</span><strong class="money">${row.refundAmount}</strong>${refundFreightStr}</span>` : ""}
+        </div>
+      `;
+    }
+
+    function renderTable(list) {
+      summaryText.textContent = `共 ${list.length} 条`;
+
+      bodyLeft.innerHTML = list.map((row) => `
+        <tr class="table-row" data-row-id="${row.id}" style="cursor:pointer">
+          <td>
+            <div class="cell-id-content">
+              <span class="link">${row.id}</span>
+              <span class="muted" style="font-size:11px">订单: ${row.orderInfo.orderNo}</span>
+              <span class="apply-time">申请: ${row.applyTime}</span>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+
+      bodyMiddle.innerHTML = list.map((row) => `
+        <tr class="table-row" data-row-id="${row.id}" style="cursor:pointer">
+          <td class="cell-type">${row.category}</td>
+          <td class="cell-type">${row.orderType}</td>
+          <td>
+            <div class="row-stack">
+              <strong>${row.applicant}</strong>
+              <span class="muted">${row.phone}</span>
+            </div>
+          </td>
+          <td>
+            <div class="goods-stack">
+              ${row.goods.map((item) => `
+                <div class="goods-item">
+                  <span class="goods-name-qty">${item.name} <span class="muted">×${item.qty}</span></span>
+                </div>
+              `).join("")}
+            </div>
+          </td>
+          <td>${row.reason}</td>
+          <td>${formatAmount(row)}</td>
+          <td>${formatDuty(row)}</td>
+          <td>${formatReturnLogistics(row.returnLogisticsData)}</td>
+          <td>${row.store}</td>
+        </tr>
+      `).join("");
+
+      bodyRight.innerHTML = list.map((row) => `
+        <tr class="table-row" data-row-id="${row.id}" style="cursor:pointer">
+          <td>
+            <div class="status-text">
+              <span class="status-main">${row.status}</span>
+              ${row.subStatus ? `<span class="status-sub">${row.subStatus}</span>` : ""}
+            </div>
+          </td>
+          <td class="cell-actions">
+            <div class="ops">
+              <span class="link">操作审批</span>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+
+      // 同步三段表格的行高
+      syncRowHeights();
+    }
+
+    /* 三段表格行高同步 */
+    function syncRowHeights() {
+      const leftRows   = bodyLeft.querySelectorAll("tr");
+      const middleRows = bodyMiddle.querySelectorAll("tr");
+      const rightRows  = bodyRight.querySelectorAll("tr");
+      const count = Math.max(leftRows.length, middleRows.length, rightRows.length);
+
+      // reset heights first
+      [leftRows, middleRows, rightRows].forEach((trList) => {
+        trList.forEach((tr) => { tr.style.height = "auto"; });
+      });
+
+      for (let i = 0; i < count; i++) {
+        const trs = [leftRows[i], middleRows[i], rightRows[i]].filter(Boolean);
+        const maxH = Math.max(...trs.map((tr) => tr.getBoundingClientRect().height));
+        trs.forEach((tr) => { tr.style.height = maxH + "px"; });
+      }
+    }
+
+    /* ─── 步骤条配置 ─── */
+    function getSteps(row) {
+      const isReship = row.statusKey === "pending_reship" || row.statusKey === "pending_buyer_receive"
+        || (row.statusKey === "completed" && row.requestInfo.applyType.includes("补寄"))
+        || (row.category === "仅退款" && row.actions && row.actions.length === 0 && row.returnLogisticsData && row.returnLogisticsData.merchantReship);
+      const isNonLogistics = ["商品自提订单","套餐订单","开充值订单","预定金订单"].includes(row.orderType);
+      const isReturnRefund = row.category === "退货退款";
+
+      if (isNonLogistics) {
+        return [
+          { label:"(1)买家申请", key:"apply" },
+          { label:"(2)待退款", key:"refund" },
+          { label:"(3)售后完成", key:"done" }
+        ];
+      }
+      if (isReship) {
+        return [
+          { label:"(1)买家申请", key:"apply" },
+          { label:"(2)商家审核", key:"review" },
+          { label:"(3)待补寄出库", key:"reship_out" },
+          { label:"(4)待买家收货", key:"buyer_recv" },
+          { label:"(5)补寄完成", key:"done" }
+        ];
+      }
+      if (isReturnRefund) {
+        return [
+          { label:"(1)买家申请", key:"apply" },
+          { label:"(2)商家审核", key:"review" },
+          { label:"(3)退货中", key:"returning" },
+          { label:"(4)已收货", key:"received" },
+          { label:"(5)售后完成", key:"done" }
+        ];
+      }
+      return [
+        { label:"(1)买家申请", key:"apply" },
+        { label:"(2)商家审核", key:"review" },
+        { label:"(3)待退款", key:"refund" },
+        { label:"(4)售后完成", key:"done" }
+      ];
+    }
+
+    function getActiveStepKey(row) {
+      const m = {
+        pending_review: "review",
+        pending_return: "review",
+        pending_receive: "returning",
+        pending_refund: "refund",
+        refunding: "refund",
+        refund_failed: "refund",
+        pending_reship: "reship_out",
+        pending_buyer_receive: "buyer_recv",
+        completed: "done",
+        closed: "done"
+      };
+      if (["商品自提订单","套餐订单","开充值订单","预定金订单"].includes(row.orderType)) {
+        if (row.statusKey === "pending_refund" || row.statusKey === "refunding" || row.statusKey === "refund_failed") return "refund";
+        if (row.statusKey === "completed") return "done";
+        return "apply";
+      }
+      return m[row.statusKey] || "apply";
+    }
+
+    function renderSteps(row) {
+      const steps = getSteps(row);
+      const activeKey = getActiveStepKey(row);
+      let activeFound = false;
+      const html = steps.map((step, i) => {
+        let cls = "";
+        if (step.key === activeKey) { cls = "active"; activeFound = true; }
+        else if (!activeFound) cls = "done";
+        const connectorDone = !activeFound || (cls === "done");
+        return `<div class="step ${connectorDone && i < steps.length - 1 ? "done" : ""}">
+          <div class="step-circle ${cls}">${cls === "done" ? "✓" : i + 1}</div>
+          <div class="step-label ${cls}">${step.label}</div>
+        </div>`;
+      });
+      return `<div class="steps-wrap"><div class="steps-bar">${html.join("")}</div></div>`;
+    }
+
+    /* ─── 提示条文案 ─── */
+    const noticeMap = {
+      pending_review: "买家已提交售后申请，请审核退款金额、责任方与处理方式。",
+      pending_return: "已同意退货退款，等待买家填写退货物流单号。",
+      pending_receive: "买家已寄回商品，等待仓库签收并录入质检结果。",
+      pending_refund: "审核或收货完成，等待财务操作退款。",
+      refunding: "已发起退款，等待支付渠道回执，无需操作。",
+      refund_failed: "退款调用失败，请补足账户资金后重新操作退款。",
+      pending_reship: "已转补寄处理，请核实补寄原因、责任方和补寄商品，并尽快创建补寄出库单发往仓库。",
+      pending_buyer_receive: "云仓已发出补寄商品，等待买家确认收货。",
+      completed: "售后已完成，以下为完整处理记录。",
+      closed: "售后已关闭，以下为关闭原因和处理记录。"
+    };
+
+    /* ─── 订单类型标签 ─── */
+    function getOrderTags(row) {
+      const typeMap = {
+        "商品发货订单": "商品物流发货",
+        "商品自提订单": "商品自提",
+        "套餐订单": "套餐/次卡",
+        "开充值订单": "开卡充值",
+        "预定金订单": "预定金"
+      };
+      const marketingMap = {
+        "微商城": "微商城",
+        "拼团": "拼团",
+        "秒杀": "秒杀",
+        "积分商城": "积分商城"
+      };
+      const orderTypeStr = typeMap[row.orderType] || row.orderType;
+      const infoType = row.orderInfo.orderType || "";
+      let marketing = "";
+      for (const [k, v] of Object.entries(marketingMap)) {
+        if (infoType.includes(k)) { marketing = v; break; }
+      }
+      let tags = "";
+      if (marketing) tags += `<span class="dtag dtag-orange">${marketing}</span>`;
+      tags += `<span class="dtag dtag-blue">${orderTypeStr}</span>`;
+      return tags;
+    }
+
+    /* ─── 顶部摘要区 ─── */
+    function renderSummary(row) {
+      const avatarChar = row.applicant ? row.applicant.charAt(0) : "?";
+      const goodsHtml = row.goods.map(g => {
+        const unitPrice = parseFloat((row.applyAmount || "¥0").replace("¥","")) / row.goods.reduce((s,x)=>s+x.qty,0);
+        const total = "¥" + (unitPrice * g.qty).toFixed(2);
+        return `<div class="goods-detail-row">
+          <div class="goods-thumb"></div>
+          <div class="goods-info">
+            <div class="goods-title">${g.name}</div>
+            <div class="goods-price">单价：${row.applyAmount}</div>
+          </div>
+          <div class="goods-qty">×${g.qty}</div>
+          <div class="goods-total">${row.applyAmount}</div>
+        </div>`;
+      }).join("");
+
+      const freightRow = row.applyFreight ? `<div class="goods-detail-row">
+        <div class="goods-thumb" style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);"></div>
+        <div class="goods-info"><div class="goods-title">原单运费退款</div></div>
+        <div class="goods-qty">×1</div>
+        <div class="goods-total">${row.applyFreight}</div>
+      </div>` : "";
+
+      return `<div class="summary-grid">
+        <div class="summary-card">
+          <div class="user-row">
+            <div class="user-avatar">${avatarChar}</div>
+            <div>
+              <div class="user-name">${row.applicant} <span class="user-store">${row.store}</span></div>
+              <div class="user-phone">${row.phone}</div>
+            </div>
+          </div>
+          <div class="summary-amount-row">申请退款金额 &nbsp;<span class="money">${row.applyAmount}</span></div>
+          <div class="summary-order-row">原订单号 &nbsp;<a class="detail-link">${row.orderInfo.orderNo}</a></div>
+          <div class="summary-tags">${getOrderTags(row)}</div>
+        </div>
+        <div class="summary-card">
+          <div class="goods-label">退款商品明细</div>
+          ${goodsHtml}${freightRow}
+        </div>
+      </div>`;
+    }
+
+    /* ─── 售后申请基础信息卡 ─── */
+    function renderBaseInfo(row) {
+      const isNonLogistics = ["商品自提订单","套餐订单","开充值订单","预定金订单"].includes(row.orderType);
+      return `<div class="detail-card" style="margin-bottom:12px;">
+        <div class="detail-card-head">
+          <span class="detail-card-title">售后申请基础信息</span>
+        </div>
+        <div class="detail-card-body">
+          <div class="detail-grid">
+            <div class="detail-kv"><span class="k">退款方式</span><span class="v">${row.category}</span></div>
+            <div class="detail-kv"><span class="k">申请退款金额</span><span class="v money">${row.applyAmount}</span></div>
+            <div class="detail-kv"><span class="k">运费责任方</span><span class="v">${row.freightDuty || "—"}</span></div>
+            <div class="detail-kv"><span class="k">售后原因</span><span class="v">${row.reason}</span></div>
+            ${!isNonLogistics ? `<div class="detail-kv detail-full"><span class="k">买家文字说明</span><span class="v">${row.requestInfo.desc}</span></div>` : ""}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    /* ─── 处理结果卡片流 ─── */
+    function renderResultCards(row) {
+      const cards = [];
+      const sk = row.statusKey;
+      const isReturnPath = row.category === "退货退款";
+      const isNonLogistics = ["商品自提订单","套餐订单","开充值订单","预定金订单"].includes(row.orderType);
+      const isReship = sk === "pending_reship" || sk === "pending_buyer_receive"
+        || (sk === "completed" && row.requestInfo.applyType.includes("补寄"))
+        || (sk === "completed" && row.returnLogisticsData && row.returnLogisticsData.merchantReship);
+
+      // 1. 申请结果卡（始终）
+      cards.push(`<div class="detail-card">
+        <div class="detail-card-head">
+          <span class="detail-card-title">申请结果</span>
+          <span class="detail-card-time">${row.applyTime}</span>
+        </div>
+        <div class="detail-card-body">
+          <div class="detail-grid">
+            <div class="detail-kv"><span class="k">处理结论</span><span class="v">买家已提交售后申请</span></div>
+            <div class="detail-kv"><span class="k">申请金额</span><span class="v money">${row.applyAmount}</span></div>
+            <div class="detail-kv"><span class="k">申请类型</span><span class="v">${row.requestInfo.applyType}</span></div>
+            <div class="detail-kv"><span class="k">申请原因</span><span class="v">${row.reason}</span></div>
+          </div>
+        </div>
+      </div>`);
+
+      // 2. 审批信息卡（pending_return / pending_receive / pending_refund / refunding / refund_failed / pending_reship / completed / closed(非撤销)）
+      const showApproval = ["pending_return","pending_receive","pending_refund","refunding","refund_failed","pending_reship","pending_buyer_receive","completed"].includes(sk)
+        || (sk === "closed" && row.closeType !== "已撤销");
+      if (showApproval && !isNonLogistics) {
+        const approvalTime = row.operatorTrail.find(t => t.includes("审核")) || row.operatorTrail[1] || "";
+        cards.push(`<div class="detail-card">
+          <div class="detail-card-head">
+            <span class="detail-card-title">审核结果</span>
+            <span class="detail-card-time">${approvalTime}</span>
+          </div>
+          <div class="detail-card-body">
+            <div class="detail-grid">
+              <div class="detail-kv"><span class="k">处理结论</span><span class="v">商家已同意${row.category}</span></div>
+              <div class="detail-kv"><span class="k">审批退款金额</span><span class="v money">${row.applyAmount}</span></div>
+              <div class="detail-kv"><span class="k">退货责任方</span><span class="v">${row.returnDuty || "—"}</span></div>
+              <div class="detail-kv"><span class="k">寄回邮费责任方</span><span class="v">${row.freightDuty || "—"}</span></div>
+              <div class="detail-kv"><span class="k">原单运费退款</span><span class="v">¥0.00</span></div>
+              <div class="detail-kv"><span class="k">寄回邮费补贴</span><span class="v">${row.applyFreight || "¥0.00"}</span></div>
+              ${isReturnPath ? `<div class="detail-kv"><span class="k">退货地址</span><span class="v">番禺大道人仓库 · 天安总部中心15号楼202</span></div>
+              <div class="detail-kv"><span class="k">寄回截止时间</span><span class="v">2026-06-13</span></div>` : ""}
+            </div>
+          </div>
+        </div>`);
+      }
+
+      // 3. 买家退货物流卡（pending_receive / pending_refund退货路径 / completed退货路径）
+      const showReturnLogistics = isReturnPath && ["pending_receive","pending_refund","refunding","refund_failed","completed"].includes(sk);
+      const retLog = row.returnLogisticsData && row.returnLogisticsData.customerReturn;
+      if (showReturnLogistics && retLog) {
+        const returnTime = row.operatorTrail.find(t => t.includes("寄回")) || "";
+        cards.push(`<div class="detail-card">
+          <div class="detail-card-head">
+            <span class="detail-card-title">退货寄回结果</span>
+            <span class="detail-card-time">${returnTime}</span>
+          </div>
+          <div class="detail-card-body">
+            <div class="detail-grid">
+              <div class="detail-kv"><span class="k">处理结论</span><span class="v">买家已填写退货物流</span></div>
+              <div class="detail-kv"><span class="k">快递公司</span><span class="v">${retLog.company}</span></div>
+              <div class="detail-kv"><span class="k">快递单号</span><span class="v">${retLog.trackNo}</span></div>
+              <div class="detail-kv detail-full"><span class="k" style="display:inline"></span><a class="detail-link">查看退货物流 →</a></div>
+            </div>
+          </div>
+        </div>`);
+      }
+
+      // 4. 质检结果卡（退货路径 pending_refund / refunding / completed）
+      const showQC = isReturnPath && ["pending_refund","refunding","refund_failed","completed"].includes(sk);
+      if (showQC) {
+        const qcTime = row.operatorTrail.find(t => t.includes("质检") || t.includes("收货")) || "";
+        const qcRows = row.goods.map(g => `<tr>
+          <td style="text-align:left;">${g.name}</td>
+          <td>${g.qty}</td>
+          <td>${g.qty}</td>
+          <td>${sk === "completed" ? g.qty : g.qty}</td>
+          <td>0</td>
+          <td>0</td>
+          <td>—</td>
+        </tr>`).join("");
+        cards.push(`<div class="detail-card">
+          <div class="detail-card-head">
+            <span class="detail-card-title">仓库质检结果</span>
+            <span class="detail-card-time">${qcTime}</span>
+          </div>
+          <div class="detail-card-body">
+            <div class="detail-grid" style="margin-bottom:10px;">
+              <div class="detail-kv"><span class="k">处理结论</span><span class="v">全部完好，可入库</span></div>
+              <div class="detail-kv"><span class="k">质检人</span><span class="v">仓库王敏</span></div>
+            </div>
+            <table class="qc-table">
+              <thead><tr><th style="text-align:left;">商品/SKU</th><th>应退数</th><th>签收数</th><th>完好入库</th><th>破损数</th><th>缺失数</th><th>异常类型</th></tr></thead>
+              <tbody>${qcRows}</tbody>
+            </table>
+          </div>
+        </div>`);
+      }
+
+      // 5. 退款清分账单（pending_refund / refunding / refund_failed / completed，非补寄）
+      const showRefundSheet = !isReship && ["pending_refund","refunding","refund_failed","completed"].includes(sk);
+      if (showRefundSheet) {
+        const refundTime = row.operatorTrail.find(t => t.includes("退款")) || "";
+        const totalAmt = row.applyAmount;
+        const freightAmt = row.refundFreight || "¥0.00";
+        cards.push(`<div class="detail-card">
+          <div class="detail-card-head">
+            <span class="detail-card-title">退款清分账单</span>
+            <span class="detail-card-time">${refundTime}</span>
+          </div>
+          <div class="detail-card-body">
+            <div class="refund-sheet">
+              <div class="refund-row"><span class="lbl">申请退款金额</span><span class="val">${row.applyAmount}</span></div>
+              <div class="refund-row"><span class="lbl">审批退款金额</span><span class="val">${row.applyAmount}</span></div>
+              <hr class="refund-hr">
+              <div class="refund-row"><span class="lbl">商品退款</span><span class="val">${row.applyAmount}</span></div>
+              <div class="refund-row"><span class="lbl">原单运费退款</span><span class="val">¥0.00</span></div>
+              <div class="refund-row"><span class="lbl">寄回邮费补贴</span><span class="val">${row.applyFreight || "¥0.00"}</span></div>
+              <hr class="refund-hr">
+              <div class="refund-total-row"><span class="lbl">实际退款金额</span><span class="val">${totalAmt}</span></div>
+              <div class="pay-breakdown">
+                <div class="pay-item"><span>微信支付</span><span>${totalAmt}</span></div>
+                <div class="pay-item"><span>优惠券</span><span>暂不退回</span></div>
+              </div>
+              <div class="refund-row" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e5e6eb;">
+                <span class="lbl">分账状态</span>
+                <span class="val">${sk === "completed" ? "分账冲正成功" : "待分账冲正"}</span>
+              </div>
+            </div>
+          </div>
+        </div>`);
+      }
+
+      // 6. 退款发起/完成/失败结果卡
+      if (sk === "refunding") {
+        const rTime = row.operatorTrail.find(t => t.includes("退款")) || "";
+        cards.push(`<div class="detail-card">
+          <div class="detail-card-head"><span class="detail-card-title">退款结果</span><span class="detail-card-time">${rTime}</span></div>
+          <div class="detail-card-body">
+            <div class="detail-grid">
+              <div class="detail-kv"><span class="k">处理结论</span><span class="v" style="color:#d97706;">退款处理中</span></div>
+              <div class="detail-kv"><span class="k">退款单号</span><span class="v">TK${Date.now().toString().slice(-10)}</span></div>
+              <div class="detail-kv"><span class="k">退款金额</span><span class="v money">${row.applyAmount}</span></div>
+              <div class="detail-kv"><span class="k">渠道状态</span><span class="v">处理中，等待回执</span></div>
+            </div>
+          </div>
+        </div>`);
+      }
+      if (sk === "refund_failed") {
+        const fTime = row.operatorTrail.find(t => t.includes("失败")) || "";
+        cards.push(`<div class="detail-card">
+          <div class="detail-card-head"><span class="detail-card-title">退款失败结果</span><span class="detail-card-time">${fTime}</span></div>
+          <div class="detail-card-body">
+            <div class="detail-grid">
+              <div class="detail-kv"><span class="k">处理结论</span><span class="v" style="color:#ef4444;">退款调用失败</span></div>
+              <div class="detail-kv"><span class="k">失败原因</span><span class="v">商家账户余额不足</span></div>
+              <div class="detail-kv"><span class="k">渠道返回码</span><span class="v">BALANCE_NOT_ENOUGH</span></div>
+              <div class="detail-kv"><span class="k">失败时间</span><span class="v">${fTime}</span></div>
+            </div>
+          </div>
+        </div>`);
+      }
+      if (sk === "completed" && !isReship) {
+        const doneTime = row.operatorTrail[row.operatorTrail.length - 1] || "";
+        cards.push(`<div class="detail-card">
+          <div class="detail-card-head"><span class="detail-card-title">退款结果</span><span class="detail-card-time">${doneTime}</span></div>
+          <div class="detail-card-body">
+            <div class="detail-grid">
+              <div class="detail-kv"><span class="k">处理结论</span><span class="v" style="color:#16a34a;">✓ 退款成功，已原路退回</span></div>
+              <div class="detail-kv"><span class="k">退款金额</span><span class="v money">${row.refundAmount || row.applyAmount}</span></div>
+              <div class="detail-kv"><span class="k">退款单号</span><span class="v">TK${row.id.slice(-8)}</span></div>
+              <div class="detail-kv"><span class="k">退款时间</span><span class="v">${doneTime}</span></div>
+            </div>
+          </div>
+        </div>`);
+      }
+
+      // 7. 补寄处理结果卡
+      if (isReship && ["pending_reship","pending_buyer_receive","completed"].includes(sk)) {
+        const reshTime = row.operatorTrail.find(t => t.includes("补寄")) || "";
+        cards.push(`<div class="detail-card">
+          <div class="detail-card-head"><span class="detail-card-title">补寄处理结果</span><span class="detail-card-time">${reshTime}</span></div>
+          <div class="detail-card-body">
+            <div class="detail-grid">
+              <div class="detail-kv"><span class="k">处理结论</span><span class="v">已转补寄处理</span></div>
+              <div class="detail-kv"><span class="k">补寄原因</span><span class="v">${row.reason}</span></div>
+              <div class="detail-kv"><span class="k">补寄责任方</span><span class="v">${row.returnDuty || "商家责任"}</span></div>
+              ${row.goods.map(g=>`<div class="detail-kv detail-full"><span class="k">补寄商品</span><span class="v">${g.name} ×${g.qty}</span></div>`).join("")}
+              <div class="detail-kv"><span class="k">出库状态</span><span class="v">${sk === "pending_reship" ? "未创建出库申请" : "已推送云仓，等待发货"}</span></div>
+            </div>
+          </div>
+        </div>`);
+      }
+
+      // 8. 补寄物流卡
+      const reshLog = row.returnLogisticsData && row.returnLogisticsData.merchantReship;
+      if (reshLog && ["pending_buyer_receive","completed"].includes(sk)) {
+        const shipTime = row.operatorTrail.find(t => t.includes("云仓") || t.includes("发货")) || "";
+        cards.push(`<div class="detail-card">
+          <div class="detail-card-head"><span class="detail-card-title">补寄物流结果</span><span class="detail-card-time">${shipTime}</span></div>
+          <div class="detail-card-body">
+            <div class="detail-grid">
+              <div class="detail-kv"><span class="k">处理结论</span><span class="v">仓库已发出补寄商品</span></div>
+              <div class="detail-kv"><span class="k">快递公司</span><span class="v">${reshLog.company}</span></div>
+              <div class="detail-kv"><span class="k">快递单号</span><span class="v">${reshLog.trackNo}</span></div>
+              <div class="detail-kv detail-full"><a class="detail-link">查看补寄物流 →</a></div>
+            </div>
+          </div>
+        </div>`);
+      }
+
+      // 9. 关闭结果卡
+      if (sk === "closed") {
+        const closeTime = row.operatorTrail[row.operatorTrail.length - 1] || "";
+        const closeReasonMap = {
+          "已拒绝": `<div class="detail-kv"><span class="k">拒绝原因</span><span class="v">不符合退款条件</span></div>
+            <div class="detail-kv"><span class="k">拒绝说明</span><span class="v">商品已核销或已使用</span></div>`,
+          "已撤销": `<div class="detail-kv"><span class="k">关闭来源</span><span class="v">消费者主动撤销</span></div>`,
+          "超时关闭": `<div class="detail-kv detail-full"><span class="k">关闭原因</span><span class="v">超过寄回截止时间未填写物流，系统自动关闭</span></div>`,
+          "人工关闭": `<div class="detail-kv"><span class="k">关闭原因</span><span class="v">财务/管理员人工关闭</span></div>`
+        };
+        cards.push(`<div class="detail-card">
+          <div class="detail-card-head"><span class="detail-card-title">关闭结果</span><span class="detail-card-time">${closeTime}</span></div>
+          <div class="detail-card-body">
+            <div class="detail-grid">
+              <div class="detail-kv"><span class="k">处理结论</span><span class="v" style="color:#ef4444;">售后已关闭</span></div>
+              <div class="detail-kv"><span class="k">关闭类型</span><span class="v">${row.closeType || "已关闭"}</span></div>
+              ${closeReasonMap[row.closeType] || ""}
+              <div class="detail-kv"><span class="k">关闭时间</span><span class="v">${closeTime}</span></div>
+            </div>
+          </div>
+        </div>`);
+      }
+
+      return `<div style="margin-bottom:12px;">${cards.join("")}</div>`;
+    }
+
+    /* ─── 操作日志 ─── */
+    function renderLog(row) {
+      const items = row.operatorTrail.map(t => `<div class="log-item"><div class="log-dot"></div><span>${t}</span></div>`).join("");
+      return `<div class="log-section">
+        <div class="log-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.log-arrow').classList.toggle('open')">
+          <span>操作日志</span><span class="log-arrow">▼</span>
+        </div>
+        <div class="log-body" style="display:none;">${items}</div>
+      </div>`;
+    }
+
+    /* ─── 主 renderDrawer ─── */
+    function renderDrawer() {
+      const row = rows.find((item) => item.id === state.activeRowId);
+      if (!row) return;
+
+      drawerStatusPill.className = `pill ${getStatusClass(row.statusKey)}`;
+      drawerStatusPill.textContent = row.status;
+      document.getElementById("drawerIdTag").textContent = row.id;
+
+      const noticeText = noticeMap[row.statusKey] || "";
+
+      drawerBody.innerHTML =
+        renderSteps(row) +
+        `<div class="status-notice"><span class="status-notice-icon">📦</span><span>${noticeText}</span></div>` +
+        renderSummary(row) +
+        renderBaseInfo(row) +
+        renderResultCards(row) +
+        renderLog(row);
+
+      // 底部按钮
+      const id = row.id;
+      const btns = [];
+      if (row.actions.includes("拒绝申请"))       btns.push(`<button class="btn" data-action="reject" data-id="${id}">拒绝申请</button>`);
+      if (row.actions.includes("转补寄处理"))      btns.push(`<button class="btn" data-action="reship" data-id="${id}">转补寄处理</button>`);
+      if (row.actions.includes("同意申请"))        btns.push(`<button class="btn btn-primary" data-action="approve" data-id="${id}">同意申请</button>`);
+      if (row.actions.includes("签收质检"))        btns.push(`<button class="btn btn-primary" data-action="receive" data-id="${id}">签收质检</button>`);
+      if (row.actions.includes("操作退款"))        btns.push(`<button class="btn btn-primary" data-action="refund" data-id="${id}">操作退款</button>`);
+      if (row.actions.includes("重新操作退款"))    btns.push(`<button class="btn btn-primary" data-action="retry-refund" data-id="${id}">重新操作退款</button>`);
+      if (row.statusKey === "pending_reship")      btns.push(`<button class="btn btn-primary" data-action="create-reship" data-id="${id}">创建补寄出库申请</button>`);
+
+      drawerFooter.innerHTML = btns.length
+        ? btns.join("")
+        : `<span class="muted" style="padding:0 4px;font-size:13px;">当前状态无可执行主操作</span>`;
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove("show");
+      drawerMask.classList.remove("show");
+    }
+
+    function closeModal() {
+      modal.classList.remove("show");
+      modalMask.classList.remove("show");
+    }
+
+    function setModal(config) {
+      modalTitle.textContent = config.title;
+      modalBody.innerHTML = config.body;
+      // 宽度控制
+      if (config.wide) {
+        modal.classList.add("modal-wide");
+      } else {
+        modal.classList.remove("modal-wide");
+      }
+      document.getElementById("modalConfirmBtn").textContent = config.confirmText || "确认";
+      document.getElementById("modalConfirmBtn").onclick = () => {
+        if (config.onConfirm) config.onConfirm();
+        closeModal();
+      };
+      modal.classList.add("show");
+      modalMask.classList.add("show");
+    }
+
+    function mutateRow(id, patch) {
+      const row = rows.find((item) => item.id === id);
+      if (!row) return;
+      Object.assign(row, patch);
+      renderAll();
+      if (drawer.classList.contains("show")) openDrawer(id);
+    }
+
+    function handleAction(action, id) {
+      const row = rows.find((item) => item.id === id);
+      if (!row) return;
+
+      if (action === "approve") {
+        const goodsList = row.goods.map(g => `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;"><span>${g.name}</span><span class="muted">×${g.qty}</span></div>`).join("");
+        setModal({
+          title: "同意申请",
+          wide: true,
+          body: `
+            <div class="form-group">
+              <label class="form-label">处理结果</label>
+              <div class="radio-group">
+                <label class="radio-item"><input type="radio" name="approveType" value="refund_only" ${row.category === "仅退款" ? "checked" : ""}> 同意仅退款</label>
+                <label class="radio-item"><input type="radio" name="approveType" value="return_refund" ${row.category === "退货退款" ? "checked" : ""}> 同意退货退款</label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">审批退款金额</label>
+                <input class="form-input" type="text" value="${(row.applyAmount||"").replace("¥","")}" placeholder="请输入金额">
+              </div>
+              <div class="form-group">
+                <label class="form-label">原单运费退款金额</label>
+                <input class="form-input" type="text" value="0.00" placeholder="0.00">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">寄回邮费补贴</label>
+                <input class="form-input" type="text" value="0.00" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label class="form-label">退货责任方</label>
+                <select class="form-select">
+                  <option>商家责任</option><option>消费者责任</option><option>物流责任</option><option>云仓责任</option><option>其他责任</option><option>线下协商</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">寄回邮费责任方</label>
+                <select class="form-select">
+                  <option>商家承担</option><option>消费者承担</option><option>物流承担</option><option>云仓承担</option><option>线下协商</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">退货地址</label>
+                <select class="form-select">
+                  <option>番禺大道人仓库 · 天安总部中心15号楼202</option><option>天河仓 · 体育西路100号</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">寄回截止时间</label>
+                <input class="form-input" type="date" value="2026-06-13">
+              </div>
+              <div></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">审核备注</label>
+              <textarea class="form-textarea" placeholder="请输入备注说明（可选）"></textarea>
+            </div>
+          `,
+          confirmText: "确认同意",
+          onConfirm: () => {
+            const isReturn = row.category === "退货退款";
+            mutateRow(id, {
+              status: isReturn ? "待寄回" : "待退款",
+              statusKey: isReturn ? "pending_return" : "pending_refund",
+              subStatus: isReturn ? "待买家填写物流" : "待财务操作退款",
+              returnDuty: "商家",
+              freightDuty: "商家",
+              actions: isReturn ? [] : ["操作退款"],
+              requestInfo: { ...row.requestInfo, desc: isReturn ? "商家已同意退货退款，请买家寄回商品。" : "商家已审核通过，等待财务操作退款。" },
+              operatorTrail: [...row.operatorTrail, "审核通过：2026-06-06 18:20"]
+            });
+          }
+        });
+      }
+
+      if (action === "reject") {
+        setModal({
+          title: "拒绝申请",
+          body: `
+            <div class="form-group">
+              <label class="form-label">拒绝原因</label>
+              <select class="form-select">
+                <option>商品已使用</option><option>超过售后期</option><option>不符合退款条件</option><option>凭证不充分</option><option>其他</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">拒绝说明</label>
+              <textarea class="form-textarea" placeholder="请输入拒绝说明，此内容对C端消费者可见"></textarea>
+              <div class="form-hint">注：拒绝说明会展示给消费者</div>
+            </div>
+          `,
+          confirmText: "确认拒绝",
+          onConfirm: () => mutateRow(id, {
+            status: "已关闭", statusKey: "closed", closeType: "已拒绝",
+            subStatus: "已拒绝", actions: [],
+            requestInfo: { ...row.requestInfo, desc: "商家已拒绝申请，售后已关闭。" },
+            operatorTrail: [...row.operatorTrail, "驳回：2026-06-06 18:20"]
+          })
+        });
+      }
+
+      if (action === "reship") {
+        const goodsForm = row.goods.map(g => `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #f0f1f4;font-size:13px;">
+          <span>${g.name}</span>
+          <span>数量：<input class="qc-num-input" type="number" value="${g.qty}" min="1"></span>
+        </div>`).join("");
+        setModal({
+          title: "转补寄处理",
+          wide: true,
+          body: `
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">补寄原因</label>
+                <select class="form-select">
+                  <option>少件/漏发</option><option>错发</option><option>商品破损</option><option>其他</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">补寄责任方</label>
+                <select class="form-select">
+                  <option>商家责任</option><option>物流责任</option><option>云仓责任</option><option>其他责任</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">补寄商品</label>
+              ${goodsForm}
+            </div>
+            <div class="form-group">
+              <label class="form-label">补寄说明</label>
+              <textarea class="form-textarea" placeholder="请输入给仓库/用户的补寄说明"></textarea>
+            </div>
+          `,
+          confirmText: "确认转补寄",
+          onConfirm: () => mutateRow(id, {
+            status: "待补寄出库", statusKey: "pending_reship",
+            subStatus: "等待创建出库申请", returnDuty: "商家", freightDuty: "商家",
+            actions: [],
+            requestInfo: { ...row.requestInfo, applyType: row.requestInfo.applyType + "（转补寄）", desc: "已转补寄处理，等待创建补寄出库申请。" },
+            operatorTrail: [...row.operatorTrail, "转补寄：2026-06-06 18:20"]
+          })
+        });
+      }
+
+      if (action === "receive") {
+        const qcRows = row.goods.map(g => `<tr>
+          <td style="text-align:left;">${g.name}</td>
+          <td>${g.qty}</td>
+          <td><input class="qc-num-input" type="number" value="${g.qty}" min="0" max="${g.qty}"></td>
+          <td><input class="qc-num-input" type="number" value="${g.qty}" min="0" max="${g.qty}"></td>
+          <td><input class="qc-num-input" type="number" value="0" min="0"></td>
+          <td><input class="qc-num-input" type="number" value="0" min="0"></td>
+        </tr>`).join("");
+        setModal({
+          title: "签收并录入质检",
+          wide: true,
+          body: `
+            <div class="form-group">
+              <label class="form-label">整体判断</label>
+              <div class="radio-group">
+                <label class="radio-item"><input type="radio" name="qcResult" value="good" checked> 商品完好，附件齐全</label>
+                <label class="radio-item"><input type="radio" name="qcResult" value="bad"> 有破损/短缺/使用痕迹</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">退回商品验收列表</label>
+              <table class="qc-form-table">
+                <thead><tr><th style="text-align:left;">商品/SKU</th><th>申请数</th><th>本次签收</th><th>完好入库</th><th>破损数</th><th>缺失数</th></tr></thead>
+                <tbody>${qcRows}</tbody>
+              </table>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">污染/影响二销数量</label>
+                <input class="form-input" type="number" value="0" min="0">
+              </div>
+              <div class="form-group">
+                <label class="form-label">异常类型</label>
+                <select class="form-select">
+                  <option>无异常</option><option>破损</option><option>缺失</option><option>严重污染</option><option>影响二次销售</option><option>空包</option><option>错件</option><option>其他异常</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">异常说明</label>
+              <textarea class="form-textarea" placeholder="填写具体破损内容或异常说明（无异常可不填）"></textarea>
+            </div>
+          `,
+          confirmText: "确认提交",
+          onConfirm: () => mutateRow(id, {
+            status: "待退款", statusKey: "pending_refund",
+            subStatus: "待财务操作退款", actions: ["操作退款"],
+            requestInfo: { ...row.requestInfo, desc: "仓库验收完成，等待财务操作退款。" },
+            operatorTrail: [...row.operatorTrail, "签收质检：2026-06-06 18:20"]
+          })
+        });
+      }
+
+      if (action === "refund") {
+        const freightLine = row.applyFreight ? `<div class="rcs-row"><span class="lbl">寄回邮费补贴</span><span class="val">${row.applyFreight}</span></div>` : "";
+        setModal({
+          title: "操作退款",
+          body: `
+            <div class="refund-confirm-sheet">
+              <div class="rcs-row"><span class="lbl">申请退款金额</span><span class="val">${row.applyAmount}</span></div>
+              <div class="rcs-row"><span class="lbl">商品退款</span><span class="val">${row.applyAmount}</span></div>
+              <div class="rcs-row"><span class="lbl">原单运费退款</span><span class="val">¥0.00</span></div>
+              ${freightLine}
+              <div class="rcs-total"><span class="lbl">实际退款金额</span><span class="val">${row.applyAmount}</span></div>
+            </div>
+            <div style="margin-bottom:12px;font-size:12px;color:#6b7280;">
+              退回方式：微信支付 ${row.applyAmount}
+            </div>
+            <div class="form-group">
+              <label class="form-label">退款说明</label>
+              <textarea class="form-textarea" placeholder="请输入退款说明（可选）"></textarea>
+            </div>
+          `,
+          confirmText: "确认退款",
+          onConfirm: () => mutateRow(id, {
+            status: "已完成", statusKey: "completed",
+            subStatus: "退款完成", actions: [],
+            requestInfo: { ...row.requestInfo, desc: "已成功操作退款，售后流程完成。" },
+            operatorTrail: [...row.operatorTrail, "退款成功：2026-06-06 18:20"]
+          })
+        });
+      }
+
+      if (action === "retry-refund") {
+        setModal({
+          title: "重新操作退款",
+          body: `
+            <div style="margin-bottom:14px;padding:10px 12px;background:#fff1f0;border:1px solid #fecdd3;border-radius:6px;font-size:13px;color:#be123c;">
+              <strong>上次失败原因：</strong>商家账户余额不足（BALANCE_NOT_ENOUGH）
+            </div>
+            <div class="refund-confirm-sheet">
+              <div class="rcs-row"><span class="lbl">退款金额</span><span class="val money">${row.applyAmount}</span></div>
+              <div class="rcs-row"><span class="lbl">退款方式</span><span class="val">微信支付 ${row.applyAmount}</span></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">重试说明</label>
+              <textarea class="form-textarea" placeholder="例如：商家账户已充值，重新发起退款"></textarea>
+            </div>
+          `,
+          confirmText: "确认重新退款",
+          onConfirm: () => mutateRow(id, {
+            status: "退款中", statusKey: "refunding",
+            subStatus: "退款处理中", actions: [],
+            requestInfo: { ...row.requestInfo, desc: "已重新发起退款，等待退款结果回传。" },
+            operatorTrail: [...row.operatorTrail, "重新退款：2026-06-06 18:20"]
+          })
+        });
+      }
+
+      if (action === "create-reship") {
+        const goodsList = row.goods.map(g => `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #f0f1f4;font-size:13px;">
+          <span>${g.name}</span><span>数量：${g.qty}</span>
+        </div>`).join("");
+        setModal({
+          title: "创建补寄出库申请",
+          wide: true,
+          body: `
+            <div class="form-group">
+              <label class="form-label">出库仓/云仓</label>
+              <select class="form-select">
+                <option>番禺云仓</option><option>天河仓</option><option>珠江新城仓</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">补寄商品</label>
+              ${goodsList}
+            </div>
+            <div class="form-group">
+              <label class="form-label">补寄运费承担方</label>
+              <select class="form-select">
+                <option>商家承担</option><option>物流承担</option><option>云仓承担</option><option>线下协商</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">给云仓说明</label>
+              <textarea class="form-textarea" placeholder="请优先发出，补齐少件"></textarea>
+              <div class="form-hint">注：快递公司和物流单号由云仓发货后回传，此处无需填写</div>
+            </div>
+          `,
+          confirmText: "确认创建并推送云仓",
+          onConfirm: () => mutateRow(id, {
+            status: "待补寄出库", statusKey: "pending_reship",
+            subStatus: "已推送云仓，等待发货", actions: [],
+            requestInfo: { ...row.requestInfo, desc: "补寄出库申请已创建并推送云仓，等待云仓发货。" },
+            operatorTrail: [...row.operatorTrail, "创建出库申请：2026-06-06 18:20", "已推送番禺云仓"]
+          })
+        });
+      }
+    }
+
+    function bindInteractions() {
+      // 整行点击打开抽屉
+      document.querySelectorAll("tr.table-row").forEach((tr) => {
+        tr.addEventListener("click", () => openDrawer(tr.getAttribute("data-row-id")));
+      });
+      // 绑定抽屉/页面中的操作按钮
+      bindActionButtons();
+    }
+
+    function bindActionButtons() {
+      document.querySelectorAll("[data-action]").forEach((node) => {
+        // 避免重复绑定
+        if (node._bound) return;
+        node._bound = true;
+        node.addEventListener("click", (e) => {
+          e.stopPropagation();
+          handleAction(node.getAttribute("data-action"), node.getAttribute("data-id"));
+        });
+      });
+    }
+
+    function openDrawer(id) {
+      state.activeRowId = id;
+      renderDrawer();
+      drawer.classList.add("show");
+      drawerMask.classList.add("show");
+      // 重新绑定抽屉内的操作按钮
+      bindActionButtons();
+    }
+
+    function renderAll() {
+      const list = getFilteredRows();
+      renderStatusTabs();
+      renderTable(list);
+      renderDrawer();
+      bindInteractions();
+    }
+
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      state.keyword = keywordInput.value.trim();
+      renderAll();
+    });
+    document.getElementById("closeDrawerBtn").addEventListener("click", closeDrawer);
+    drawerMask.addEventListener("click", closeDrawer);
+    modalMask.addEventListener("click", closeModal);
+    document.getElementById("modalCancelBtn").addEventListener("click", closeModal);
+
+    // 窗口 resize 时重新同步行高
+    window.addEventListener("resize", syncRowHeights);
+
+    renderAll();
+  </script>
+</body>
+</html>

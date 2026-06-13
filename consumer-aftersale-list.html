@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C端售后列表</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --surface-soft: #fafafb;
+      --text: #222222;
+      --muted: #8f8f99;
+      --subtle: #666666;
+      --line: #eeeeee;
+      --accent: #ff453a;
+      --accent-2: #ff6d42;
+      --accent-soft: #fff1ef;
+      --link: #2f7dff;
+      --success: #18a058;
+      --warning: #f97316;
+      --danger: #e5484d;
+      --closed: #657085;
+      --shadow: 0 14px 32px rgba(31, 35, 41, 0.08);
+      --font: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background:
+        linear-gradient(180deg, #ffffff 0px, #f5f5f7 180px, #f5f5f7 100%);
+      color: var(--text);
+    }
+
+    button { font: inherit; }
+
+    .phone {
+      width: 390px;
+      min-height: 844px;
+      margin: 0 auto;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-bar {
+      height: 44px;
+      padding: 12px 18px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .island {
+      width: 124px;
+      height: 30px;
+      border-radius: 20px;
+      background: #111;
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .nav {
+      height: 52px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.92);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      border-bottom: 1px solid rgba(238, 238, 238, 0.8);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .nav-side,
+    .nav-right {
+      width: 56px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #42424d;
+      font-size: 18px;
+    }
+
+    .nav-right { justify-content: flex-end; }
+
+    .capsule {
+      width: 34px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid #dadbe0;
+      background: #fff;
+    }
+
+    .tabs-wrap {
+      padding: 8px 0 0;
+      background: rgba(255, 255, 255, 0.92);
+      position: sticky;
+      top: 52px;
+      z-index: 4;
+      border-bottom: 1px solid rgba(238, 238, 238, 0.86);
+      backdrop-filter: blur(18px);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 18px;
+      padding: 0 16px 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      white-space: nowrap;
+    }
+
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      position: relative;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 0 0 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .list {
+      padding: 14px 16px 112px;
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .summary-chip {
+      min-width: 0;
+      padding: 10px 6px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid rgba(238, 238, 238, 0.92);
+      text-align: center;
+    }
+
+    .summary-chip strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .summary-chip span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .aftersale-card {
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(238, 238, 238, 0.92);
+      cursor: pointer;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .after-no-head {
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.4;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .state-wrap {
+      text-align: right;
+      flex: 0 0 auto;
+      max-width: 132px;
+      min-width: 0;
+    }
+
+    .state {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.25;
+      justify-content: flex-end;
+    }
+
+    .state::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      flex: 0 0 auto;
+    }
+
+    .state.processing { color: var(--warning); }
+    .state.todo { color: var(--accent); }
+    .state.done { color: var(--success); }
+    .state.closed { color: var(--closed); }
+
+    .apply-time {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .sub-state {
+      margin-top: 5px;
+      color: var(--subtle);
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .type-tag {
+      height: 24px;
+      padding: 0 9px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      flex: 0 0 auto;
+    }
+
+    .type-line {
+      margin-top: 8px;
+    }
+
+    .type-tag.reship {
+      background: #eef5ff;
+      color: #2458d3;
+    }
+
+    .type-tag.closed {
+      background: #f2f3f5;
+      color: var(--closed);
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--surface-soft);
+    }
+
+    .item + .item {
+      margin-top: 10px;
+    }
+
+    .thumb {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: rgba(255,255,255,0.88);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.35;
+      overflow: hidden;
+    }
+
+    .item-title {
+      margin: 0 0 6px;
+      font-size: 15px;
+      line-height: 1.42;
+      font-weight: 500;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .sku,
+    .after-no,
+    .summary {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .amount-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .amount {
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .hint {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f7f8fa;
+      color: var(--subtle);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .hint.todo {
+      background: #fff7ed;
+      color: #b45309;
+    }
+
+    .hint.done {
+      background: #eaf8ee;
+      color: #167246;
+    }
+
+    .hint.closed {
+      background: #f2f3f5;
+      color: var(--closed);
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-top: 14px;
+    }
+
+    .total {
+      min-width: 0;
+      flex: 1 1 auto;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .total-amount {
+      color: var(--accent);
+    }
+
+    .postage {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      flex: 0 0 auto;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 0;
+      min-width: 74px;
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn.ghost {
+      background: #fff;
+      color: var(--subtle);
+      box-shadow: inset 0 0 0 1px #d8d9df;
+    }
+
+    .btn.primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 24px rgba(255, 84, 63, 0.24);
+    }
+
+    .empty {
+      margin-top: 80px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .home-indicator {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 8px;
+      width: 138px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(17, 17, 17, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <div class="island" aria-hidden="true"></div>
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>5G&nbsp;&nbsp;100%</span>
+    </div>
+
+    <header class="nav">
+      <div class="nav-side">‹</div>
+      <div class="nav-title">售后列表</div>
+      <div class="nav-right">
+        <div class="capsule" aria-hidden="true"></div>
+      </div>
+    </header>
+
+    <div class="tabs-wrap">
+      <div class="tabs" id="tabs" aria-label="售后状态筛选"></div>
+    </div>
+
+    <section class="list" id="list"></section>
+
+    <div class="home-indicator" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    const tabs = [
+      { key: "all", label: "全部" },
+      { key: "待商家审批", label: "待商家审批" },
+      { key: "待客户寄回", label: "待客户寄回" },
+      { key: "待商家收货", label: "待商家收货" },
+      { key: "待商家退款", label: "待商家退款" },
+      { key: "待补寄发货", label: "待补寄发货" },
+      { key: "待客户收货", label: "待客户收货" },
+      { key: "售后完成", label: "售后完成" },
+      { key: "售后关闭", label: "售后关闭" }
+    ];
+
+    const aftersales = [
+  {state:'待商家审批',subState:'退款退货申请',group:'processing',type:'退款退货',detailType:'return',scene:'pending_review',time:'2026.06.10 10:00',no:'RF260610100043702145',amountLabel:'申请退款',amount:'¥187.00',postageAmount:'¥8.00',desc:'退货退款申请已提交，请等待商家处理',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:1,color:'#2e2218',tc:'#c9a97a',label:'保温杯'},{title:'精致礼品袋（标准款）',spec:'标准款',qty:1,color:'#1a1a2e',tc:'#8888cc',label:'礼品袋'}],actions:[{text:'撤销申请',style:'ghost',sheet:'cancelConfirm'},{text:'查看详情',style:'primary'}]},
+  {state:'待客户寄回',group:'mine',type:'退款退货',detailType:'return',scene:'pending_return',time:'2026.06.09 20:15',no:'RF2606092015551623687720',amountLabel:'申请退款',amount:'¥39.00',desc:'商家已同意，请及时寄回商品',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'ghost'},{text:'填写物流',style:'primary',sheet:'returnLogistics'}]},
+  {state:'待商家收货',group:'processing',type:'退款退货',detailType:'return',scene:'pending_receive',time:'2026.06.09 20:42',no:'RF2606092042181623687721',amountLabel:'申请退款',amount:'¥39.00',desc:'商品已寄回，等待商家确认收货',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'ghost'},{text:'查看物流',style:'primary',sheet:'returnTrack'}]},
+  {state:'待商家退款',group:'processing',type:'退款退货',detailType:'return',scene:'pending_refund',time:'2026.06.10 09:18',no:'RF2606100918001623687722',amountLabel:'申请退款',amount:'¥39.00',desc:'商家已确认收货，等待退款处理',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'售后完成',subState:'退款成功',group:'done',type:'退款退货',detailType:'return',scene:'refund_success_full',time:'2026.06.10 11:24',no:'RF2606101124361623687723',amountLabel:'实际退款',amount:'¥39.00',desc:'本次售后已处理完成',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'售后完成',subState:'退款成功',group:'done',type:'退款退货',detailType:'return',scene:'refund_success_adjusted',time:'2026.06.10 12:08',no:'RF2606101208421623687724',amountLabel:'实际退款',amount:'¥27.00',desc:'仓库验收后调整退款金额，售后已完成',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'售后关闭',subState:'客户撤销',group:'closed',type:'退款退货',detailType:'return',scene:'canceled_by_customer',time:'2026.06.09 20:16',no:'RF2606092016281623687725',amountLabel:'申请退款',amount:'¥39.00',desc:'客户主动撤销，本次售后已关闭',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'售后关闭',subState:'超时撤销',group:'closed',type:'退款退货',detailType:'return',scene:'canceled_timeout',time:'2026.06.16 20:15',no:'RF2606162015001623687726',amountLabel:'申请退款',amount:'¥39.00',desc:'客户超时未寄回，系统已自动关闭售后',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'售后关闭',subState:'商家拒绝',group:'closed',type:'退款退货',detailType:'return',scene:'rejected',time:'2026.06.09 20:18',no:'RF2606092018361623687727',amountLabel:'申请退款',amount:'¥39.00',desc:'商家拒绝申请，可进入详情查看原因',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'待商家审批',subState:'待发货全额退款',group:'processing',type:'仅退款',detailType:'refund',scene:'refund_pending_pre_full',time:'2026.06.10 10:24',no:'RF2606101024551623688801',amountLabel:'申请退款',amount:'¥195.00',postageAmount:'¥8.00',desc:'待发货整单退款申请已提交，请等待商家处理',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:3,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:2,color:'#2e2218',tc:'#c9a97a',label:'保温杯'},{title:'精致礼品袋（标准款）',spec:'标准款',qty:1,color:'#1a1a2e',tc:'#8888cc',label:'礼品袋'}],actions:[{text:'撤销申请',style:'ghost',sheet:'cancelConfirm'},{text:'查看详情',style:'primary'}]},
+  {state:'待商家审批',subState:'待发货部分退款',group:'processing',type:'仅退款',detailType:'refund',scene:'refund_pending_pre_partial',time:'2026.06.10 10:28',no:'RF2606101028161623688802',amountLabel:'申请退款',amount:'¥39.00',desc:'部分商品仅退款申请已提交，请等待商家处理',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'撤销申请',style:'ghost',sheet:'cancelConfirm'},{text:'查看详情',style:'primary'}]},
+  {state:'待商家审批',subState:'已发货未收货退款',group:'processing',type:'仅退款',detailType:'refund',scene:'refund_pending_shipped',time:'2026.06.10 10:31',no:'RF2606101031551623688803',amountLabel:'申请退款',amount:'¥167.00',desc:'已发货未收货，仅退款申请等待商家审核',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:1,color:'#2e2218',tc:'#c9a97a',label:'保温杯'}],actions:[{text:'撤销申请',style:'ghost',sheet:'cancelConfirm'},{text:'查看详情',style:'primary'}]},
+  {state:'售后关闭',subState:'客户撤销',group:'closed',type:'仅退款',detailType:'refund',scene:'refund_canceled_by_customer',time:'2026.06.10 10:28',no:'RF2606101028161623688804',amountLabel:'申请退款',amount:'¥39.00',desc:'客户主动撤销，仅退款售后已关闭',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'售后关闭',subState:'商家拒绝',group:'closed',type:'仅退款',detailType:'refund',scene:'refund_rejected',time:'2026.06.10 10:36',no:'RF2606101036201623688805',amountLabel:'申请退款',amount:'¥128.00',desc:'商家拒绝申请，可进入详情查看原因',goods:[{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:1,color:'#2e2218',tc:'#c9a97a',label:'保温杯'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'待商家退款',group:'processing',type:'仅退款',detailType:'refund',scene:'refund_pending_refund',time:'2026.06.10 10:36',no:'RF2606101036221623688806',amountLabel:'申请退款',amount:'¥167.00',desc:'商家已同意，仅退款等待财务处理',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:1,color:'#2e2218',tc:'#c9a97a',label:'保温杯'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'售后完成',subState:'退款成功',group:'done',type:'仅退款',detailType:'refund',scene:'refund_success_full',time:'2026.06.10 11:08',no:'RF2606101108121623688807',amountLabel:'实际退款',amount:'¥195.00',postageAmount:'¥8.00',desc:'仅退款已按申请金额完成',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:3,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:2,color:'#2e2218',tc:'#c9a97a',label:'保温杯'},{title:'精致礼品袋（标准款）',spec:'标准款',qty:1,color:'#1a1a2e',tc:'#8888cc',label:'礼品袋'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'售后完成',subState:'退款成功',group:'done',type:'仅退款',detailType:'refund',scene:'refund_success_adjusted',time:'2026.06.10 11:18',no:'RF2606101118421623688808',amountLabel:'实际退款',amount:'¥165.00',postageAmount:'¥8.00',desc:'财务调整退款金额后完成退款',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:1,color:'#2e2218',tc:'#c9a97a',label:'保温杯'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'待商家退款',group:'processing',type:'仅退款',detailType:'refund',scene:'refund_processing_failed',time:'2026.06.10 11:20',no:'RF2606101120001623688809',amountLabel:'申请退款',amount:'¥167.00',desc:'退款已发起，等待支付渠道返回结果',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:1,color:'#2e2218',tc:'#c9a97a',label:'保温杯'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'待补寄发货',subState:'待创建补寄',group:'processing',type:'补寄',detailType:'reship',scene:'reship_create',time:'2026.06.10 10:24',no:'RP26061010240001',amountLabel:'补寄数量',amount:'x1',desc:'商家已同意补寄，等待创建补寄单',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'待补寄发货',subState:'待仓库发货',group:'processing',type:'补寄',detailType:'reship',scene:'reship_ship',time:'2026.06.10 10:38',no:'RP26061010380002',amountLabel:'补寄数量',amount:'x2',desc:'补寄单已创建，等待仓库发货',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:2,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
+  {state:'待客户收货',group:'mine',type:'补寄',detailType:'reship',scene:'reship_receive',time:'2026.06.10 14:20',no:'RP26061014201203',amountLabel:'补寄数量',amount:'x1',desc:'补寄商品已发货，请确认收货',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看物流',style:'ghost',sheet:'reshipTrack'},{text:'确认收货',style:'primary',sheet:'reshipReceiveConfirm'}]},
+  {state:'售后完成',subState:'补寄完成',group:'done',type:'补寄',detailType:'reship',scene:'reship_done',time:'2026.06.12 16:08',no:'RP26061216083004',amountLabel:'补寄数量',amount:'x1',desc:'补寄商品已确认收货，售后完成',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
+];
+
+    function stateClass(item) {
+      if (item.group === "mine") return "todo";
+      if (item.group === "done") return "done";
+      if (item.group === "closed") return "closed";
+      return "processing";
+    }
+
+    function skuUnitPrice(good) {
+      if (good.title.includes("保温杯")) return 128;
+      if (good.title.includes("礼品袋")) return 12;
+      return 39;
+    }
+
+    function fmtMoney(value) {
+      return `¥${Number(value).toFixed(2)}`;
+    }
+
+    function parseMoney(value) {
+      return Number(String(value || "0").replace(/[^\d.-]/g, "")) || 0;
+    }
+
+    function isRefundDoneItem(item) {
+      return item.state === "售后完成" && item.detailType !== "reship";
+    }
+
+    function isReshipItem(item) {
+      return item.detailType === "reship";
+    }
+
+    function itemTotalLabel(item) {
+      if (isReshipItem(item)) return item.totalLabel || "补寄商品";
+      return item.totalLabel || (isRefundDoneItem(item) ? "实际总金额" : "申请总金额");
+    }
+
+    function itemTotalAmount(item) {
+      if (item.totalAmount) return item.totalAmount;
+      if (isReshipItem(item)) {
+        const count = (item.goods || []).reduce((sum, good) => sum + (good.reshipQty || good.qty || 1), 0);
+        return `共${count}件`;
+      }
+      return item.amount;
+    }
+
+    function postageText(item) {
+      const postage = item.postageAmount;
+      if (!postage || postage === "¥0.00" || postage === "¥ 0.00") return "";
+      return `（含邮费 ${postage}）`;
+    }
+
+    function allocatedRefundAmount(item, good, index) {
+      if (good.refundAmount) return good.refundAmount;
+      const goods = item.goods || [];
+      const goodsTotal = parseMoney(item.amount);
+      if (goodsTotal <= 0) return fmtMoney(skuUnitPrice(good) * (good.qty || 1));
+      const weights = goods.map(sku => skuUnitPrice(sku) * (sku.qty || 1));
+      const weightTotal = weights.reduce((sum, value) => sum + value, 0) || 1;
+      const allocated = index === goods.length - 1
+        ? goodsTotal - weights.slice(0, index).reduce((sum, value) => sum + (Math.round(goodsTotal * (value / weightTotal) * 100) / 100), 0)
+        : Math.round(goodsTotal * (weights[index] / weightTotal) * 100) / 100;
+      return fmtMoney(allocated);
+    }
+
+    function goodsLineText(item, good, index) {
+      if (isReshipItem(item)) return `补寄数量 x${good.reshipQty || good.qty || 1}`;
+      const label = good.refundLabel || (isRefundDoneItem(item) ? "实际退款" : "申请退款");
+      const amount = allocatedRefundAmount(item, good, index);
+      return `${label} ${amount}`;
+    }
+
+    let activeTab = "all";
+
+    function visibleItems() {
+      if (activeTab === "all") return aftersales;
+      return aftersales.filter(item => item.state === activeTab);
+    }
+
+    function detailUrl(item, action = {}) {
+      const params = new URLSearchParams({
+        page: "detail",
+        type: item.detailType,
+        scene: item.scene
+      });
+      if (action.sheet) params.set("sheet", action.sheet);
+      return `./aftersale_v5.html?${params.toString()}`;
+    }
+
+    function openDetail(item, action) {
+      window.location.href = detailUrl(item, action);
+    }
+
+    function renderTabs() {
+      document.getElementById("tabs").innerHTML = tabs.map(tab => `
+        <button class="tab ${activeTab === tab.key ? "active" : ""}" type="button" data-tab="${tab.key}">
+          ${tab.label}
+        </button>
+      `).join("");
+      document.querySelectorAll("[data-tab]").forEach(button => {
+        button.addEventListener("click", () => {
+          activeTab = button.dataset.tab;
+          render();
+        });
+      });
+    }
+
+    function renderCard(item, index) {
+      const cls = stateClass(item);
+      const tagClass = item.detailType === "reship" ? "reship" : item.group === "closed" ? "closed" : "";
+      const hintClass = cls === "todo" ? "todo" : cls === "done" ? "done" : cls === "closed" ? "closed" : "";
+      const goods = item.goods || [];
+      const goodsHtml = (goods.length ? goods : [{ title: "商品信息", spec: "默认规格", qty: 1, color: "#1a3020", label: "商品" }]).map((good, goodIndex) => `
+        <div class="item">
+          <div class="thumb" style="background:${good.color};">${good.label}</div>
+          <div>
+            <p class="item-title">${good.title}</p>
+            <p class="sku">${good.spec} · 数量 x${good.qty || 1}</p>
+            <div class="amount-row">
+              <span class="amount">${goodsLineText(item, good, goodIndex)}</span>
+            </div>
+          </div>
+        </div>
+      `).join("");
+      return `
+        <article class="aftersale-card" data-card="${index}">
+          <div class="card-top">
+            <div class="card-meta">
+              <div class="after-no-head">售后编号 ${item.no}</div>
+              <div class="apply-time">申请时间 ${item.time}</div>
+            </div>
+            <div class="state-wrap">
+              <div class="state ${cls}">${item.state}</div>
+              ${item.subState ? `<div class="sub-state">${item.subState}</div>` : ""}
+            </div>
+          </div>
+
+          <div class="type-line"><span class="type-tag ${tagClass}">${item.type}</span></div>
+          ${goodsHtml}
+
+          <div class="hint ${hintClass}">${item.desc}</div>
+
+          <div class="action-row">
+            <div class="total">
+              <span>${itemTotalLabel(item)} </span><span class="total-amount">${itemTotalAmount(item)}</span><span class="postage">${postageText(item)}</span>
+            </div>
+            <div class="buttons">
+              ${item.actions.map((action, actionIndex) => `
+                <button class="btn ${action.style}" type="button" data-action="${index}-${actionIndex}">
+                  ${action.text}
+                </button>
+              `).join("")}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function bindCardEvents(items) {
+      document.querySelectorAll("[data-card]").forEach(card => {
+        const item = items[Number(card.dataset.card)];
+        card.addEventListener("click", () => openDetail(item, {}));
+      });
+      document.querySelectorAll("[data-action]").forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          const [itemIndex, actionIndex] = button.dataset.action.split("-").map(Number);
+          const item = items[itemIndex];
+          openDetail(item, item.actions[actionIndex]);
+        });
+      });
+    }
+
+    function render() {
+      renderTabs();
+      const items = visibleItems();
+      const list = document.getElementById("list");
+      if (!items.length) {
+        list.innerHTML = `<div class="empty">暂无售后单</div>`;
+        return;
+      }
+      list.innerHTML = items.map(renderCard).join("");
+      bindCardEvents(items);
+    }
+
+    render();
+  </script>
+</body>
+</html>

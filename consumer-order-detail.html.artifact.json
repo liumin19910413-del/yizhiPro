@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "consumer-order-detail.html",
+  "entry": "consumer-order-detail.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-06-06T11:29:47.509Z",
+  "updatedAt": "2026-06-06T11:29:47.509Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

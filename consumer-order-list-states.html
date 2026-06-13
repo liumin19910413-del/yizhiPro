@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C端订单列表状态全集</title>
+  <style>
+    :root {
+      --page: #f3f4f8;
+      --surface: #ffffff;
+      --surface-soft: #fafafb;
+      --text: #222222;
+      --muted: #8f8f99;
+      --subtle: #666666;
+      --line: #eeeeee;
+      --accent: #ff453a;
+      --accent-2: #ff6d42;
+      --accent-soft: #fff1ef;
+      --link: #2f7dff;
+      --success: #18a058;
+      --warning: #f97316;
+      --purple: #7c3aed;
+      --disabled: #b7bac4;
+      --shadow: 0 14px 32px rgba(31, 35, 41, 0.08);
+      --font: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(255, 100, 70, 0.12), transparent 30%),
+        radial-gradient(circle at 90% 10%, rgba(47, 125, 255, 0.09), transparent 28%),
+        var(--page);
+      color: var(--text);
+    }
+
+    button { font-family: inherit; }
+
+    .board {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+    }
+
+    .board-head {
+      margin-bottom: 22px;
+      padding: 24px 28px;
+      border: 1px solid rgba(228, 230, 236, 0.88);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 12px 32px rgba(31, 35, 41, 0.06);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.25;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .head-desc {
+      margin: 10px 0 0;
+      max-width: 900px;
+      color: var(--subtle);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .gallery {
+      display: grid;
+      gap: 26px;
+    }
+
+    .group {
+      padding: 22px;
+      border: 1px solid rgba(228, 230, 236, 0.92);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 32px rgba(31, 35, 41, 0.05);
+    }
+
+    .group-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+      padding: 0 4px;
+    }
+
+    .group h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .group-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .group-tag {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .phones {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, 390px);
+      gap: 22px;
+      align-items: start;
+      justify-content: center;
+    }
+
+    .phone-wrap {
+      display: grid;
+      gap: 12px;
+    }
+
+    .phone-caption {
+      min-height: 52px;
+      padding: 0 4px;
+    }
+
+    .phone-caption strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 15px;
+    }
+
+    .phone-caption span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .phone {
+      width: 390px;
+      min-height: 844px;
+      background: #f5f5f7;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #e3e5eb;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .status-bar {
+      height: 44px;
+      padding: 12px 18px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .island {
+      width: 124px;
+      height: 30px;
+      border-radius: 20px;
+      background: #111;
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .nav {
+      height: 52px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid rgba(238, 238, 238, 0.8);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .nav-side,
+    .nav-right {
+      width: 56px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #42424d;
+      font-size: 18px;
+    }
+
+    .nav-right { justify-content: flex-end; }
+
+    .capsule {
+      width: 34px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid #dadbe0;
+      background: #fff;
+    }
+
+    .tabs-wrap {
+      padding: 8px 0 0;
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid rgba(238, 238, 238, 0.86);
+      backdrop-filter: blur(18px);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 18px;
+      padding: 0 16px 10px;
+      overflow-x: hidden;
+      white-space: nowrap;
+    }
+
+    .tab {
+      position: relative;
+      color: var(--muted);
+      font-size: 14px;
+      padding-bottom: 6px;
+    }
+
+    .tab.active {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .list {
+      padding: 14px 16px 96px;
+    }
+
+    .order-card {
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(238, 238, 238, 0.92);
+    }
+
+    .order-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .status {
+      flex: 0 0 auto;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .status.shipped { color: var(--warning); }
+    .status.pending { color: var(--accent); }
+    .status.after-sale { color: var(--purple); }
+    .status.done { color: var(--success); }
+    .status.closed { color: #5f6572; }
+    .status.disabled { color: var(--disabled); }
+
+    .item {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--surface-soft);
+    }
+
+    .thumb {
+      width: 88px;
+      height: 88px;
+      border-radius: 12px;
+      background:
+        linear-gradient(160deg, rgba(255, 110, 80, 0.28), rgba(255, 255, 255, 0.72)),
+        linear-gradient(45deg, #f7d4cb, #eceef7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .thumb.blue {
+      background:
+        linear-gradient(160deg, rgba(47, 125, 255, 0.22), rgba(255, 255, 255, 0.76)),
+        linear-gradient(45deg, #dbeafe, #f0fdf4);
+    }
+
+    .thumb.green {
+      background:
+        linear-gradient(160deg, rgba(24, 160, 88, 0.2), rgba(255, 255, 255, 0.78)),
+        linear-gradient(45deg, #dcfce7, #fef3c7);
+    }
+
+    .thumb.gray {
+      background:
+        linear-gradient(160deg, rgba(139, 147, 161, 0.18), rgba(255, 255, 255, 0.8)),
+        linear-gradient(45deg, #e5e7eb, #f4f4f5);
+    }
+
+    .thumb::after {
+      content: "";
+      position: absolute;
+      inset: 16px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .item-title {
+      margin: 0 0 6px;
+      font-size: 15px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    .sku {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 8px;
+    }
+
+    .price {
+      color: var(--accent);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .count {
+      color: var(--subtle);
+      font-size: 13px;
+    }
+
+    .hint {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      background: #f7f8fa;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .hint.warn {
+      background: #fff7ed;
+      color: #b45309;
+    }
+
+    .hint.disabled {
+      background: #f2f3f5;
+      color: #8b93a1;
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-top: 14px;
+    }
+
+    .summary {
+      font-size: 13px;
+      color: var(--subtle);
+      line-height: 1.5;
+    }
+
+    .summary b {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 0;
+      min-width: 84px;
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: default;
+      white-space: nowrap;
+    }
+
+    .btn.ghost {
+      background: #fff;
+      color: var(--subtle);
+      box-shadow: inset 0 0 0 1px #d8d9df;
+    }
+
+    .btn.primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 24px rgba(255, 84, 63, 0.24);
+    }
+
+    .btn.disabled {
+      background: #f0f1f4;
+      color: #a2a7b2;
+      box-shadow: inset 0 0 0 1px #e0e2e8;
+    }
+
+    .home-indicator {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 8px;
+      width: 138px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(17, 17, 17, 0.9);
+    }
+
+    @media (max-width: 460px) {
+      .board {
+        width: 100%;
+        padding: 0 0 28px;
+      }
+
+      .board-head,
+      .group {
+        border-right: 0;
+        border-left: 0;
+        border-radius: 0;
+      }
+
+      .phone,
+      .phones {
+        width: 390px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="board">
+    <header class="board-head">
+      <p class="eyebrow">页面状态全集 · C端消费者</p>
+      <h1>C端订单列表状态全集</h1>
+      <p class="head-desc">按真实订单列表页面穷举售后入口状态。这里先只展示 C 端订单列表，不混入 B 端后台；后续订单详情、售后申请、售后详情、B 端列表与弹窗会按同样方式逐页穷举。</p>
+    </header>
+
+    <div class="gallery">
+      <section class="group">
+        <div class="group-head">
+          <div>
+            <h2>发货商品订单入口</h2>
+            <p>覆盖待发货、已发货/待收货、已完成售后期内、已有售后进行中。</p>
+          </div>
+          <span class="group-tag">物流商品</span>
+        </div>
+        <div class="phones">
+          <div class="phone-wrap">
+            <div class="phone-caption">
+              <strong>待发货：申请退款</strong>
+              <span>点击后进入仅退款申请页，选择商品、SKU、数量。</span>
+            </div>
+            <article class="phone">
+              <div class="island" aria-hidden="true"></div>
+              <div class="status-bar"><span>9:41</span><span>5G&nbsp;&nbsp;100%</span></div>
+              <header class="nav">
+                <div class="nav-side">‹</div>
+                <div class="nav-title">我的订单</div>
+                <div class="nav-right"><div class="capsule"></div></div>
+              </header>
+              <div class="tabs-wrap">
+                <div class="tabs"><div class="tab">全部订单</div><div class="tab active">待发货</div><div class="tab">待收货</div><div class="tab">已完成</div></div>
+              </div>
+              <section class="list">
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606070001</span><span class="status pending">待发货</span></div>
+                  <div class="item">
+                    <div class="thumb"></div>
+                    <div>
+                      <p class="item-title">Ulike 美眼仪黑眼圈护眼仪美眼笔</p>
+                      <p class="sku">粉色 / 标准版 · 广州仓待发货</p>
+                      <div class="price-row"><span class="price">￥42.90</span><span class="count">x3</span></div>
+                    </div>
+                  </div>
+                  <div class="hint warn">待发货物流订单不弹普通确认框，进入仅退款申请页。</div>
+                  <div class="action-row">
+                    <div class="summary">共<b>3</b>件，实付款 <b>￥42.90</b></div>
+                    <div class="buttons"><button class="btn ghost">提醒发货</button><button class="btn primary">申请退款</button></div>
+                  </div>
+                </article>
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606070002</span><span class="status pending">待发货</span></div>
+                  <div class="item">
+                    <div class="thumb blue"></div>
+                    <div>
+                      <p class="item-title">DF3650 轻源起黄精枸杞五黑茶</p>
+                      <p class="sku">6g*10袋 / 盒 · 同 SKU 多件</p>
+                      <div class="price-row"><span class="price">￥39.00</span><span class="count">x2</span></div>
+                    </div>
+                  </div>
+                  <div class="action-row">
+                    <div class="summary">可部分退款，剩余商品继续发货</div>
+                    <div class="buttons"><button class="btn primary">申请退款</button></div>
+                  </div>
+                </article>
+              </section>
+              <div class="home-indicator"></div>
+            </article>
+          </div>
+
+          <div class="phone-wrap">
+            <div class="phone-caption">
+              <strong>已发货 / 待收货：申请售后</strong>
+              <span>点击后进入售后类型页，只展示仅退款和退货退款两个入口。</span>
+            </div>
+            <article class="phone">
+              <div class="island" aria-hidden="true"></div>
+              <div class="status-bar"><span>9:41</span><span>5G&nbsp;&nbsp;100%</span></div>
+              <header class="nav">
+                <div class="nav-side">‹</div>
+                <div class="nav-title">我的订单</div>
+                <div class="nav-right"><div class="capsule"></div></div>
+              </header>
+              <div class="tabs-wrap">
+                <div class="tabs"><div class="tab">全部订单</div><div class="tab">待发货</div><div class="tab active">待收货</div><div class="tab">已完成</div></div>
+              </div>
+              <section class="list">
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 260530130311623659047</span><span class="status shipped">已发货</span></div>
+                  <div class="item">
+                    <div class="thumb"></div>
+                    <div>
+                      <p class="item-title">DF3650 轻源起黄精枸杞五黑茶</p>
+                      <p class="sku">6g*10袋 / 盒 · 已发出</p>
+                      <div class="price-row"><span class="price">￥39.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="action-row">
+                    <div class="summary">共<b>1</b>件，实付款 <b>￥39.00</b></div>
+                    <div class="buttons"><button class="btn ghost">查看物流</button><button class="btn primary">申请售后</button></div>
+                  </div>
+                </article>
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606070003</span><span class="status shipped">待收货</span></div>
+                  <div class="item">
+                    <div class="thumb blue"></div>
+                    <div>
+                      <p class="item-title">水博士沁润补水套装</p>
+                      <p class="sku">礼盒装 / 1套 · 运输中</p>
+                      <div class="price-row"><span class="price">￥98.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="action-row">
+                    <div class="summary">物流状态 <b>派送中</b></div>
+                    <div class="buttons"><button class="btn ghost">查看物流</button><button class="btn primary">申请售后</button></div>
+                  </div>
+                </article>
+              </section>
+              <div class="home-indicator"></div>
+            </article>
+          </div>
+
+          <div class="phone-wrap">
+            <div class="phone-caption">
+              <strong>已完成 / 售后中</strong>
+              <span>售后期内仍可申请售后；已有售后进行中只展示售后详情。</span>
+            </div>
+            <article class="phone">
+              <div class="island" aria-hidden="true"></div>
+              <div class="status-bar"><span>9:41</span><span>5G&nbsp;&nbsp;100%</span></div>
+              <header class="nav">
+                <div class="nav-side">‹</div>
+                <div class="nav-title">我的订单</div>
+                <div class="nav-right"><div class="capsule"></div></div>
+              </header>
+              <div class="tabs-wrap">
+                <div class="tabs"><div class="tab">全部订单</div><div class="tab">待收货</div><div class="tab active">已完成</div><div class="tab">售后</div></div>
+              </div>
+              <section class="list">
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606060001</span><span class="status done">已完成</span></div>
+                  <div class="item">
+                    <div class="thumb green"></div>
+                    <div>
+                      <p class="item-title">琅瑄贸易 3 号修护精华</p>
+                      <p class="sku">30ml / 默认规格 · 售后期内</p>
+                      <div class="price-row"><span class="price">￥128.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="action-row">
+                    <div class="summary">交易完成于 <b>06-06 16:20</b></div>
+                    <div class="buttons"><button class="btn ghost">再次购买</button><button class="btn primary">申请售后</button></div>
+                  </div>
+                </article>
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 20260518000107323858</span><span class="status after-sale">售后中</span></div>
+                  <div class="item">
+                    <div class="thumb"></div>
+                    <div>
+                      <p class="item-title">水博士沁润补水套装</p>
+                      <p class="sku">礼盒装 / 1套 · 待商家处理</p>
+                      <div class="price-row"><span class="price">￥98.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="action-row">
+                    <div class="summary">申请退款金额 <b>￥50.00</b></div>
+                    <div class="buttons"><button class="btn primary">售后详情</button></div>
+                  </div>
+                </article>
+              </section>
+              <div class="home-indicator"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="group">
+        <div class="group-head">
+          <div>
+            <h2>非物流退款型订单入口</h2>
+            <p>确认后直接进入 B 端待退款，不进入申请页，不展示原因、说明、凭证、商品数量选择。</p>
+          </div>
+          <span class="group-tag">轻量退款</span>
+        </div>
+        <div class="phones">
+          <div class="phone-wrap">
+            <div class="phone-caption">
+              <strong>自提待自提 / 套餐未核销</strong>
+              <span>可退款时展示申请退款，点击后弹普通退款确认框。</span>
+            </div>
+            <article class="phone">
+              <div class="island" aria-hidden="true"></div>
+              <div class="status-bar"><span>9:41</span><span>5G&nbsp;&nbsp;100%</span></div>
+              <header class="nav">
+                <div class="nav-side">‹</div>
+                <div class="nav-title">我的订单</div>
+                <div class="nav-right"><div class="capsule"></div></div>
+              </header>
+              <div class="tabs-wrap">
+                <div class="tabs"><div class="tab active">全部订单</div><div class="tab">待自提</div><div class="tab">套餐</div><div class="tab">已完成</div></div>
+              </div>
+              <section class="list">
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606070101</span><span class="status pending">待自提</span></div>
+                  <div class="item">
+                    <div class="thumb green"></div>
+                    <div>
+                      <p class="item-title">门店自提护理套装</p>
+                      <p class="sku">广州天河店自提 · 未自提</p>
+                      <div class="price-row"><span class="price">￥188.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="action-row">
+                    <div class="summary">未自提前可申请整单退款</div>
+                    <div class="buttons"><button class="btn primary">申请退款</button></div>
+                  </div>
+                </article>
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606070102</span><span class="status done">未核销</span></div>
+                  <div class="item">
+                    <div class="thumb blue"></div>
+                    <div>
+                      <p class="item-title">肩颈舒缓护理套餐</p>
+                      <p class="sku">到店服务 · 2次卡未核销</p>
+                      <div class="price-row"><span class="price">￥268.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="action-row">
+                    <div class="summary">资产未使用，可整单退款</div>
+                    <div class="buttons"><button class="btn primary">申请退款</button></div>
+                  </div>
+                </article>
+              </section>
+              <div class="home-indicator"></div>
+            </article>
+          </div>
+
+          <div class="phone-wrap">
+            <div class="phone-caption">
+              <strong>储值资产 / 预定金可退</strong>
+              <span>资产满足回退条件或权益未使用时，订单列表展示申请退款。</span>
+            </div>
+            <article class="phone">
+              <div class="island" aria-hidden="true"></div>
+              <div class="status-bar"><span>9:41</span><span>5G&nbsp;&nbsp;100%</span></div>
+              <header class="nav">
+                <div class="nav-side">‹</div>
+                <div class="nav-title">我的订单</div>
+                <div class="nav-right"><div class="capsule"></div></div>
+              </header>
+              <div class="tabs-wrap">
+                <div class="tabs"><div class="tab active">全部订单</div><div class="tab">充值</div><div class="tab">预定</div><div class="tab">已完成</div></div>
+              </div>
+              <section class="list">
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606070201</span><span class="status done">资产可退</span></div>
+                  <div class="item">
+                    <div class="thumb green"></div>
+                    <div>
+                      <p class="item-title">会员储值卡开卡充值</p>
+                      <p class="sku">卡金￥500 · 赠送金未使用</p>
+                      <div class="price-row"><span class="price">￥500.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="action-row">
+                    <div class="summary">卡金满足回退条件</div>
+                    <div class="buttons"><button class="btn primary">申请退款</button></div>
+                  </div>
+                </article>
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606070202</span><span class="status done">权益未使用</span></div>
+                  <div class="item">
+                    <div class="thumb blue"></div>
+                    <div>
+                      <p class="item-title">夏季焕肤活动预定金</p>
+                      <p class="sku">￥10 抵 ￥20 · 权益未核销</p>
+                      <div class="price-row"><span class="price">￥10.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="action-row">
+                    <div class="summary">预定金权益未使用</div>
+                    <div class="buttons"><button class="btn primary">申请退款</button></div>
+                  </div>
+                </article>
+              </section>
+              <div class="home-indicator"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="group">
+        <div class="group-head">
+          <div>
+            <h2>不可申请 / 不展示入口</h2>
+            <p>超过售后期、已自提、已核销、资产不足、权益已使用时，不误展示可申请入口。</p>
+          </div>
+          <span class="group-tag">不可退</span>
+        </div>
+        <div class="phones">
+          <div class="phone-wrap">
+            <div class="phone-caption">
+              <strong>非物流不可退状态</strong>
+              <span>已自提、已核销、资产不足、权益已使用时隐藏主退款入口或置灰。</span>
+            </div>
+            <article class="phone">
+              <div class="island" aria-hidden="true"></div>
+              <div class="status-bar"><span>9:41</span><span>5G&nbsp;&nbsp;100%</span></div>
+              <header class="nav">
+                <div class="nav-side">‹</div>
+                <div class="nav-title">我的订单</div>
+                <div class="nav-right"><div class="capsule"></div></div>
+              </header>
+              <div class="tabs-wrap">
+                <div class="tabs"><div class="tab active">全部订单</div><div class="tab">已完成</div><div class="tab">不可退</div></div>
+              </div>
+              <section class="list">
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606050101</span><span class="status closed">已自提</span></div>
+                  <div class="item">
+                    <div class="thumb gray"></div>
+                    <div>
+                      <p class="item-title">门店自提护理套装</p>
+                      <p class="sku">广州天河店 · 已完成自提</p>
+                      <div class="price-row"><span class="price">￥188.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="hint disabled">已自提订单不允许退款。</div>
+                  <div class="action-row">
+                    <div class="summary">交易完成于 <b>06-05 14:30</b></div>
+                    <div class="buttons"><button class="btn ghost">再次购买</button></div>
+                  </div>
+                </article>
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606050102</span><span class="status disabled">已核销</span></div>
+                  <div class="item">
+                    <div class="thumb gray"></div>
+                    <div>
+                      <p class="item-title">肩颈舒缓护理套餐</p>
+                      <p class="sku">2次卡 · 已核销1次</p>
+                      <div class="price-row"><span class="price">￥268.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="hint disabled">套餐次数已使用，不展示申请退款。</div>
+                </article>
+              </section>
+              <div class="home-indicator"></div>
+            </article>
+          </div>
+
+          <div class="phone-wrap">
+            <div class="phone-caption">
+              <strong>资产 / 权益限制</strong>
+              <span>储值资产不足或预定金权益已使用，不展示可退款主入口。</span>
+            </div>
+            <article class="phone">
+              <div class="island" aria-hidden="true"></div>
+              <div class="status-bar"><span>9:41</span><span>5G&nbsp;&nbsp;100%</span></div>
+              <header class="nav">
+                <div class="nav-side">‹</div>
+                <div class="nav-title">我的订单</div>
+                <div class="nav-right"><div class="capsule"></div></div>
+              </header>
+              <div class="tabs-wrap">
+                <div class="tabs"><div class="tab active">全部订单</div><div class="tab">充值</div><div class="tab">预定</div></div>
+              </div>
+              <section class="list">
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606040201</span><span class="status disabled">资产不足</span></div>
+                  <div class="item">
+                    <div class="thumb gray"></div>
+                    <div>
+                      <p class="item-title">会员储值卡开卡充值</p>
+                      <p class="sku">卡金已消费 · 不满足回退条件</p>
+                      <div class="price-row"><span class="price">￥500.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="hint disabled">当前账户资产不足以回退，本单不可申请退款。</div>
+                </article>
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202606040202</span><span class="status disabled">权益已使用</span></div>
+                  <div class="item">
+                    <div class="thumb gray"></div>
+                    <div>
+                      <p class="item-title">夏季焕肤活动预定金</p>
+                      <p class="sku">抵扣权益已用于后续订单</p>
+                      <div class="price-row"><span class="price">￥10.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="hint disabled">预定金权益已使用，不展示退款入口。</div>
+                </article>
+              </section>
+              <div class="home-indicator"></div>
+            </article>
+          </div>
+
+          <div class="phone-wrap">
+            <div class="phone-caption">
+              <strong>物流商品超过售后期</strong>
+              <span>交易已完成但超过售后期，不展示申请售后或置灰提示原因。</span>
+            </div>
+            <article class="phone">
+              <div class="island" aria-hidden="true"></div>
+              <div class="status-bar"><span>9:41</span><span>5G&nbsp;&nbsp;100%</span></div>
+              <header class="nav">
+                <div class="nav-side">‹</div>
+                <div class="nav-title">我的订单</div>
+                <div class="nav-right"><div class="capsule"></div></div>
+              </header>
+              <div class="tabs-wrap">
+                <div class="tabs"><div class="tab">全部订单</div><div class="tab active">已完成</div><div class="tab">售后</div></div>
+              </div>
+              <section class="list">
+                <article class="order-card">
+                  <div class="order-top"><span>订单编号 202605010001</span><span class="status done">已完成</span></div>
+                  <div class="item">
+                    <div class="thumb gray"></div>
+                    <div>
+                      <p class="item-title">琅瑄贸易 2 号修护面膜</p>
+                      <p class="sku">5片装 / 默认规格 · 已过售后期</p>
+                      <div class="price-row"><span class="price">￥59.00</span><span class="count">x1</span></div>
+                    </div>
+                  </div>
+                  <div class="hint disabled">已超过售后申请期限。</div>
+                  <div class="action-row">
+                    <div class="summary">交易完成于 <b>05-01 10:10</b></div>
+                    <div class="buttons"><button class="btn ghost">再次购买</button><button class="btn disabled">申请售后</button></div>
+                  </div>
+                </article>
+              </section>
+              <div class="home-indicator"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

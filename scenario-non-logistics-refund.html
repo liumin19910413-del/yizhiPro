@@ -1,0 +1,1375 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>非物流订单仅退款流程</title>
+  <style>
+    :root {
+      --page: #f4f6f9;
+      --surface: #ffffff;
+      --surface-soft: #f7f8fa;
+      --line: #e7e9ee;
+      --text: #202124;
+      --muted: #7b8190;
+      --soft: #a0a6b2;
+      --c-red: #ff453a;
+      --c-orange: #ff6d42;
+      --c-soft: #fff1ef;
+      --b-blue: #2f7dff;
+      --b-blue-soft: #edf4ff;
+      --green: #18a058;
+      --green-soft: #eaf8ee;
+      --amber: #f59e0b;
+      --amber-soft: #fff7e8;
+      --shadow: 0 18px 42px rgba(31, 35, 41, 0.08);
+      --font: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 1180px;
+      background: var(--page);
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .scenario {
+      padding: 22px 24px 30px;
+    }
+
+    .scenario-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--b-blue);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .summary {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .stage-pills {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .stage-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 34px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .stage-pill.active {
+      border-color: rgba(47, 125, 255, 0.26);
+      background: var(--b-blue-soft);
+      color: var(--b-blue);
+    }
+
+    .stage-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 500px minmax(650px, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section {
+      min-height: 790px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
+      overflow: hidden;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 54px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .consumer-zone {
+      padding: 16px;
+      background: linear-gradient(180deg, #fff 0%, #fafafb 100%);
+    }
+
+    .phone-flow {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .phone {
+      width: 154px;
+      min-height: 330px;
+      border: 1px solid #dfe2e8;
+      border-radius: 26px;
+      background: #f5f5f7;
+      box-shadow: 0 12px 28px rgba(31, 35, 41, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .phone.active {
+      border-color: rgba(255, 69, 58, 0.46);
+      box-shadow: 0 16px 34px rgba(255, 69, 58, 0.13);
+    }
+
+    .phone-bar {
+      height: 24px;
+      padding: 6px 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      font-size: 8px;
+      font-weight: 700;
+    }
+
+    .phone-nav {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #efeff3;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      position: relative;
+    }
+
+    .phone-nav::before {
+      content: "<";
+      position: absolute;
+      left: 10px;
+      color: #444;
+      font-size: 13px;
+    }
+
+    .phone-content {
+      padding: 9px;
+    }
+
+    .phone-hero {
+      margin-bottom: 8px;
+      padding: 10px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--c-red), var(--c-orange));
+      color: #fff;
+    }
+
+    .phone-hero strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 14px;
+    }
+
+    .phone-hero span {
+      display: block;
+      font-size: 10px;
+      line-height: 1.4;
+      color: rgba(255, 255, 255, 0.86);
+    }
+
+    .mini-card {
+      margin-bottom: 8px;
+      padding: 9px;
+      border-radius: 12px;
+      border: 1px solid #eeeeee;
+      background: #fff;
+    }
+
+    .mini-card.soft {
+      background: #fafafb;
+    }
+
+    .mini-title {
+      margin: 0 0 5px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .mini-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 18px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.4;
+    }
+
+    .mini-line b {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .mini-money {
+      color: var(--c-red);
+      font-weight: 800;
+    }
+
+    .mini-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 18px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: var(--c-soft);
+      color: var(--c-red);
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .mini-product {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .mini-thumb {
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #ffe0da, #eef2ff);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .mini-actions {
+      display: flex;
+      gap: 5px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .mini-btn {
+      height: 22px;
+      border: 0;
+      border-radius: 999px;
+      padding: 0 8px;
+      font-size: 9px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .mini-btn.primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--c-red), var(--c-orange));
+      box-shadow: 0 8px 16px rgba(255, 69, 58, 0.18);
+    }
+
+    .mini-btn.ghost {
+      background: #fff;
+      color: #555b66;
+      box-shadow: inset 0 0 0 1px #d8dbe2;
+    }
+
+    .phone-bottom {
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      bottom: 7px;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(17, 17, 17, 0.88);
+    }
+
+    .step-note {
+      width: 154px;
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .phone-step {
+      position: relative;
+    }
+
+    .phone-step::after {
+      content: "";
+      position: absolute;
+      top: 164px;
+      right: -10px;
+      width: 14px;
+      height: 1px;
+      background: #cfd4dd;
+    }
+
+    .phone-step:nth-child(3)::after,
+    .phone-step:nth-child(6)::after {
+      display: none;
+    }
+
+    .dialog-demo {
+      position: absolute;
+      inset: 56px 0 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 2;
+    }
+
+    .dialog-demo.show,
+    .phone.dialog-visible .dialog-demo {
+      display: flex;
+    }
+
+    .dialog-box {
+      width: 126px;
+      overflow: hidden;
+      border-radius: 9px;
+      background: #fff;
+      text-align: center;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+    }
+
+    .dialog-body {
+      padding: 14px 12px 10px;
+    }
+
+    .dialog-body strong {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 12px;
+    }
+
+    .dialog-body p {
+      margin: 0;
+      color: #555;
+      font-size: 9px;
+      line-height: 1.5;
+    }
+
+    .dialog-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid #eee;
+    }
+
+    .dialog-actions button {
+      height: 31px;
+      border: 0;
+      background: #fff;
+      color: #999;
+      font-size: 10px;
+      cursor: pointer;
+    }
+
+    .dialog-actions button + button {
+      border-left: 1px solid #eee;
+      color: var(--c-red);
+      font-weight: 700;
+    }
+
+    .merchant-zone {
+      padding: 16px;
+      background: #f5f6f8;
+    }
+
+    .merchant-shell {
+      display: grid;
+      grid-template-columns: 54px 104px 1fr;
+      min-height: 574px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .m-primary {
+      padding: 12px 8px;
+      border-right: 1px solid var(--line);
+      background: #f8f9fb;
+    }
+
+    .m-logo {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      margin: 0 auto 18px;
+      border-radius: 9px;
+      background: linear-gradient(160deg, #3f8cff, #2256d8);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .m-nav {
+      height: 38px;
+      margin: 8px 0;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #8b93a1;
+      font-size: 11px;
+    }
+
+    .m-nav.active {
+      background: var(--b-blue);
+      color: #fff;
+    }
+
+    .m-side {
+      padding: 14px 10px;
+      border-right: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .m-group-title {
+      margin: 0 0 8px;
+      color: #2f3440;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .m-menu {
+      height: 32px;
+      padding: 0 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 7px;
+      color: #667085;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .m-menu.active {
+      background: var(--b-blue-soft);
+      color: var(--b-blue);
+      font-weight: 700;
+    }
+
+    .m-main {
+      min-width: 0;
+      background: #f5f6f8;
+    }
+
+    .m-top {
+      height: 46px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .m-top strong {
+      font-size: 14px;
+    }
+
+    .m-top span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .m-content {
+      padding: 14px;
+    }
+
+    .m-panel {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .m-filters {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .m-filter-left,
+    .m-filter-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .m-select,
+    .m-input,
+    .m-btn {
+      height: 30px;
+      border: 1px solid #d9dce3;
+      border-radius: 7px;
+      background: #fff;
+      color: #303441;
+      font-size: 12px;
+    }
+
+    .m-select {
+      min-width: 90px;
+      padding: 0 8px;
+    }
+
+    .m-input {
+      width: 154px;
+      padding: 0 10px;
+    }
+
+    .m-btn {
+      padding: 0 12px;
+      color: #fff;
+      border-color: var(--b-blue);
+      background: var(--b-blue);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .m-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .m-tab {
+      height: 28px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      background: #f2f3f5;
+      color: #5d6675;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .m-tab.active {
+      color: var(--b-blue);
+      background: var(--b-blue-soft);
+    }
+
+    .m-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .m-table th {
+      height: 34px;
+      padding: 0 8px;
+      background: #f7f8fa;
+      color: #5d6675;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    .m-table td {
+      padding: 9px 8px;
+      border-bottom: 1px solid #f0f1f4;
+      color: #303441;
+      vertical-align: top;
+    }
+
+    .m-table tr.active-row {
+      background: #fbfdff;
+      outline: 2px solid rgba(47, 125, 255, 0.16);
+      outline-offset: -2px;
+    }
+
+    .m-money {
+      color: var(--c-red);
+      font-weight: 800;
+    }
+
+    .status-label {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-label.wait {
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .status-label.doing {
+      color: var(--b-blue);
+      background: var(--b-blue-soft);
+    }
+
+    .status-label.done {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .m-detail-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .detail-card {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .detail-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 42px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .detail-head strong {
+      font-size: 13px;
+    }
+
+    .detail-body {
+      padding: 12px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 25px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .detail-row b {
+      color: #303441;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .result-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .result-item {
+      padding: 9px;
+      border-radius: 8px;
+      background: #f7f8fa;
+      border: 1px solid #eef0f4;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .result-item.active {
+      border-color: rgba(47, 125, 255, 0.22);
+      background: var(--b-blue-soft);
+    }
+
+    .m-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .m-action-btn {
+      height: 32px;
+      padding: 0 14px;
+      border: 1px solid #d9dce3;
+      border-radius: 7px;
+      background: #fff;
+      color: #303441;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .m-action-btn.primary {
+      color: #fff;
+      border-color: var(--b-blue);
+      background: var(--b-blue);
+    }
+
+    .flow-strip {
+      grid-column: 1 / -1;
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
+    }
+
+    .strip-head {
+      height: 48px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .strip-head h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      padding: 18px;
+    }
+
+    .strip-node {
+      position: relative;
+      min-height: 82px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-right: 0;
+      background: #fff;
+    }
+
+    .strip-node:first-child {
+      border-radius: 10px 0 0 10px;
+    }
+
+    .strip-node:last-child {
+      border-right: 1px solid var(--line);
+      border-radius: 0 10px 10px 0;
+    }
+
+    .strip-node.active {
+      z-index: 1;
+      border-color: rgba(47, 125, 255, 0.28);
+      background: var(--b-blue-soft);
+      box-shadow: inset 0 0 0 1px rgba(47, 125, 255, 0.12);
+    }
+
+    .strip-node strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .strip-node span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .modal-layer {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.38);
+      z-index: 20;
+    }
+
+    .modal-layer.show {
+      display: flex;
+    }
+
+    .refund-modal {
+      width: 420px;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+      overflow: hidden;
+    }
+
+    .refund-modal-head {
+      height: 52px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .refund-modal-head strong {
+      font-size: 16px;
+    }
+
+    .refund-modal-body {
+      padding: 18px;
+    }
+
+    .modal-total {
+      padding: 14px;
+      border-radius: 9px;
+      background: #fff7f7;
+      color: #303441;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .modal-total b {
+      color: var(--c-red);
+      font-size: 22px;
+    }
+
+    .modal-lines {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .modal-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .refund-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 14px 18px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .is-hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="scenario">
+    <header class="scenario-head">
+      <div>
+        <p class="eyebrow">第一组流程 · 非物流订单仅退款</p>
+        <h1>自提 / 套餐 / 储值 / 预定金的轻量退款闭环</h1>
+        <p class="summary">确认退款后直接生成 B 端待退款售后单，不进入申请页，不展示原因、说明、凭证或商品数量选择。</p>
+      </div>
+      <div class="stage-pills" aria-label="当前流程阶段">
+        <span class="stage-pill active" data-stage-pill="apply"><i class="stage-dot"></i>C端确认申请</span>
+        <span class="stage-pill" data-stage-pill="wait"><i class="stage-dot"></i>B端待退款</span>
+        <span class="stage-pill" data-stage-pill="doing"><i class="stage-dot"></i>退款中</span>
+        <span class="stage-pill" data-stage-pill="done"><i class="stage-dot"></i>退款成功</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <section class="section">
+        <div class="section-title">
+          <h2>C端消费者流程</h2>
+          <span>小程序 / App 页面</span>
+        </div>
+        <div class="consumer-zone">
+          <div class="phone-flow">
+            <div class="phone-step">
+              <article class="phone active" data-phone-step="order-list">
+                <div class="phone-bar"><span>9:41</span><span>5G 100%</span></div>
+                <div class="phone-nav">我的订单</div>
+                <div class="phone-content">
+                  <div class="mini-card">
+                    <div class="mini-line"><span>订单编号 202606070001</span><span class="mini-tag">待自提</span></div>
+                    <div class="mini-product" style="margin-top: 8px;">
+                      <div class="mini-thumb"></div>
+                      <div>
+                        <p class="mini-title">肩颈舒缓护理套餐</p>
+                        <div class="mini-line"><span>到店自提 · 未核销</span><span>x1</span></div>
+                        <div class="mini-line"><span class="mini-money">￥268.00</span><span>可退款</span></div>
+                      </div>
+                    </div>
+                    <div class="mini-actions">
+                      <button class="mini-btn ghost" type="button">再次购买</button>
+                      <button class="mini-btn primary js-c-apply" type="button">申请退款</button>
+                    </div>
+                  </div>
+                  <div class="mini-card soft">
+                    <p class="mini-title">储值资产订单</p>
+                    <div class="mini-line"><span>卡金未使用</span><span class="mini-money">￥500.00</span></div>
+                  </div>
+                </div>
+                <div class="phone-bottom"></div>
+              </article>
+              <p class="step-note">订单列表只露出可退款入口，适用于待自提、未核销、资产可回退、权益未使用。</p>
+            </div>
+
+            <div class="phone-step">
+              <article class="phone" data-phone-step="order-detail">
+                <div class="phone-bar"><span>9:41</span><span>5G 100%</span></div>
+                <div class="phone-nav">订单详情</div>
+                <div class="phone-content">
+                  <div class="phone-hero">
+                    <strong>待自提</strong>
+                    <span>请到门店核销服务，未核销前可申请退款</span>
+                  </div>
+                  <div class="mini-card">
+                    <p class="mini-title">热浪美学中心</p>
+                    <div class="mini-line"><span>预约人</span><b>伊小智 186****4921</b></div>
+                    <div class="mini-line"><span>服务门店</span><b>广州天河店</b></div>
+                  </div>
+                  <div class="mini-card">
+                    <p class="mini-title">肩颈舒缓护理套餐</p>
+                    <div class="mini-line"><span>订单金额</span><span class="mini-money">￥268.00</span></div>
+                    <div class="mini-line"><span>支付方式</span><b>微信支付</b></div>
+                  </div>
+                  <div class="mini-actions">
+                    <button class="mini-btn primary js-c-apply" type="button">申请退款</button>
+                  </div>
+                </div>
+                <div class="dialog-demo" id="consumerDialog">
+                  <div class="dialog-box">
+                    <div class="dialog-body">
+                      <strong>退款申请</strong>
+                      <p>退款申请提交后，将等待商家处理退款，是否确认发出申请？</p>
+                    </div>
+                    <div class="dialog-actions">
+                      <button type="button" id="cancelApply">取消</button>
+                      <button type="button" id="confirmApply">申请退款</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="phone-bottom"></div>
+              </article>
+              <p class="step-note">点击后只弹确认框，确认即创建售后单并进入待退款。</p>
+            </div>
+
+            <div class="phone-step">
+              <article class="phone" data-phone-step="wait">
+                <div class="phone-bar"><span>9:41</span><span>5G 100%</span></div>
+                <div class="phone-nav">售后详情</div>
+                <div class="phone-content">
+                  <div class="phone-hero" style="background: linear-gradient(135deg, #fff7ef, #eef5ff); color: #222;">
+                    <strong>待退款</strong>
+                    <span style="color: #8e8e99;">申请已提交，等待商家处理退款</span>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mini-line"><span>申请退款金额</span><span class="mini-money">￥268.00</span></div>
+                    <div class="mini-line"><span>预计退回方式</span><b>微信支付</b></div>
+                    <div class="mini-line"><span>售后编号</span><b>RF260607001</b></div>
+                  </div>
+                  <div class="mini-card soft">
+                    <p class="mini-title">处理流程结果</p>
+                    <div class="mini-line"><span>提交申请</span><b>2026.06.07 10:20</b></div>
+                    <div class="mini-line"><span>当前结果</span><b>等待商家退款</b></div>
+                  </div>
+                </div>
+                <div class="phone-bottom"></div>
+              </article>
+              <p class="step-note">C 端只看见等待退款、金额和退回方式，不出现后台处理字段。</p>
+            </div>
+
+            <div class="phone-step">
+              <article class="phone" data-phone-step="doing">
+                <div class="phone-bar"><span>9:41</span><span>5G 100%</span></div>
+                <div class="phone-nav">售后详情</div>
+                <div class="phone-content">
+                  <div class="phone-hero" style="background: linear-gradient(135deg, #edf4ff, #fff7ef); color: #222;">
+                    <strong>退款中</strong>
+                    <span style="color: #8e8e99;">商家已发起退款，请等待到账</span>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mini-line"><span>实际退款金额</span><span class="mini-money">￥268.00</span></div>
+                    <div class="mini-line"><span>退款方式</span><b>微信支付</b></div>
+                    <div class="mini-line"><span>发起时间</span><b>2026.06.07 10:42</b></div>
+                  </div>
+                  <div class="mini-card soft">
+                    <p class="mini-title">处理流程结果</p>
+                    <div class="mini-line"><span>商家退款</span><b>渠道处理中</b></div>
+                  </div>
+                </div>
+                <div class="phone-bottom"></div>
+              </article>
+              <p class="step-note">B 端发起退款后，C 端进入退款中，不允许撤销。</p>
+            </div>
+
+            <div class="phone-step">
+              <article class="phone" data-phone-step="done">
+                <div class="phone-bar"><span>9:41</span><span>5G 100%</span></div>
+                <div class="phone-nav">售后详情</div>
+                <div class="phone-content">
+                  <div class="phone-hero" style="background: linear-gradient(135deg, #eaf8ee, #eef5ff); color: #222;">
+                    <strong>退款成功</strong>
+                    <span style="color: #8e8e99;">商家已经成功操作退款</span>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mini-line"><span>退款金额</span><span class="mini-money">￥268.00</span></div>
+                    <div class="mini-line"><span>已原路退回</span><b>微信支付</b></div>
+                    <div class="mini-line"><span>退款时间</span><b>2026.06.07 10:43</b></div>
+                  </div>
+                  <div class="mini-card soft">
+                    <p class="mini-title">售后信息</p>
+                    <div class="mini-line"><span>订单编号</span><b>202606070001</b></div>
+                    <div class="mini-line"><span>售后编号</span><b>RF260607001</b></div>
+                  </div>
+                </div>
+                <div class="phone-bottom"></div>
+              </article>
+              <p class="step-note">退款成功只展示消费者可理解的结果和订单售后信息。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>B端商家处理流程</h2>
+          <span>商户后台页面 / 弹窗</span>
+        </div>
+        <div class="merchant-zone">
+          <div class="merchant-shell">
+            <aside class="m-primary">
+              <div class="m-logo">YX</div>
+              <div class="m-nav">开单</div>
+              <div class="m-nav">顾客</div>
+              <div class="m-nav active">订单</div>
+              <div class="m-nav">库存</div>
+              <div class="m-nav">设置</div>
+            </aside>
+            <aside class="m-side">
+              <p class="m-group-title">订单中心</p>
+              <div class="m-menu">微商城订单</div>
+              <div class="m-menu">拼团订单</div>
+              <div class="m-menu">充值订单</div>
+              <p class="m-group-title" style="margin-top: 18px;">售后订单</p>
+              <div class="m-menu active"><span>退款退货</span><span>8</span></div>
+            </aside>
+            <section class="m-main">
+              <div class="m-top">
+                <strong>售后管理</strong>
+                <span>技术部刘敏</span>
+              </div>
+              <div class="m-content">
+                <div class="m-panel">
+                  <div class="m-filters">
+                    <div class="m-filter-left">
+                      <select class="m-select" aria-label="时间筛选">
+                        <option>创建时间</option>
+                      </select>
+                      <input class="m-input" value="2026.06.01 - 2026.06.07" aria-label="日期范围">
+                    </div>
+                    <div class="m-filter-right">
+                      <input class="m-input" value="RF260607001" aria-label="搜索售后单">
+                      <button class="m-btn" type="button">查询</button>
+                    </div>
+                  </div>
+                  <div class="m-tabs">
+                    <span class="m-tab">全部 32</span>
+                    <span class="m-tab">待审核 4</span>
+                    <span class="m-tab active" data-tab-status>待退款 1</span>
+                    <span class="m-tab">退款中 2</span>
+                    <span class="m-tab">退款失败 1</span>
+                    <span class="m-tab">已完成 15</span>
+                  </div>
+                  <table class="m-table">
+                    <thead>
+                      <tr>
+                        <th>售后单号</th>
+                        <th>订单类型</th>
+                        <th>用户</th>
+                        <th>门店</th>
+                        <th>退款金额</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="active-row">
+                        <td>RF260607001<br><span style="color: var(--muted);">订单 202606070001</span></td>
+                        <td>套餐/次卡<br><span style="color: var(--muted);">非物流仅退款</span></td>
+                        <td>伊小智<br><span style="color: var(--muted);">186****4921</span></td>
+                        <td>广州天河店</td>
+                        <td class="m-money">￥268.00</td>
+                        <td><span class="status-label wait" data-merchant-status>待退款</span></td>
+                        <td><button class="m-action-btn primary js-open-refund" type="button">操作退款</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="m-detail-grid">
+                  <article class="detail-card">
+                    <div class="detail-head">
+                      <strong>售后详情</strong>
+                      <span class="status-label wait" data-detail-status>待退款</span>
+                    </div>
+                    <div class="detail-body">
+                      <div class="detail-row"><span>售后类型</span><b>仅退款</b></div>
+                      <div class="detail-row"><span>订单业务形态</span><b>套餐/次卡</b></div>
+                      <div class="detail-row"><span>申请退款金额</span><b class="m-money">￥268.00</b></div>
+                      <div class="detail-row"><span>实际退款金额</span><b class="m-money">￥268.00</b></div>
+                      <div class="detail-row"><span>退款方式</span><b>微信支付</b></div>
+                      <div class="detail-row"><span>资产状态</span><b>未核销，可回退</b></div>
+                    </div>
+                    <div class="m-actions">
+                      <button class="m-action-btn primary js-open-refund" type="button">操作退款</button>
+                    </div>
+                  </article>
+
+                  <article class="detail-card">
+                    <div class="detail-head">
+                      <strong>处理结果卡片流</strong>
+                      <span style="color: var(--muted); font-size: 12px;">按动作累积</span>
+                    </div>
+                    <div class="detail-body">
+                      <div class="result-list">
+                        <div class="result-item active" data-result-apply>
+                          <b>申请结果</b><br>
+                          买家已提交退款申请，申请金额 ￥268.00。
+                        </div>
+                        <div class="result-item is-hidden" data-result-refund>
+                          <b>退款发起结果</b><br>
+                          财务已操作退款，等待支付渠道回执。
+                        </div>
+                        <div class="result-item is-hidden" data-result-done>
+                          <b>退款成功结果</b><br>
+                          退款已原路退回，售后状态更新为已完成。
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="flow-strip">
+        <div class="strip-head">
+          <h2>C/B 状态联动</h2>
+          <span style="color: var(--muted); font-size: 13px;">确认申请后直接进入待退款，不经过待审核</span>
+        </div>
+        <div class="strip">
+          <div class="strip-node active" data-strip="apply">
+            <strong>C端确认退款</strong>
+            <span>弹窗确认后创建售后单</span>
+          </div>
+          <div class="strip-node" data-strip="wait">
+            <strong>B端待退款</strong>
+            <span>财务查看非物流退款单</span>
+          </div>
+          <div class="strip-node" data-strip="doing">
+            <strong>B端退款中</strong>
+            <span>操作退款后等待渠道回执</span>
+          </div>
+          <div class="strip-node" data-strip="done">
+            <strong>C端退款成功</strong>
+            <span>消费者看到原路退回结果</span>
+          </div>
+          <div class="strip-node">
+            <strong>订单关闭</strong>
+            <span>非物流资产回退完成</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal-layer" id="refundModal" aria-hidden="true">
+    <div class="refund-modal" role="dialog" aria-modal="true" aria-labelledby="refundTitle">
+      <div class="refund-modal-head">
+        <strong id="refundTitle">操作退款</strong>
+        <button class="m-action-btn" type="button" id="closeRefund">关闭</button>
+      </div>
+      <div class="refund-modal-body">
+        <div class="modal-total">
+          实际退款金额<br>
+          <b>￥268.00</b>
+        </div>
+        <div class="modal-lines">
+          <div class="modal-line"><span>退款方式</span><b>微信支付 ￥268.00</b></div>
+          <div class="modal-line"><span>订单业务形态</span><b>套餐/次卡</b></div>
+          <div class="modal-line"><span>资产回退</span><b>未核销次数回退</b></div>
+          <div class="modal-line"><span>退款说明</span><b>非物流订单退款</b></div>
+        </div>
+      </div>
+      <div class="refund-modal-actions">
+        <button class="m-action-btn" type="button" id="cancelRefund">取消</button>
+        <button class="m-action-btn primary" type="button" id="confirmRefund">确认退款</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const consumerDialog = document.getElementById("consumerDialog");
+    const refundModal = document.getElementById("refundModal");
+    const stagePills = document.querySelectorAll("[data-stage-pill]");
+    const stripNodes = document.querySelectorAll("[data-strip]");
+    const phoneSteps = document.querySelectorAll("[data-phone-step]");
+    const merchantStatus = document.querySelector("[data-merchant-status]");
+    const detailStatus = document.querySelector("[data-detail-status]");
+    const tabStatus = document.querySelector("[data-tab-status]");
+    const resultRefund = document.querySelector("[data-result-refund]");
+    const resultDone = document.querySelector("[data-result-done]");
+
+    function activateStage(stage) {
+      stagePills.forEach((pill) => {
+        pill.classList.toggle("active", pill.dataset.stagePill === stage);
+      });
+      stripNodes.forEach((node) => {
+        node.classList.toggle("active", node.dataset.strip === stage);
+      });
+      phoneSteps.forEach((phone) => {
+        const active =
+          (stage === "apply" && (phone.dataset.phoneStep === "order-list" || phone.dataset.phoneStep === "order-detail")) ||
+          (stage === "wait" && phone.dataset.phoneStep === "wait") ||
+          (stage === "doing" && phone.dataset.phoneStep === "doing") ||
+          (stage === "done" && phone.dataset.phoneStep === "done");
+        phone.classList.toggle("active", active);
+      });
+    }
+
+    function setMerchantState(state) {
+      merchantStatus.className = "status-label";
+      detailStatus.className = "status-label";
+      if (state === "wait") {
+        merchantStatus.textContent = "待退款";
+        detailStatus.textContent = "待退款";
+        merchantStatus.classList.add("wait");
+        detailStatus.classList.add("wait");
+        tabStatus.textContent = "待退款 1";
+      }
+      if (state === "doing") {
+        merchantStatus.textContent = "退款中";
+        detailStatus.textContent = "退款中";
+        merchantStatus.classList.add("doing");
+        detailStatus.classList.add("doing");
+        tabStatus.textContent = "退款中 1";
+        resultRefund.classList.remove("is-hidden");
+      }
+      if (state === "done") {
+        merchantStatus.textContent = "已完成";
+        detailStatus.textContent = "已完成";
+        merchantStatus.classList.add("done");
+        detailStatus.classList.add("done");
+        tabStatus.textContent = "已完成 1";
+        resultRefund.classList.remove("is-hidden");
+        resultDone.classList.remove("is-hidden");
+      }
+    }
+
+    document.querySelectorAll(".js-c-apply").forEach((button) => {
+      button.addEventListener("click", () => {
+        consumerDialog.classList.add("show");
+        activateStage("apply");
+      });
+    });
+
+    document.getElementById("cancelApply").addEventListener("click", () => {
+      consumerDialog.classList.remove("show");
+    });
+
+    document.getElementById("confirmApply").addEventListener("click", () => {
+      consumerDialog.classList.remove("show");
+      activateStage("wait");
+      setMerchantState("wait");
+    });
+
+    document.querySelectorAll(".js-open-refund").forEach((button) => {
+      button.addEventListener("click", () => {
+        refundModal.classList.add("show");
+        refundModal.setAttribute("aria-hidden", "false");
+      });
+    });
+
+    function closeRefundModal() {
+      refundModal.classList.remove("show");
+      refundModal.setAttribute("aria-hidden", "true");
+    }
+
+    document.getElementById("closeRefund").addEventListener("click", closeRefundModal);
+    document.getElementById("cancelRefund").addEventListener("click", closeRefundModal);
+
+    document.getElementById("confirmRefund").addEventListener("click", () => {
+      closeRefundModal();
+      activateStage("doing");
+      setMerchantState("doing");
+      window.setTimeout(() => {
+        activateStage("done");
+        setMerchantState("done");
+      }, 900);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C端订单列表</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --surface-soft: #fafafb;
+      --text: #222222;
+      --muted: #8f8f99;
+      --subtle: #666666;
+      --line: #eeeeee;
+      --accent: #ff453a;
+      --accent-2: #ff6d42;
+      --accent-soft: #fff1ef;
+      --link: #2f7dff;
+      --success: #18a058;
+      --shadow: 0 14px 32px rgba(31, 35, 41, 0.08);
+      --font: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background:
+        linear-gradient(180deg, #ffffff 0px, #f5f5f7 180px, #f5f5f7 100%);
+      color: var(--text);
+    }
+
+    .phone {
+      width: 390px;
+      min-height: 844px;
+      margin: 0 auto;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-bar {
+      height: 44px;
+      padding: 12px 18px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .island {
+      width: 124px;
+      height: 30px;
+      border-radius: 20px;
+      background: #111;
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .nav {
+      height: 52px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.92);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      border-bottom: 1px solid rgba(238, 238, 238, 0.8);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-side,
+    .nav-right {
+      width: 56px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #42424d;
+      font-size: 18px;
+    }
+
+    .nav-right {
+      justify-content: flex-end;
+    }
+
+    .capsule {
+      width: 34px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid #dadbe0;
+      background: #fff;
+    }
+
+    .tabs-wrap {
+      padding: 8px 0 0;
+      background: rgba(255, 255, 255, 0.92);
+      position: sticky;
+      top: 52px;
+      z-index: 4;
+      border-bottom: 1px solid rgba(238, 238, 238, 0.86);
+      backdrop-filter: blur(18px);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 18px;
+      padding: 0 16px 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      white-space: nowrap;
+    }
+
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      position: relative;
+      color: var(--muted);
+      font-size: 14px;
+      padding-bottom: 6px;
+    }
+
+    .tab.active {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .list {
+      padding: 14px 16px 112px;
+    }
+
+    .order-card {
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(238, 238, 238, 0.92);
+    }
+
+    .order-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .status {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .status.shipped { color: #f97316; }
+    .status.pending { color: var(--accent); }
+    .status.after-sale { color: #7c3aed; }
+
+    .item {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--surface-soft);
+    }
+
+    .thumb {
+      width: 88px;
+      height: 88px;
+      border-radius: 12px;
+      background:
+        linear-gradient(160deg, rgba(255, 110, 80, 0.28), rgba(255, 255, 255, 0.72)),
+        linear-gradient(45deg, #f7d4cb, #eceef7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .thumb::after {
+      content: "";
+      position: absolute;
+      inset: 16px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .item-title {
+      margin: 0 0 6px;
+      font-size: 15px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    .sku {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 8px;
+    }
+
+    .price {
+      color: var(--accent);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .count {
+      color: var(--subtle);
+      font-size: 13px;
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-top: 14px;
+    }
+
+    .summary {
+      font-size: 13px;
+      color: var(--subtle);
+    }
+
+    .summary b {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 0;
+      min-width: 84px;
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .btn.ghost {
+      background: #fff;
+      color: var(--subtle);
+      box-shadow: inset 0 0 0 1px #d8d9df;
+    }
+
+    .btn.primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 24px rgba(255, 84, 63, 0.24);
+    }
+
+    .home-indicator {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 8px;
+      width: 138px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(17, 17, 17, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <div class="island" aria-hidden="true"></div>
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>5G&nbsp;&nbsp;100%</span>
+    </div>
+
+    <header class="nav">
+      <div class="nav-side">‹</div>
+      <div class="nav-title">我的订单</div>
+      <div class="nav-right">
+        <div class="capsule" aria-hidden="true"></div>
+      </div>
+    </header>
+
+    <div class="tabs-wrap">
+      <div class="tabs" aria-label="订单状态筛选">
+        <div class="tab active">全部订单</div>
+        <div class="tab">待付款</div>
+        <div class="tab">待成团</div>
+        <div class="tab">待发货</div>
+        <div class="tab">待收货</div>
+        <div class="tab">已完成</div>
+      </div>
+    </div>
+
+    <section class="list">
+      <article class="order-card">
+        <div class="order-top">
+          <span>订单编号 260530130311623659047</span>
+          <span class="status shipped">已发货</span>
+        </div>
+        <div class="item">
+          <div class="thumb" aria-hidden="true"></div>
+          <div>
+            <p class="item-title">DF3650 轻源起黄精枸杞五黑茶</p>
+            <p class="sku">6g*10袋 / 盒 · 默认规格</p>
+            <div class="price-row">
+              <span class="price">￥39.00</span>
+              <span class="count">x1</span>
+            </div>
+          </div>
+        </div>
+        <div class="action-row">
+          <div class="summary">共<b>1</b>件，实付款 <b>￥39.00</b></div>
+          <div class="buttons">
+            <button class="btn ghost" type="button">查看物流</button>
+            <button class="btn primary" type="button" data-open-detail>申请售后</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="order-card">
+        <div class="order-top">
+          <span>订单编号 20260522000041312841</span>
+          <span class="status pending">待发货</span>
+        </div>
+        <div class="item">
+          <div class="thumb" aria-hidden="true"></div>
+          <div>
+            <p class="item-title">Ulike 美眼仪黑眼圈护眼仪美眼笔</p>
+            <p class="sku">粉色 / 标准版</p>
+            <div class="price-row">
+              <span class="price">￥42.90</span>
+              <span class="count">x3</span>
+            </div>
+          </div>
+        </div>
+        <div class="action-row">
+          <div class="summary">共<b>3</b>件，实付款 <b>￥42.90</b></div>
+          <div class="buttons">
+            <button class="btn ghost" type="button">提醒发货</button>
+            <button class="btn primary" type="button" data-open-detail>申请退款</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="order-card">
+        <div class="order-top">
+          <span>订单编号 20260518000107323858</span>
+          <span class="status after-sale">售后中</span>
+        </div>
+        <div class="item">
+          <div class="thumb" aria-hidden="true"></div>
+          <div>
+            <p class="item-title">水博士沁润补水套装</p>
+            <p class="sku">礼盒装 / 1套</p>
+            <div class="price-row">
+              <span class="price">￥98.00</span>
+              <span class="count">x1</span>
+            </div>
+          </div>
+        </div>
+        <div class="action-row">
+          <div class="summary">申请退款金额 <b>￥50.00</b></div>
+          <div class="buttons">
+            <button class="btn primary" type="button" data-open-detail>售后详情</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="order-card">
+        <div class="order-top">
+          <span>订单编号 20260516000099842317</span>
+          <span class="status">已完成</span>
+        </div>
+        <div class="item">
+          <div class="thumb" aria-hidden="true"></div>
+          <div>
+            <p class="item-title">肩颈舒缓精油护理套餐</p>
+            <p class="sku">到店核销 · 2次卡</p>
+            <div class="price-row">
+              <span class="price">￥268.00</span>
+              <span class="count">x1</span>
+            </div>
+          </div>
+        </div>
+        <div class="action-row">
+          <div class="summary">交易完成于 <b>05-16 20:14</b></div>
+          <div class="buttons">
+            <button class="btn ghost" type="button">再次购买</button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <div class="home-indicator" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    document.querySelectorAll("[data-open-detail]").forEach((button) => {
+      button.addEventListener("click", () => {
+        window.location.href = "./consumer-order-detail.html";
+      });
+    });
+  </script>
+</body>
+</html>

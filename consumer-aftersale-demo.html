@@ -1,0 +1,2666 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C端售后单页 Demo</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --surface-soft: #fafafb;
+      --text: #222222;
+      --muted: #8f8f99;
+      --subtle: #666666;
+      --line: #eeeeee;
+      --accent: #ff453a;
+      --accent-2: #ff6d42;
+      --accent-soft: #fff1ef;
+      --link: #2f7dff;
+      --success: #18a058;
+      --warning: #f97316;
+      --danger: #e5484d;
+      --purple: #7c3aed;
+      --info-soft: #eef5ff;
+      --warn-soft: #fff7ed;
+      --success-soft: #eaf8ee;
+      --disabled: #b7bac4;
+      --shadow: 0 14px 32px rgba(31, 35, 41, 0.08);
+      --font: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(255, 118, 74, 0.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(47, 125, 255, 0.08), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      display: grid;
+      place-items: start center;
+      padding: 24px;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .demo-shell {
+      width: min(100%, 1200px);
+      display: grid;
+      gap: 16px;
+      justify-items: center;
+    }
+
+    .meta-panel {
+      width: 100%;
+      border: 1px solid rgba(228, 230, 236, 0.92);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 10px 30px rgba(31, 35, 41, 0.05);
+      padding: 20px 22px;
+    }
+
+    .meta-panel p {
+      margin: 0;
+      color: var(--subtle);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .meta-panel strong {
+      color: var(--text);
+      display: block;
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .phone {
+      width: 390px;
+      min-height: 844px;
+      margin: 0 auto;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      border: 1px solid #e3e5eb;
+      box-shadow: 0 18px 48px rgba(31, 35, 41, 0.12);
+      padding-bottom: 110px;
+    }
+
+    .status-bar {
+      height: 44px;
+      padding: 12px 18px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .island {
+      width: 124px;
+      height: 30px;
+      border-radius: 20px;
+      background: #111;
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .nav {
+      height: 52px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid rgba(238, 238, 238, 0.8);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .nav-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .nav-side,
+    .nav-right {
+      width: 56px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #42424d;
+      font-size: 18px;
+    }
+
+    .nav-side button,
+    .nav-right button {
+      border: 0;
+      background: transparent;
+      padding: 0;
+      font-size: inherit;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .nav-right { justify-content: flex-end; }
+
+    .capsule {
+      width: 34px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid #dadbe0;
+      background: #fff;
+    }
+
+    .tabs-wrap {
+      padding: 8px 0 0;
+      background: rgba(255, 255, 255, 0.92);
+      position: sticky;
+      top: 52px;
+      z-index: 4;
+      border-bottom: 1px solid rgba(238, 238, 238, 0.86);
+      backdrop-filter: blur(18px);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 18px;
+      padding: 0 16px 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      white-space: nowrap;
+    }
+
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      position: relative;
+      color: var(--muted);
+      font-size: 14px;
+      padding-bottom: 6px;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .screen {
+      padding: 14px 16px 112px;
+    }
+
+    .hero {
+      margin-bottom: 12px;
+      padding: 16px 18px;
+      border-radius: 22px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ff2f3a, #ff6238);
+    }
+
+    .hero.soft {
+      background: linear-gradient(135deg, #fff7ef, #eef5ff);
+      color: var(--text);
+    }
+
+    .hero.success {
+      background: linear-gradient(135deg, #eaf8ee, #eef5ff);
+      color: var(--text);
+    }
+
+    .hero.warn {
+      background: linear-gradient(135deg, #fff7ed, #fff1ef);
+      color: var(--text);
+    }
+
+    .hero h1 {
+      margin: 8px 0 6px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.88);
+      max-width: 260px;
+    }
+
+    .hero.soft p,
+    .hero.success p,
+    .hero.warn p {
+      color: var(--muted);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .hero::before {
+      width: 96px;
+      height: 96px;
+      right: -16px;
+      top: -24px;
+    }
+
+    .hero::after {
+      width: 56px;
+      height: 56px;
+      right: 88px;
+      bottom: -12px;
+    }
+
+    .card {
+      margin-bottom: 12px;
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 16px;
+      border: 1px solid rgba(238, 238, 238, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .sec-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .order-card {
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(238, 238, 238, 0.92);
+    }
+
+    .order-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .status-text {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .status-pending { color: var(--accent); }
+    .status-shipped { color: var(--warning); }
+    .status-aftersale { color: var(--purple); }
+    .status-done { color: var(--success); }
+    .status-muted { color: #657085; }
+
+    .item {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--surface-soft);
+    }
+
+    .thumb {
+      width: 88px;
+      height: 88px;
+      border-radius: 12px;
+      background:
+        linear-gradient(160deg, rgba(255, 110, 80, 0.28), rgba(255, 255, 255, 0.72)),
+        linear-gradient(45deg, #f7d4cb, #eceef7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .thumb::after {
+      content: "";
+      position: absolute;
+      inset: 16px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .item-title {
+      margin: 0 0 6px;
+      font-size: 15px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    .sku,
+    .copy,
+    .helper {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 8px;
+    }
+
+    .price {
+      color: var(--accent);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .count {
+      color: var(--subtle);
+      font-size: 13px;
+    }
+
+    .hint {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f7f8fa;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .hint.warn {
+      background: var(--warn-soft);
+      color: #b45309;
+    }
+
+    .hint.info {
+      background: var(--info-soft);
+      color: #2458d3;
+    }
+
+    .hint.disabled {
+      background: #f2f3f5;
+      color: #8b93a1;
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-top: 14px;
+    }
+
+    .summary {
+      font-size: 13px;
+      color: var(--subtle);
+      line-height: 1.5;
+    }
+
+    .summary b {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 0;
+      min-width: 84px;
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn.ghost {
+      background: #fff;
+      color: var(--subtle);
+      box-shadow: inset 0 0 0 1px #d8d9df;
+    }
+
+    .btn.primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 24px rgba(255, 84, 63, 0.24);
+    }
+
+    .btn.disabled {
+      background: #f1f2f5;
+      color: #b2b6c0;
+      box-shadow: inset 0 0 0 1px #e2e5eb;
+      cursor: default;
+    }
+
+    .btn.text {
+      min-width: 0;
+      padding: 0 6px;
+      height: auto;
+      background: transparent;
+      color: var(--link);
+      box-shadow: none;
+    }
+
+    .list-grid,
+    .info-list,
+    .result-list,
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .summary-line,
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #53545f;
+    }
+
+    .summary-line strong,
+    .info-row strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .summary-line.total strong:last-child {
+      color: var(--accent);
+      font-size: 22px;
+    }
+
+    .address {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .type-option {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #eeeeee;
+      cursor: pointer;
+    }
+
+    .type-option strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 16px;
+      line-height: 1.35;
+    }
+
+    .type-option span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .type-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-size: 18px;
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 14px;
+      color: #555a67;
+    }
+
+    .field select,
+    .field input,
+    .field textarea {
+      width: 100%;
+      border: 1px solid #dfe2e8;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      padding: 12px 14px;
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 88px;
+      resize: none;
+    }
+
+    .field-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .picker-item {
+      display: grid;
+      grid-template-columns: 20px 72px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--surface-soft);
+    }
+
+    .picker-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 26px;
+      accent-color: var(--accent);
+    }
+
+    .picker-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 12px;
+      background:
+        linear-gradient(160deg, rgba(255, 110, 80, 0.28), rgba(255, 255, 255, 0.72)),
+        linear-gradient(45deg, #f7d4cb, #eceef7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .picker-thumb::after {
+      content: "";
+      position: absolute;
+      inset: 14px 12px;
+      border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.88);
+      background: rgba(255,255,255,0.42);
+    }
+
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .qty-btn {
+      width: 26px;
+      height: 26px;
+      border: 1px solid #d8dbe2;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      color: #454a57;
+    }
+
+    .qty {
+      min-width: 20px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .upload-box {
+      width: 72px;
+      height: 72px;
+      border: 1px dashed #d4d7df;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      background: #fff;
+    }
+
+    .progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .progress-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .progress-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #eceef3;
+      color: #97a0b0;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .progress-step.active .progress-dot {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .progress-step.done .progress-dot {
+      background: #eaf8ee;
+      color: var(--success);
+    }
+
+    .progress-arrow {
+      color: #c6ccd8;
+      font-size: 12px;
+    }
+
+    .timeline-card {
+      padding: 12px;
+      border-radius: 14px;
+      background: #f7f8fa;
+      border: 1px solid #eef0f4;
+    }
+
+    .timeline-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .timeline-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 390px;
+      padding: 12px 16px 28px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(18px);
+      border-top: 1px solid rgba(236, 236, 241, 0.9);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .footer.center {
+      justify-content: center;
+    }
+
+    .home-indicator {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 8px;
+      width: 138px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(17, 17, 17, 0.9);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.48);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 20;
+    }
+
+    .overlay.show { display: flex; }
+
+    .dialog {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+      text-align: center;
+      box-shadow: 0 22px 60px rgba(0,0,0,0.2);
+    }
+
+    .dialog-body {
+      padding: 22px 18px 16px;
+    }
+
+    .dialog-body strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .dialog-body p {
+      margin: 0;
+      color: #555967;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .dialog-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid #eee;
+    }
+
+    .dialog-actions button {
+      height: 50px;
+      border: 0;
+      background: #fff;
+      color: #999;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .dialog-actions button + button {
+      border-left: 1px solid #eee;
+      color: var(--accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="demo-shell">
+    <section class="meta-panel">
+      <strong>C端售后单页 Demo</strong>
+      <p>业务入口、按钮、状态、金额、弹窗和跳转都按 PRD 与 ASCII 草图收口。第一版只做 C 端：订单列表、订单详情、售后类型、申请页、填写物流、售后详情全链路可演示。</p>
+      <div class="chips">
+        <span class="chip">待发货仅退款</span>
+        <span class="chip">已发货仅退款</span>
+        <span class="chip">退货退款</span>
+        <span class="chip">非物流退款</span>
+        <span class="chip">售后详情多状态</span>
+      </div>
+    </section>
+
+    <div class="phone">
+      <div class="island" aria-hidden="true"></div>
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>5G&nbsp;&nbsp;100%</span>
+      </div>
+
+      <header class="nav">
+        <div class="nav-side" id="navLeft"></div>
+        <div class="nav-title" id="navTitle"></div>
+        <div class="nav-right"><div class="capsule" aria-hidden="true"></div></div>
+      </header>
+
+      <div id="app"></div>
+
+      <div class="overlay" id="overlay"></div>
+      <div class="home-indicator" aria-hidden="true"></div>
+    </div>
+  </main>
+
+  <script>
+    const reasonOptions = {
+      pendingShip: [
+        { value: "NO_WANT", label: "不想要了" },
+        { value: "WRONG_ORDER", label: "拍错/多拍/买错了" },
+        { value: "ADDRESS_ERROR", label: "地址/信息填写错误" },
+        { value: "PLAN_CHANGED", label: "计划有变，暂时不需要" },
+        { value: "NOT_SHIPPED_TIMEOUT", label: "商家迟迟未发货" },
+        { value: "AGREED_REFUND", label: "已与商家协商一致" },
+        { value: "OTHER", label: "其他原因" }
+      ],
+      shippedRefund: [
+        { value: "NOT_RECEIVED", label: "一直未收到货" },
+        { value: "LOGISTICS_STUCK", label: "物流长时间未更新" },
+        { value: "PACKAGE_LOST", label: "包裹丢失/疑似丢件" },
+        { value: "DELIVERED_NOT_RECEIVED", label: "显示签收但未收到" },
+        { value: "REJECTED_PACKAGE", label: "包裹破损/异常，已拒收" },
+        { value: "MISSING_ITEMS", label: "少件/漏发" },
+        { value: "AGREED_REFUND", label: "已与商家协商一致" },
+        { value: "OTHER", label: "其他原因" }
+      ],
+      returnRefund: [
+        { value: "NO_WANT", label: "不想要了" },
+        { value: "WRONG_ORDER", label: "拍错/多拍/买错了" },
+        { value: "SPEC_NOT_FIT", label: "尺码/规格不合适" },
+        { value: "STYLE_NOT_LIKE", label: "颜色/款式不喜欢" },
+        { value: "QUALITY_ISSUE", label: "商品质量问题" },
+        { value: "DAMAGED_DIRTY", label: "商品破损/污渍/影响使用" },
+        { value: "WRONG_ITEM", label: "商家发错货" },
+        { value: "MISSING_ITEMS", label: "少件/漏发" },
+        { value: "NOT_AS_DESCRIBED", label: "商品与描述不符" },
+        { value: "EXPIRED_OR_NEAR_EXPIRED", label: "商品临期/过期" },
+        { value: "SUSPECT_FAKE", label: "假冒/疑似非正品" },
+        { value: "AGREED_RETURN_REFUND", label: "已与商家协商一致" },
+        { value: "OTHER", label: "其他原因" }
+      ]
+    };
+
+    const orders = [
+      {
+        id: "ORDER-1001",
+        orderNo: "202606070001",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "待发货",
+        tab: "待发货",
+        statusTitle: "待发货",
+        statusDesc: "商家正在准备商品，请耐心等待发货",
+        orderAftersaleTag: "",
+        summary: "共3件，实付款 ￥37.90",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1001-A", title: "Ulike 美眼仪黑眼圈护眼仪美眼笔", sku: "粉色 / 标准版", unitPrice: 42.9, orderQty: 3, refundableQty: 3, eligibleForRefund: true, thumb: "warm" },
+          { id: "ITEM-1001-B", title: "Ulike 美眼仪护眼按摩仪补充装", sku: "默认规格", unitPrice: 42.9, orderQty: 1, refundableQty: 1, eligibleForRefund: true, thumb: "cool" }
+        ],
+        paymentSummary: { goods: 32.9, shipping: 10, discount: 15, total: 37.9 },
+        paymentBreakdown: { cash: 32.9, card: 0, gift: 0, points: 0, coupon: "优惠券暂不退回" },
+        logisticsStatus: "未发货",
+        allowRefund: true,
+        allowAftersale: false,
+        allowAftersaleDetail: false,
+        notEligibleReason: "",
+        aftersalePeriodHint: "待发货物流订单可申请仅退款"
+      },
+      {
+        id: "ORDER-1002",
+        orderNo: "260530130311623659047",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "已发货",
+        tab: "待收货",
+        statusTitle: "已发货",
+        statusDesc: "商品已发出，可申请售后",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥39.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1002-A", title: "DF3650 轻源起黄精枸杞五黑茶", sku: "6g*10袋 / 盒", unitPrice: 39, orderQty: 1, refundableQty: 1, eligibleForRefund: true, thumb: "warm" }
+        ],
+        paymentSummary: { goods: 39, shipping: 10, discount: 10, total: 39 },
+        paymentBreakdown: { cash: 30, card: 4, gift: 0, points: 500, coupon: "优惠券暂不退回" },
+        logisticsStatus: "运输中",
+        allowRefund: false,
+        allowAftersale: true,
+        allowAftersaleDetail: false,
+        notEligibleReason: "",
+        aftersalePeriodHint: "已发货订单可申请仅退款或退货退款"
+      },
+      {
+        id: "ORDER-1003",
+        orderNo: "202606070003",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "待收货",
+        tab: "待收货",
+        statusTitle: "待收货",
+        statusDesc: "请确认收货或申请售后",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥98.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1003-A", title: "水博士沁润补水套装", sku: "礼盒装 / 1套", unitPrice: 98, orderQty: 1, refundableQty: 1, eligibleForRefund: true, thumb: "cool" }
+        ],
+        paymentSummary: { goods: 98, shipping: 0, discount: 0, total: 98 },
+        paymentBreakdown: { cash: 60, card: 15, gift: 5, points: 500, coupon: "优惠券暂不退回" },
+        logisticsStatus: "派送中",
+        allowRefund: false,
+        allowAftersale: true,
+        allowAftersaleDetail: false,
+        notEligibleReason: "",
+        aftersalePeriodHint: "待收货订单可申请仅退款或退货退款"
+      },
+      {
+        id: "ORDER-1004",
+        orderNo: "202606060001",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "已完成",
+        tab: "已完成",
+        statusTitle: "已完成",
+        statusDesc: "交易完成且仍在售后期内",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥128.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1004-A", title: "琅瑄贸易 3 号修护精华", sku: "30ml / 默认规格", unitPrice: 128, orderQty: 1, refundableQty: 1, eligibleForRefund: true, thumb: "warm" }
+        ],
+        paymentSummary: { goods: 128, shipping: 0, discount: 0, total: 128 },
+        paymentBreakdown: { cash: 128, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "已签收",
+        allowRefund: false,
+        allowAftersale: true,
+        allowAftersaleDetail: false,
+        notEligibleReason: "",
+        aftersalePeriodHint: "售后期内仍可申请售后"
+      },
+      {
+        id: "ORDER-1005",
+        orderNo: "20260518000107323858",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "售后中",
+        tab: "售后",
+        statusTitle: "售后中",
+        statusDesc: "当前订单已有售后单在处理中",
+        orderAftersaleTag: "售后中",
+        summary: "共1件，实付款 ￥98.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1005-A", title: "水博士沁润补水套装", sku: "礼盒装 / 1套", unitPrice: 98, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "cool" }
+        ],
+        paymentSummary: { goods: 98, shipping: 0, discount: 0, total: 98 },
+        paymentBreakdown: { cash: 60, card: 15, gift: 5, points: 500, coupon: "优惠券暂不退回" },
+        logisticsStatus: "售后处理中",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: true,
+        aftersaleId: "AF-2001",
+        notEligibleReason: "",
+        aftersalePeriodHint: "查看当前售后进度"
+      },
+      {
+        id: "ORDER-1006",
+        orderNo: "202606070101",
+        orderBusinessType: "商品自提",
+        orderStatus: "待自提",
+        tab: "待自提",
+        statusTitle: "待自提",
+        statusDesc: "未自提前可申请退款",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥188.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广州天河店自提" },
+        items: [
+          { id: "ITEM-1006-A", title: "门店自提护理套装", sku: "广州天河店自提", unitPrice: 188, orderQty: 1, refundableQty: 1, eligibleForRefund: true, thumb: "green" }
+        ],
+        paymentSummary: { goods: 188, shipping: 0, discount: 0, total: 188 },
+        paymentBreakdown: { cash: 188, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "无需物流",
+        allowRefund: true,
+        allowAftersale: false,
+        allowAftersaleDetail: false,
+        notEligibleReason: "",
+        aftersalePeriodHint: "非物流退款型订单只弹确认弹窗"
+      },
+      {
+        id: "ORDER-1007",
+        orderNo: "202606070102",
+        orderBusinessType: "套餐/次卡",
+        orderStatus: "未核销",
+        tab: "已完成",
+        statusTitle: "未核销",
+        statusDesc: "资产未使用且在可退款期内",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥268.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "到店服务" },
+        items: [
+          { id: "ITEM-1007-A", title: "肩颈舒缓护理套餐", sku: "到店服务 · 2次卡未核销", unitPrice: 268, orderQty: 1, refundableQty: 1, eligibleForRefund: true, thumb: "green" }
+        ],
+        paymentSummary: { goods: 268, shipping: 0, discount: 0, total: 268 },
+        paymentBreakdown: { cash: 268, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "无需物流",
+        allowRefund: true,
+        allowAftersale: false,
+        allowAftersaleDetail: false,
+        notEligibleReason: "",
+        aftersalePeriodHint: "未核销套餐可整单退款"
+      },
+      {
+        id: "ORDER-1008",
+        orderNo: "202606070201",
+        orderBusinessType: "开卡充值",
+        orderStatus: "资产可退",
+        tab: "已完成",
+        statusTitle: "资产可退",
+        statusDesc: "卡金满足回退条件",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥500.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "会员资产" },
+        items: [
+          { id: "ITEM-1008-A", title: "会员储值卡开卡充值", sku: "卡金￥500 · 赠送金未使用", unitPrice: 500, orderQty: 1, refundableQty: 1, eligibleForRefund: true, thumb: "green" }
+        ],
+        paymentSummary: { goods: 500, shipping: 0, discount: 0, total: 500 },
+        paymentBreakdown: { cash: 500, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "无需物流",
+        allowRefund: true,
+        allowAftersale: false,
+        allowAftersaleDetail: false,
+        notEligibleReason: "",
+        aftersalePeriodHint: "储值资产满足回退条件"
+      },
+      {
+        id: "ORDER-1009",
+        orderNo: "202606070202",
+        orderBusinessType: "预定金",
+        orderStatus: "权益未使用",
+        tab: "已完成",
+        statusTitle: "权益未使用",
+        statusDesc: "预定金权益未使用且在可退款期内",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥10.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "活动权益" },
+        items: [
+          { id: "ITEM-1009-A", title: "夏季焕肤活动预定金", sku: "￥10 抵 ￥20 · 权益未核销", unitPrice: 10, orderQty: 1, refundableQty: 1, eligibleForRefund: true, thumb: "green" }
+        ],
+        paymentSummary: { goods: 10, shipping: 0, discount: 0, total: 10 },
+        paymentBreakdown: { cash: 10, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "无需物流",
+        allowRefund: true,
+        allowAftersale: false,
+        allowAftersaleDetail: false,
+        notEligibleReason: "",
+        aftersalePeriodHint: "权益未使用时可申请退款"
+      },
+      {
+        id: "ORDER-1010",
+        orderNo: "202605010001",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "已完成",
+        tab: "已完成",
+        statusTitle: "已完成",
+        statusDesc: "已超过售后期",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥59.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1010-A", title: "琅瑄贸易 2 号修护面膜", sku: "5片装 / 默认规格", unitPrice: 59, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "gray" }
+        ],
+        paymentSummary: { goods: 59, shipping: 0, discount: 0, total: 59 },
+        paymentBreakdown: { cash: 59, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "已签收",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: false,
+        notEligibleReason: "已超过售后申请期限",
+        aftersalePeriodHint: "不可申请售后"
+      },
+      {
+        id: "ORDER-1011",
+        orderNo: "202606050101",
+        orderBusinessType: "商品自提",
+        orderStatus: "已自提",
+        tab: "已完成",
+        statusTitle: "已自提",
+        statusDesc: "已自提订单不允许退款",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥188.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广州天河店自提" },
+        items: [
+          { id: "ITEM-1011-A", title: "门店自提护理套装", sku: "广州天河店 · 已完成自提", unitPrice: 188, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "gray" }
+        ],
+        paymentSummary: { goods: 188, shipping: 0, discount: 0, total: 188 },
+        paymentBreakdown: { cash: 188, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "无需物流",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: false,
+        notEligibleReason: "已自提订单不允许退款",
+        aftersalePeriodHint: "不可申请退款"
+      },
+      {
+        id: "ORDER-1012",
+        orderNo: "202606050102",
+        orderBusinessType: "套餐/次卡",
+        orderStatus: "已核销",
+        tab: "已完成",
+        statusTitle: "已核销",
+        statusDesc: "套餐次数已使用，不允许退款",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥268.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "到店服务" },
+        items: [
+          { id: "ITEM-1012-A", title: "肩颈舒缓护理套餐", sku: "2次卡 · 已核销1次", unitPrice: 268, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "gray" }
+        ],
+        paymentSummary: { goods: 268, shipping: 0, discount: 0, total: 268 },
+        paymentBreakdown: { cash: 268, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "无需物流",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: false,
+        notEligibleReason: "套餐次数已使用，不展示申请退款",
+        aftersalePeriodHint: "不可申请退款"
+      },
+      {
+        id: "ORDER-1013",
+        orderNo: "202606040201",
+        orderBusinessType: "开卡充值",
+        orderStatus: "资产不足",
+        tab: "已完成",
+        statusTitle: "资产不足",
+        statusDesc: "当前账户资产不足以回退",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥500.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "会员资产" },
+        items: [
+          { id: "ITEM-1013-A", title: "会员储值卡开卡充值", sku: "卡金已消费 · 不满足回退条件", unitPrice: 500, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "gray" }
+        ],
+        paymentSummary: { goods: 500, shipping: 0, discount: 0, total: 500 },
+        paymentBreakdown: { cash: 500, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "无需物流",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: false,
+        notEligibleReason: "当前账户资产不足以回退，本单不可申请退款",
+        aftersalePeriodHint: "不可申请退款"
+      },
+      {
+        id: "ORDER-1014",
+        orderNo: "202606040202",
+        orderBusinessType: "预定金",
+        orderStatus: "权益已使用",
+        tab: "已完成",
+        statusTitle: "权益已使用",
+        statusDesc: "预定金权益已使用，不允许退款",
+        orderAftersaleTag: "",
+        summary: "共1件，实付款 ￥10.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "活动权益" },
+        items: [
+          { id: "ITEM-1014-A", title: "夏季焕肤活动预定金", sku: "抵扣权益已用于后续订单", unitPrice: 10, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "gray" }
+        ],
+        paymentSummary: { goods: 10, shipping: 0, discount: 0, total: 10 },
+        paymentBreakdown: { cash: 10, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "无需物流",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: false,
+        notEligibleReason: "预定金权益已使用，不展示退款入口",
+        aftersalePeriodHint: "不可申请退款"
+      },
+      {
+        id: "ORDER-1015",
+        orderNo: "202606080001",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "售后中",
+        tab: "售后",
+        statusTitle: "待寄回",
+        statusDesc: "商家已同意退货退款，等待买家寄回",
+        orderAftersaleTag: "待寄回",
+        summary: "共1件，实付款 ￥39.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1015-A", title: "DF3650 轻源起黄精枸杞五黑茶", sku: "6g*10袋 / 盒", unitPrice: 39, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "warm" }
+        ],
+        paymentSummary: { goods: 39, shipping: 10, discount: 10, total: 39 },
+        paymentBreakdown: { cash: 30, card: 4, gift: 0, points: 500, coupon: "优惠券暂不退回" },
+        logisticsStatus: "售后处理中",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: true,
+        aftersaleId: "AF-2002",
+        notEligibleReason: "",
+        aftersalePeriodHint: "查看当前售后进度"
+      },
+      {
+        id: "ORDER-1016",
+        orderNo: "202606080002",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "售后中",
+        tab: "售后",
+        statusTitle: "待收货",
+        statusDesc: "买家已寄出，等待商家确认收货",
+        orderAftersaleTag: "待收货",
+        summary: "共1件，实付款 ￥98.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1016-A", title: "水博士沁润补水套装", sku: "礼盒装 / 1套", unitPrice: 98, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "cool" }
+        ],
+        paymentSummary: { goods: 98, shipping: 0, discount: 0, total: 98 },
+        paymentBreakdown: { cash: 60, card: 15, gift: 5, points: 500, coupon: "优惠券暂不退回" },
+        logisticsStatus: "售后处理中",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: true,
+        aftersaleId: "AF-2003",
+        notEligibleReason: "",
+        aftersalePeriodHint: "查看当前售后进度"
+      },
+      {
+        id: "ORDER-1017",
+        orderNo: "202606080003",
+        orderBusinessType: "商品自提",
+        orderStatus: "售后中",
+        tab: "售后",
+        statusTitle: "待退款",
+        statusDesc: "等待商家处理退款",
+        orderAftersaleTag: "待退款",
+        summary: "共1件，实付款 ￥188.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广州天河店自提" },
+        items: [
+          { id: "ITEM-1017-A", title: "门店自提护理套装", sku: "广州天河店自提", unitPrice: 188, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "green" }
+        ],
+        paymentSummary: { goods: 188, shipping: 0, discount: 0, total: 188 },
+        paymentBreakdown: { cash: 188, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "售后处理中",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: true,
+        aftersaleId: "AF-2004",
+        notEligibleReason: "",
+        aftersalePeriodHint: "查看当前售后进度"
+      },
+      {
+        id: "ORDER-1018",
+        orderNo: "202606080004",
+        orderBusinessType: "套餐/次卡",
+        orderStatus: "售后中",
+        tab: "售后",
+        statusTitle: "退款中",
+        statusDesc: "商家已发起退款",
+        orderAftersaleTag: "退款中",
+        summary: "共1件，实付款 ￥268.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "到店服务" },
+        items: [
+          { id: "ITEM-1018-A", title: "肩颈舒缓护理套餐", sku: "到店服务 · 2次卡未核销", unitPrice: 268, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "green" }
+        ],
+        paymentSummary: { goods: 268, shipping: 0, discount: 0, total: 268 },
+        paymentBreakdown: { cash: 268, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "售后处理中",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: true,
+        aftersaleId: "AF-2005",
+        notEligibleReason: "",
+        aftersalePeriodHint: "查看当前售后进度"
+      },
+      {
+        id: "ORDER-1019",
+        orderNo: "202606080005",
+        orderBusinessType: "开卡充值",
+        orderStatus: "售后中",
+        tab: "售后",
+        statusTitle: "退款失败",
+        statusDesc: "退款失败，等待商家重新处理",
+        orderAftersaleTag: "退款失败",
+        summary: "共1件，实付款 ￥500.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "会员资产" },
+        items: [
+          { id: "ITEM-1019-A", title: "会员储值卡开卡充值", sku: "卡金￥500 · 赠送金未使用", unitPrice: 500, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "green" }
+        ],
+        paymentSummary: { goods: 500, shipping: 0, discount: 0, total: 500 },
+        paymentBreakdown: { cash: 500, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "售后处理中",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: true,
+        aftersaleId: "AF-2006",
+        notEligibleReason: "",
+        aftersalePeriodHint: "查看当前售后进度"
+      },
+      {
+        id: "ORDER-1020",
+        orderNo: "202606080006",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "售后中",
+        tab: "售后",
+        statusTitle: "补寄处理中",
+        statusDesc: "商家已转补寄，等待仓库出库",
+        orderAftersaleTag: "补寄处理中",
+        summary: "共1件，实付款 ￥39.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1020-A", title: "DF3650 轻源起黄精枸杞五黑茶", sku: "6g*10袋 / 盒", unitPrice: 39, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "warm" }
+        ],
+        paymentSummary: { goods: 39, shipping: 10, discount: 10, total: 39 },
+        paymentBreakdown: { cash: 30, card: 4, gift: 0, points: 500, coupon: "优惠券暂不退回" },
+        logisticsStatus: "售后处理中",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: true,
+        aftersaleId: "AF-2007",
+        notEligibleReason: "",
+        aftersalePeriodHint: "查看当前售后进度"
+      },
+      {
+        id: "ORDER-1021",
+        orderNo: "202606080007",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "售后中",
+        tab: "售后",
+        statusTitle: "待买家收货",
+        statusDesc: "补寄商品已发出，请注意查收",
+        orderAftersaleTag: "待买家收货",
+        summary: "共1件，实付款 ￥98.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1021-A", title: "水博士沁润补水套装", sku: "礼盒装 / 1套", unitPrice: 98, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "cool" }
+        ],
+        paymentSummary: { goods: 98, shipping: 0, discount: 0, total: 98 },
+        paymentBreakdown: { cash: 60, card: 15, gift: 5, points: 500, coupon: "优惠券暂不退回" },
+        logisticsStatus: "售后处理中",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: true,
+        aftersaleId: "AF-2008",
+        notEligibleReason: "",
+        aftersalePeriodHint: "查看当前售后进度"
+      },
+      {
+        id: "ORDER-1022",
+        orderNo: "202606080008",
+        orderBusinessType: "预定金",
+        orderStatus: "售后完成",
+        tab: "售后",
+        statusTitle: "退款成功",
+        statusDesc: "退款已成功完成",
+        orderAftersaleTag: "售后完成",
+        summary: "共1件，实付款 ￥10.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "活动权益" },
+        items: [
+          { id: "ITEM-1022-A", title: "夏季焕肤活动预定金", sku: "￥10 抵 ￥20 · 权益未核销", unitPrice: 10, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "green" }
+        ],
+        paymentSummary: { goods: 10, shipping: 0, discount: 0, total: 10 },
+        paymentBreakdown: { cash: 10, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "售后已完成",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: true,
+        aftersaleId: "AF-2009",
+        notEligibleReason: "",
+        aftersalePeriodHint: "查看当前售后进度"
+      },
+      {
+        id: "ORDER-1023",
+        orderNo: "202606080009",
+        orderBusinessType: "商品物流发货",
+        orderStatus: "已关闭",
+        tab: "售后",
+        statusTitle: "已关闭",
+        statusDesc: "售后已关闭，可查看关闭原因",
+        orderAftersaleTag: "已关闭",
+        summary: "共1件，实付款 ￥128.00",
+        receiver: { name: "伊小智", phone: "18680474921", address: "广东省广州市天河区珠江新城金穗路3号1802室" },
+        items: [
+          { id: "ITEM-1023-A", title: "琅瑄贸易 3 号修护精华", sku: "30ml / 默认规格", unitPrice: 128, orderQty: 1, refundableQty: 0, eligibleForRefund: false, thumb: "warm" }
+        ],
+        paymentSummary: { goods: 128, shipping: 0, discount: 0, total: 128 },
+        paymentBreakdown: { cash: 128, card: 0, gift: 0, points: 0, coupon: "无" },
+        logisticsStatus: "售后已关闭",
+        allowRefund: false,
+        allowAftersale: false,
+        allowAftersaleDetail: true,
+        aftersaleId: "AF-2010",
+        notEligibleReason: "",
+        aftersalePeriodHint: "查看当前售后进度"
+      }
+    ];
+
+    const aftersales = [
+      {
+        id: "AF-2001",
+        orderId: "ORDER-1005",
+        orderNo: "20260518000107323858",
+        orderBusinessType: "商品物流发货",
+        type: "仅退款",
+        aftersaleStatus: "待审核",
+        closeType: "",
+        title: "待审核",
+        desc: "您的申请已提交，等待商家处理",
+        progress: ["done", "active", "todo"],
+        progressLabels: ["提交申请", "商家处理", "完成"],
+        requestAmount: 50,
+        approvedAmount: 50,
+        breakdown: { cash: 30, card: 10, gift: 5, points: 500, coupon: "优惠券暂不退回" },
+        reasonCode: "LOGISTICS_STUCK",
+        reasonLabel: "物流长时间未更新",
+        note: "物流两天没有更新，请协助处理。",
+        contactPhone: "13512344321",
+        returnLogistics: null,
+        reshipLogistics: null,
+        closeInfo: null,
+        timeline: [
+          { title: "申请结果", content: "2026.06.06 10:20 已提交售后申请，申请金额 ￥50.00。" }
+        ]
+      },
+      {
+        id: "AF-2002",
+        orderId: "ORDER-1002",
+        orderNo: "260530130311623659047",
+        orderBusinessType: "商品物流发货",
+        type: "退货退款",
+        aftersaleStatus: "待寄回",
+        closeType: "",
+        title: "待寄回",
+        desc: "商家已同意退货退款，请填写退货物流",
+        progress: ["done", "active", "todo"],
+        progressLabels: ["提交申请", "待寄回", "商家收货"],
+        requestAmount: 39,
+        approvedAmount: 39,
+        breakdown: { cash: 30, card: 4, gift: 0, points: 500, coupon: "优惠券暂不退回" },
+        reasonCode: "QUALITY_ISSUE",
+        reasonLabel: "商品质量问题",
+        note: "商品外包装破损，希望退货退款。",
+        contactPhone: "13512344321",
+        returnAddress: {
+          name: "番禺大道人仓库",
+          phone: "020-88888888",
+          address: "天安总部中心15号楼202",
+          deadline: "2026.06.13"
+        },
+        returnLogistics: null,
+        reshipLogistics: null,
+        closeInfo: null,
+        timeline: [
+          { title: "申请结果", content: "2026.06.06 10:20 已提交退货退款申请，申请金额 ￥39.00。" },
+          { title: "审核结果", content: "商家同意退货退款，请在 2026.06.13 前寄回商品。" }
+        ]
+      },
+      {
+        id: "AF-2003",
+        orderId: "ORDER-1003",
+        orderNo: "202606070003",
+        orderBusinessType: "商品物流发货",
+        type: "退货退款",
+        aftersaleStatus: "待收货",
+        closeType: "",
+        title: "待收货",
+        desc: "商品已寄出，等待商家确认收货",
+        progress: ["done", "done", "active"],
+        progressLabels: ["提交申请", "买家寄回", "待收货"],
+        requestAmount: 98,
+        approvedAmount: 98,
+        breakdown: { cash: 60, card: 15, gift: 5, points: 500, coupon: "优惠券暂不退回" },
+        reasonCode: "WRONG_ITEM",
+        reasonLabel: "商家发错货",
+        note: "收到的不是购买商品，已寄回。",
+        contactPhone: "13512344321",
+        returnAddress: {
+          name: "番禺大道人仓库",
+          phone: "020-88888888",
+          address: "天安总部中心15号楼202",
+          deadline: "2026.06.13"
+        },
+        returnLogistics: {
+          company: "韵达快递",
+          no: "12412412",
+          time: "2026.06.06 14:20"
+        },
+        reshipLogistics: null,
+        closeInfo: null,
+        timeline: [
+          { title: "申请结果", content: "已提交售后申请，申请金额 ￥98.00。" },
+          { title: "审核结果", content: "商家同意退货退款，请寄回商品。" },
+          { title: "退货寄回结果", content: "买家已填写退货物流：韵达快递 12412412。" }
+        ]
+      },
+      {
+        id: "AF-2004",
+        orderId: "ORDER-1006",
+        orderNo: "202606070101",
+        orderBusinessType: "商品自提",
+        type: "仅退款",
+        aftersaleStatus: "待退款",
+        closeType: "",
+        title: "待退款",
+        desc: "等待商家处理退款",
+        progress: ["done", "active", "todo"],
+        progressLabels: ["提交申请", "商家退款", "完成"],
+        requestAmount: 188,
+        approvedAmount: 188,
+        breakdown: { cash: 188, card: 0, gift: 0, points: 0, coupon: "无" },
+        reasonCode: "NO_WANT",
+        reasonLabel: "不想要了",
+        note: "",
+        contactPhone: "18680474921",
+        returnLogistics: null,
+        reshipLogistics: null,
+        closeInfo: null,
+        timeline: [
+          { title: "申请结果", content: "退款申请已提交，等待商家处理退款。" }
+        ]
+      },
+      {
+        id: "AF-2005",
+        orderId: "ORDER-1007",
+        orderNo: "202606070102",
+        orderBusinessType: "套餐/次卡",
+        type: "仅退款",
+        aftersaleStatus: "退款中",
+        closeType: "",
+        title: "退款中",
+        desc: "商家已发起退款，请耐心等待",
+        progress: ["done", "done", "active"],
+        progressLabels: ["提交申请", "商家退款", "退款成功"],
+        requestAmount: 268,
+        approvedAmount: 268,
+        breakdown: { cash: 268, card: 0, gift: 0, points: 0, coupon: "无" },
+        reasonCode: "NO_WANT",
+        reasonLabel: "不想要了",
+        note: "",
+        contactPhone: "18680474921",
+        returnLogistics: null,
+        reshipLogistics: null,
+        closeInfo: null,
+        timeline: [
+          { title: "申请结果", content: "退款申请已提交。" },
+          { title: "退款结果", content: "商家已发起退款，等待渠道回执。" }
+        ]
+      },
+      {
+        id: "AF-2006",
+        orderId: "ORDER-1008",
+        orderNo: "202606070201",
+        orderBusinessType: "开卡充值",
+        type: "仅退款",
+        aftersaleStatus: "退款失败",
+        closeType: "",
+        title: "退款失败",
+        desc: "退款暂未成功，商家会重新处理",
+        progress: ["done", "done", "active"],
+        progressLabels: ["提交申请", "商家退款", "退款失败"],
+        requestAmount: 500,
+        approvedAmount: 500,
+        breakdown: { cash: 500, card: 0, gift: 0, points: 0, coupon: "无" },
+        reasonCode: "NO_WANT",
+        reasonLabel: "不想要了",
+        note: "",
+        contactPhone: "18680474921",
+        returnLogistics: null,
+        reshipLogistics: null,
+        closeInfo: null,
+        timeline: [
+          { title: "申请结果", content: "退款申请已提交。" },
+          { title: "退款失败结果", content: "失败原因：商家账户可用退款资金不足。" }
+        ]
+      },
+      {
+        id: "AF-2007",
+        orderId: "ORDER-1002",
+        orderNo: "260530130311623659047",
+        orderBusinessType: "商品物流发货",
+        type: "仅退款",
+        aftersaleStatus: "待补寄出库",
+        closeType: "",
+        title: "补寄处理中",
+        desc: "商家已为您转补寄，等待仓库出库",
+        progress: ["done", "done", "active"],
+        progressLabels: ["提交申请", "商家处理", "补寄中"],
+        requestAmount: 39,
+        approvedAmount: 0,
+        breakdown: { cash: 0, card: 0, gift: 0, points: 0, coupon: "无" },
+        reasonCode: "MISSING_ITEMS",
+        reasonLabel: "少件/漏发",
+        note: "只收到空盒，商家已转补寄。",
+        contactPhone: "13512344321",
+        returnLogistics: null,
+        reshipLogistics: null,
+        closeInfo: null,
+        reshipReason: "少件 / 漏发",
+        timeline: [
+          { title: "申请结果", content: "已提交售后申请。" },
+          { title: "商家处理结果", content: "商家已转补寄，等待仓库出库。" }
+        ]
+      },
+      {
+        id: "AF-2008",
+        orderId: "ORDER-1003",
+        orderNo: "202606070003",
+        orderBusinessType: "商品物流发货",
+        type: "补寄",
+        aftersaleStatus: "待买家收货",
+        closeType: "",
+        title: "待买家收货",
+        desc: "补寄商品已发出，请注意查收",
+        progress: ["done", "done", "active"],
+        progressLabels: ["提交申请", "补寄发货", "待买家收货"],
+        requestAmount: 0,
+        approvedAmount: 0,
+        breakdown: { cash: 0, card: 0, gift: 0, points: 0, coupon: "无" },
+        reasonCode: "MISSING_ITEMS",
+        reasonLabel: "少件/漏发",
+        note: "",
+        contactPhone: "13512344321",
+        returnLogistics: null,
+        reshipLogistics: {
+          company: "中通快递",
+          no: "421412",
+          time: "2026.06.06 16:40",
+          track: "运输中"
+        },
+        closeInfo: null,
+        reshipReason: "少件 / 漏发",
+        timeline: [
+          { title: "申请结果", content: "已提交售后申请。" },
+          { title: "补寄处理结果", content: "商家已转补寄，仓库已发出补寄商品。" }
+        ]
+      },
+      {
+        id: "AF-2009",
+        orderId: "ORDER-1009",
+        orderNo: "202606070202",
+        orderBusinessType: "预定金",
+        type: "仅退款",
+        aftersaleStatus: "已完成",
+        closeType: "",
+        title: "退款成功",
+        desc: "商家已经成功操作退款",
+        progress: ["done", "done", "active"],
+        progressLabels: ["提交申请", "商家退款", "退款成功"],
+        requestAmount: 10,
+        approvedAmount: 10,
+        breakdown: { cash: 10, card: 0, gift: 0, points: 0, coupon: "无" },
+        reasonCode: "NO_WANT",
+        reasonLabel: "不想要了",
+        note: "",
+        contactPhone: "18680474921",
+        returnLogistics: null,
+        reshipLogistics: null,
+        closeInfo: null,
+        timeline: [
+          { title: "申请结果", content: "退款申请已提交。" },
+          { title: "退款成功结果", content: "退款金额 ￥10.00 已原路退回。" }
+        ]
+      },
+      {
+        id: "AF-2010",
+        orderId: "ORDER-1004",
+        orderNo: "202606060001",
+        orderBusinessType: "商品物流发货",
+        type: "仅退款",
+        aftersaleStatus: "已关闭",
+        closeType: "已拒绝",
+        title: "已关闭",
+        desc: "本次售后已关闭，可查看关闭类型和原因",
+        progress: ["done", "done", "active"],
+        progressLabels: ["提交申请", "商家处理", "已关闭"],
+        requestAmount: 128,
+        approvedAmount: 0,
+        breakdown: { cash: 0, card: 0, gift: 0, points: 0, coupon: "无" },
+        reasonCode: "NO_WANT",
+        reasonLabel: "不想要了",
+        note: "想重新拍一单。",
+        contactPhone: "13512344321",
+        returnLogistics: null,
+        reshipLogistics: null,
+        closeInfo: {
+          type: "已拒绝",
+          time: "2026.06.06 16:20",
+          reason: "商品已使用",
+          desc: "不满足退款条件"
+        },
+        timeline: [
+          { title: "申请结果", content: "已提交售后申请。" },
+          { title: "关闭结果", content: "商家拒绝申请，关闭原因：商品已使用。" }
+        ]
+      }
+    ];
+
+    const orderMap = Object.fromEntries(orders.map(order => [order.id, order]));
+    const aftersaleMap = Object.fromEntries(aftersales.map(item => [item.id, item]));
+
+    const appState = {
+      currentPage: "order-list",
+      listTab: "全部订单",
+      currentOrderId: null,
+      currentAftersaleId: null,
+      selectedType: "",
+      dialog: null,
+      form: null,
+      history: []
+    };
+
+    const tabConfig = ["全部订单", "待发货", "待收货", "已完成", "售后"];
+
+    function cloneFormState(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function getThumbClass(type) {
+      if (type === "green") return "style='background: linear-gradient(160deg, rgba(24,160,88,0.2), rgba(255,255,255,0.78)), linear-gradient(45deg, #dcfce7, #fef3c7);'";
+      if (type === "cool") return "style='background: linear-gradient(160deg, rgba(47,125,255,0.22), rgba(255,255,255,0.76)), linear-gradient(45deg, #dbeafe, #f0fdf4);'";
+      if (type === "gray") return "style='background: linear-gradient(160deg, rgba(139,147,161,0.18), rgba(255,255,255,0.8)), linear-gradient(45deg, #e5e7eb, #f4f4f5);'";
+      return "";
+    }
+
+    function getStatusClass(status) {
+      if (["待发货", "待自提", "待退款", "未核销", "资产可退", "权益未使用"].includes(status)) return "status-pending";
+      if (["已发货", "待收货"].includes(status)) return "status-shipped";
+      if (["售后中", "补寄处理中", "待买家收货"].includes(status)) return "status-aftersale";
+      if (["已完成", "退款成功"].includes(status)) return "status-done";
+      return "status-muted";
+    }
+
+    function pushHistory() {
+      appState.history.push({
+        currentPage: appState.currentPage,
+        listTab: appState.listTab,
+        currentOrderId: appState.currentOrderId,
+        currentAftersaleId: appState.currentAftersaleId,
+        selectedType: appState.selectedType,
+        form: appState.form ? cloneFormState(appState.form) : null
+      });
+    }
+
+    function navigate(next) {
+      pushHistory();
+      Object.assign(appState, next);
+      render();
+    }
+
+    function goBack() {
+      const prev = appState.history.pop();
+      if (!prev) return;
+      appState.currentPage = prev.currentPage;
+      appState.listTab = prev.listTab;
+      appState.currentOrderId = prev.currentOrderId;
+      appState.currentAftersaleId = prev.currentAftersaleId;
+      appState.selectedType = prev.selectedType;
+      appState.form = prev.form;
+      appState.dialog = null;
+      render();
+    }
+
+    function createForm(order, kind) {
+      const eligibleItems = order.items
+        .filter(item => item.eligibleForRefund || kind === "pendingShip")
+        .map(item => ({
+          id: item.id,
+          checked: true,
+          title: item.title,
+          sku: item.sku,
+          price: item.unitPrice,
+          maxQty: item.refundableQty || item.orderQty,
+          qty: item.refundableQty || item.orderQty,
+          orderQty: item.orderQty
+        }));
+      const estimate = computeEstimate(order, eligibleItems, kind);
+      return {
+        orderId: order.id,
+        kind,
+        reason: reasonOptions[kind][0].value,
+        note: "",
+        contactPhone: "13512344321",
+        items: eligibleItems,
+        amount: estimate.maxRefundAmount.toFixed(2),
+        estimate
+      };
+    }
+
+    function computeSelectedSubtotal(items) {
+      return items
+        .filter(item => item.checked)
+        .reduce((sum, item) => sum + item.price * item.qty, 0);
+    }
+
+    function allEligibleSelected(order, items) {
+      const eligible = order.items.filter(item => item.eligibleForRefund || order.orderStatus === "待发货");
+      return eligible.every(source => {
+        const selected = items.find(item => item.id === source.id);
+        if (!selected || !selected.checked) return false;
+        return selected.qty === (source.refundableQty || source.orderQty);
+      });
+    }
+
+    function proportionBreakdown(breakdown, ratio) {
+      const round2 = (num) => Math.round(num * 100) / 100;
+      return {
+        cash: round2((breakdown.cash || 0) * ratio),
+        card: round2((breakdown.card || 0) * ratio),
+        gift: round2((breakdown.gift || 0) * ratio),
+        points: Math.round((breakdown.points || 0) * ratio),
+        coupon: breakdown.coupon || "无"
+      };
+    }
+
+    function computeEstimate(order, items, kind) {
+      const selectedSubtotal = computeSelectedSubtotal(items);
+      const orderGoodsTotal = order.items.reduce((sum, item) => sum + item.unitPrice * item.orderQty, 0) || selectedSubtotal || 1;
+      const ratio = Math.min(1, selectedSubtotal / orderGoodsTotal);
+      const wholeSelected = allEligibleSelected(order, items);
+      let shippingRefund = 0;
+      let shippingHint = "默认不可退";
+
+      if (kind === "pendingShip") {
+        if (wholeSelected) {
+          shippingRefund = order.paymentSummary.shipping;
+          shippingHint = "当前选择覆盖剩余全部商品，原订单运费可退";
+        } else {
+          shippingHint = "部分退款后订单仍需发货，原订单运费默认不退";
+        }
+      }
+
+      if (kind === "shippedRefund" || kind === "returnRefund") {
+        shippingHint = "商品已发货，原订单运费默认不可退";
+      }
+
+      const maxRefundAmount = Math.round((selectedSubtotal + shippingRefund) * 100) / 100;
+      const breakdown = proportionBreakdown(order.paymentBreakdown, maxRefundAmount / (order.paymentSummary.total || maxRefundAmount || 1));
+      return { maxRefundAmount, shippingHint, breakdown };
+    }
+
+    function createAftersaleFromForm(order, form) {
+      const estimate = computeEstimate(order, form.items, form.kind);
+      const typeMap = {
+        pendingShip: "仅退款",
+        shippedRefund: "仅退款",
+        returnRefund: "退货退款"
+      };
+      const newId = `AF-TEMP-${Date.now()}`;
+      const reasonLabel = (reasonOptions[form.kind].find(item => item.value === form.reason) || { label: "其他原因" }).label;
+      const newAftersale = {
+        id: newId,
+        orderId: order.id,
+        orderNo: order.orderNo,
+        orderBusinessType: order.orderBusinessType,
+        type: typeMap[form.kind],
+        aftersaleStatus: "待审核",
+        closeType: "",
+        title: "待审核",
+        desc: "您的申请已提交，等待商家处理",
+        progress: ["done", "active", "todo"],
+        progressLabels: ["提交申请", "商家处理", "完成"],
+        requestAmount: Number(form.amount),
+        approvedAmount: Number(form.amount),
+        breakdown: estimate.breakdown,
+        reasonCode: form.reason,
+        reasonLabel,
+        note: form.note,
+        contactPhone: form.contactPhone,
+        returnLogistics: null,
+        reshipLogistics: null,
+        closeInfo: null,
+        timeline: [
+          { title: "申请结果", content: `已提交${typeMap[form.kind]}申请，申请金额 ￥${Number(form.amount).toFixed(2)}。` }
+        ]
+      };
+      if (form.kind === "returnRefund") {
+        newAftersale.progressLabels = ["提交申请", "待寄回", "商家收货"];
+      }
+      aftersales.unshift(newAftersale);
+      aftersaleMap[newId] = newAftersale;
+      order.orderAftersaleTag = "售后中";
+      order.allowRefund = false;
+      order.allowAftersale = false;
+      order.allowAftersaleDetail = true;
+      order.aftersaleId = newId;
+      order.tab = "售后";
+      order.orderStatus = "售后中";
+      order.statusTitle = "售后中";
+      order.statusDesc = "当前订单已有售后单在处理中";
+      return newId;
+    }
+
+    function createAftersaleFromNonLogistics(order) {
+      const newId = `AF-TEMP-${Date.now()}`;
+      const newAftersale = {
+        id: newId,
+        orderId: order.id,
+        orderNo: order.orderNo,
+        orderBusinessType: order.orderBusinessType,
+        type: "仅退款",
+        aftersaleStatus: "待退款",
+        closeType: "",
+        title: "待退款",
+        desc: "等待商家处理退款",
+        progress: ["done", "active", "todo"],
+        progressLabels: ["提交申请", "商家退款", "完成"],
+        requestAmount: order.paymentSummary.total,
+        approvedAmount: order.paymentSummary.total,
+        breakdown: order.paymentBreakdown,
+        reasonCode: "NO_WANT",
+        reasonLabel: "不想要了",
+        note: "",
+        contactPhone: order.receiver.phone,
+        returnLogistics: null,
+        reshipLogistics: null,
+        closeInfo: null,
+        timeline: [
+          { title: "申请结果", content: "退款申请已提交，等待商家处理退款。" }
+        ]
+      };
+      aftersales.unshift(newAftersale);
+      aftersaleMap[newId] = newAftersale;
+      order.orderAftersaleTag = "售后中";
+      order.allowRefund = false;
+      order.allowAftersaleDetail = true;
+      order.aftersaleId = newId;
+      order.tab = "售后";
+      order.orderStatus = "售后中";
+      order.statusTitle = "售后中";
+      order.statusDesc = "当前订单已有售后单在处理中";
+      return newId;
+    }
+
+    function getCurrentOrder() {
+      return orderMap[appState.currentOrderId] || null;
+    }
+
+    function getCurrentAftersale() {
+      return aftersaleMap[appState.currentAftersaleId] || null;
+    }
+
+    function getNavTitle() {
+      if (appState.currentPage === "order-list") return "我的订单";
+      if (appState.currentPage === "order-detail") return "订单详情";
+      if (appState.currentPage === "aftersale-type") return "售后类型";
+      if (appState.currentPage === "refund-form") return "申请退款";
+      if (appState.currentPage === "return-form") return "退货退款";
+      if (appState.currentPage === "return-logistics") return "填写物流";
+      if (appState.currentPage === "aftersale-detail") return "售后详情";
+      return "我的订单";
+    }
+
+    function renderNav() {
+      const navLeft = document.getElementById("navLeft");
+      const navTitle = document.getElementById("navTitle");
+      navTitle.textContent = getNavTitle();
+      if (appState.currentPage === "order-list") {
+        navLeft.innerHTML = "‹";
+      } else {
+        navLeft.innerHTML = "<button type='button' data-action='back'>‹</button>";
+      }
+    }
+
+    function formatMoney(num) {
+      return `￥${Number(num).toFixed(2)}`;
+    }
+
+    function formatBreakdown(breakdown) {
+      return `
+        <div class="info-row"><span>微信支付</span><strong>${breakdown.cash ? formatMoney(breakdown.cash) : "￥0.00"}</strong></div>
+        <div class="info-row"><span>卡金</span><strong>${breakdown.card ? formatMoney(breakdown.card) : "￥0.00"}</strong></div>
+        <div class="info-row"><span>赠送金</span><strong>${breakdown.gift ? formatMoney(breakdown.gift) : "￥0.00"}</strong></div>
+        <div class="info-row"><span>积分</span><strong>${breakdown.points || 0}积分</strong></div>
+        <div class="info-row"><span>优惠券</span><strong>${breakdown.coupon || "无"}</strong></div>
+      `;
+    }
+
+    function renderOrderCard(order) {
+      const buttonHtml = (() => {
+        if (order.allowAftersaleDetail) {
+          return `<button class="btn primary" data-action="open-aftersale" data-aftersale-id="${order.aftersaleId}">售后详情</button>`;
+        }
+        if (order.allowRefund) {
+          if (order.orderBusinessType === "商品物流发货") {
+            return `<button class="btn ghost">提醒发货</button><button class="btn primary" data-action="open-order" data-order-id="${order.id}">申请退款</button>`;
+          }
+          return `<button class="btn primary" data-action="open-order" data-order-id="${order.id}">申请退款</button>`;
+        }
+        if (order.allowAftersale) {
+          return `<button class="btn ghost">查看物流</button><button class="btn primary" data-action="open-order" data-order-id="${order.id}">申请售后</button>`;
+        }
+        if (order.notEligibleReason) {
+          return `<button class="btn ghost">再次购买</button>${order.orderBusinessType === "商品物流发货" ? `<button class="btn disabled">${order.notEligibleReason.includes("售后") ? "申请售后" : "申请退款"}</button>` : ""}`;
+        }
+        return `<button class="btn ghost">再次购买</button>`;
+      })();
+
+      const hint = order.notEligibleReason
+        ? `<div class="hint disabled">${order.notEligibleReason}</div>`
+        : order.orderBusinessType !== "商品物流发货"
+          ? `<div class="hint info">非物流退款型订单点击申请退款后只弹普通确认弹窗，不进入申请页。</div>`
+          : order.orderStatus === "待发货"
+            ? `<div class="hint warn">待发货物流订单点击申请退款后，直接进入仅退款申请页。</div>`
+            : "";
+
+      return `
+        <article class="order-card">
+          <div class="order-top">
+            <span>订单编号 ${order.orderNo}</span>
+            <span class="status-text ${getStatusClass(order.statusTitle)}">${order.statusTitle}</span>
+          </div>
+          <div class="item">
+            <div class="thumb" ${getThumbClass(order.items[0].thumb)}></div>
+            <div>
+              <p class="item-title">${order.items[0].title}</p>
+              <p class="sku">${order.items[0].sku}</p>
+              <div class="price-row">
+                <span class="price">${formatMoney(order.items[0].unitPrice)}</span>
+                <span class="count">x${order.items[0].orderQty}</span>
+              </div>
+            </div>
+          </div>
+          ${hint}
+          <div class="action-row">
+            <div class="summary">${order.summary}</div>
+            <div class="buttons">${buttonHtml}</div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderOrderList() {
+      const visibleOrders = orders.filter(order => appState.listTab === "全部订单" ? true : order.tab === appState.listTab);
+      return `
+        <div class="tabs-wrap">
+          <div class="tabs">
+            ${tabConfig.map(tab => `<button class="tab ${appState.listTab === tab ? "active" : ""}" data-action="set-tab" data-tab="${tab}">${tab}</button>`).join("")}
+          </div>
+        </div>
+        <section class="screen">
+          ${visibleOrders.map(renderOrderCard).join("")}
+        </section>
+        <div class="footer center">
+          <button class="btn ghost" data-action="jump-aftersale-statuses">查看售后状态样例</button>
+        </div>
+      `;
+    }
+
+    function renderOrderDetail(order) {
+      const footerButtons = (() => {
+        if (order.allowAftersaleDetail) return `<button class="btn primary" data-action="open-aftersale" data-aftersale-id="${order.aftersaleId}">售后详情</button>`;
+        if (order.allowRefund && order.orderBusinessType !== "商品物流发货") return `<button class="btn primary" data-action="non-logistics-confirm" data-order-id="${order.id}">申请退款</button>`;
+        if (order.allowRefund && order.orderBusinessType === "商品物流发货") return `<button class="btn ghost">联系卖家</button><button class="btn primary" data-action="start-pending-refund" data-order-id="${order.id}">申请退款</button>`;
+        if (order.allowAftersale) return `<button class="btn ghost">查看物流</button><button class="btn primary" data-action="open-aftersale-type" data-order-id="${order.id}">申请售后</button>`;
+        if (order.notEligibleReason) return `<button class="btn ghost">联系卖家</button>`;
+        return `<button class="btn ghost">联系卖家</button>`;
+      })();
+
+      const addressBlock = order.orderBusinessType === "商品物流发货"
+        ? `
+          <section class="card">
+            <div class="address">
+              <div>📍</div>
+              <div>${order.receiver.name} ${order.receiver.phone}<br>${order.receiver.address}</div>
+            </div>
+          </section>
+        `
+        : `
+          <section class="card">
+            <div class="address">
+              <div>◎</div>
+              <div>${order.receiver.name} ${order.receiver.phone}<br>${order.receiver.address}</div>
+            </div>
+          </section>
+        `;
+
+      return `
+        <section class="screen">
+          <section class="hero">
+            <h1>${order.statusTitle}</h1>
+            <p>${order.statusDesc}</p>
+          </section>
+          ${addressBlock}
+          <section class="card">
+            <h2 class="sec-title">商品信息</h2>
+            <div class="list-grid">
+              ${order.items.map(item => `
+                <div class="item">
+                  <div class="thumb" ${getThumbClass(item.thumb)}></div>
+                  <div>
+                    <p class="item-title">${item.title}</p>
+                    <p class="sku">${item.sku}</p>
+                    <div class="price-row">
+                      <span class="price">${formatMoney(item.unitPrice)}</span>
+                      <span class="count">x${item.orderQty}</span>
+                    </div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+          <section class="card">
+            <h2 class="sec-title">金额信息</h2>
+            <div class="summary-list">
+              <div class="summary-line"><span>商品金额</span><strong>${formatMoney(order.paymentSummary.goods)}</strong></div>
+              <div class="summary-line"><span>配送运费</span><strong>${formatMoney(order.paymentSummary.shipping)}</strong></div>
+              <div class="summary-line"><span>活动优惠</span><strong>-${formatMoney(order.paymentSummary.discount).replace("￥", "￥")}</strong></div>
+              <div class="summary-line total"><strong>实付款（含运费）</strong><strong>${formatMoney(order.paymentSummary.total)}</strong></div>
+            </div>
+          </section>
+          <section class="card">
+            <h2 class="sec-title">订单信息</h2>
+            <div class="info-list">
+              <div class="info-row"><span>订单业务形态</span><strong>${order.orderBusinessType}</strong></div>
+              <div class="info-row"><span>订单编号</span><strong>${order.orderNo}</strong></div>
+              <div class="info-row"><span>售后期提示</span><strong>${order.aftersalePeriodHint}</strong></div>
+            </div>
+          </section>
+          ${order.notEligibleReason ? `<section class="card"><div class="hint disabled">${order.notEligibleReason}</div></section>` : ""}
+        </section>
+        <div class="footer">${footerButtons}</div>
+      `;
+    }
+
+    function renderAftersaleType(order) {
+      return `
+        <section class="screen">
+          <section class="card">
+            <div class="item">
+              <div class="thumb" ${getThumbClass(order.items[0].thumb)}></div>
+              <div>
+                <p class="item-title">订单编号：${order.orderNo}</p>
+                <p class="sku">实付款（含运费）：${formatMoney(order.paymentSummary.total)}${order.paymentSummary.shipping ? `（含运费 ${formatMoney(order.paymentSummary.shipping)}）` : ""}</p>
+              </div>
+            </div>
+          </section>
+          <section class="type-option" data-action="start-return-refund" data-order-id="${order.id}">
+            <div>
+              <strong>退货退款（已收到货）</strong>
+              <span>已收到货，需要退回商品后退款</span>
+            </div>
+            <div class="type-badge">退</div>
+          </section>
+          <section class="type-option" data-action="start-shipped-refund" data-order-id="${order.id}" style="margin-top: 12px;">
+            <div>
+              <strong>仅退款（未收货仅退款）</strong>
+              <span>未收到货，不寄回商品直接申请退款</span>
+            </div>
+            <div class="type-badge">￥</div>
+          </section>
+        </section>
+      `;
+    }
+
+    function renderRefundForm(order, form, modeTitle, shippingHint) {
+      return `
+        <section class="screen">
+          <section class="card">
+            <div class="item">
+              <div class="thumb" ${getThumbClass(order.items[0].thumb)}></div>
+              <div>
+                <p class="item-title">订单编号：${order.orderNo}</p>
+                <p class="sku">实付款（含运费）：${formatMoney(order.paymentSummary.total)}${order.paymentSummary.shipping ? `（含运费 ${formatMoney(order.paymentSummary.shipping)}）` : ""}</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="form-grid">
+              <div class="field">
+                <label>申请类型</label>
+                <input value="${modeTitle}" readonly>
+              </div>
+              <div class="field">
+                <label>申请原因</label>
+                <select data-action="update-form-reason">
+                  ${reasonOptions[form.kind].map(item => `<option value="${item.value}" ${form.reason === item.value ? "selected" : ""}>${item.label}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2 class="sec-title">退款商品</h2>
+            <div class="list-grid">
+              ${form.items.map(item => `
+                <div class="picker-item">
+                  <input type="checkbox" data-action="toggle-item" data-item-id="${item.id}" ${item.checked ? "checked" : ""}>
+                  <div class="picker-thumb"></div>
+                  <div>
+                    <p class="item-title">${item.title}</p>
+                    <p class="sku">${item.sku}</p>
+                    <div class="price-row">
+                      <span class="price">${formatMoney(item.price)}</span>
+                      <span class="count">订单数量 x${item.orderQty}</span>
+                    </div>
+                    <div class="qty-row">
+                      <button class="qty-btn" data-action="decrease-qty" data-item-id="${item.id}">-</button>
+                      <span class="qty">${item.qty}</span>
+                      <button class="qty-btn" data-action="increase-qty" data-item-id="${item.id}">+</button>
+                    </div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="summary-list">
+              <div class="summary-line total"><strong>最多可退金额</strong><strong>${formatMoney(form.estimate.maxRefundAmount)}</strong></div>
+              <div class="hint ${form.kind === "pendingShip" ? "info" : "warn"}">${shippingHint}</div>
+            </div>
+            <div class="info-list" style="margin-top: 12px;">
+              <div class="info-row"><span>预计退回方式</span><strong></strong></div>
+              ${formatBreakdown(form.estimate.breakdown)}
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="form-grid">
+              <div class="field">
+                <label>申请退款金额</label>
+                <input type="number" step="0.01" value="${form.amount}" data-action="update-form-amount">
+              </div>
+              <div class="field">
+                <label>申请说明</label>
+                <textarea placeholder="请您详细填写申请说明" data-action="update-form-note">${form.note}</textarea>
+              </div>
+              <div class="field">
+                <label>上传图片</label>
+                <div class="upload-box">相机+<br>上传图片</div>
+                <span class="field-note">${form.kind === "returnRefund" ? "质量/破损/错发等原因建议上传凭证。" : "部分原因可补充凭证。"}</span>
+              </div>
+              <div class="field">
+                <label>联系电话</label>
+                <input value="${form.contactPhone}" data-action="update-form-phone">
+              </div>
+            </div>
+          </section>
+        </section>
+        <div class="footer center"><button class="btn primary" data-action="submit-form">提交申请</button></div>
+      `;
+    }
+
+    function renderReturnLogistics(aftersale) {
+      const order = orderMap[aftersale.orderId];
+      return `
+        <section class="screen">
+          <section class="card">
+            <h2 class="sec-title">退货商品</h2>
+            <div class="item">
+              <div class="thumb" ${getThumbClass(order.items[0].thumb)}></div>
+              <div>
+                <p class="item-title">${order.items[0].title}</p>
+                <p class="sku">${order.items[0].sku}</p>
+                <div class="price-row"><span class="price">${formatMoney(order.items[0].unitPrice)}</span><span class="count">x1</span></div>
+              </div>
+            </div>
+          </section>
+          <section class="card">
+            <div class="form-grid">
+              <div class="field"><label>物流公司</label><input value="韵达快递"></div>
+              <div class="field"><label>物流单号</label><input value="12412412"></div>
+              <div class="field"><label>联系电话</label><input value="13512344321"></div>
+              <div class="field"><label>备注说明</label><input value="请尽快签收处理"></div>
+            </div>
+          </section>
+          <section class="card"><div class="hint info">请填写真实物流单号，商家确认收货后会处理退款。</div></section>
+        </section>
+        <div class="footer center"><button class="btn primary" data-action="submit-return-logistics">提交</button></div>
+      `;
+    }
+
+    function getAftersaleButtons(aftersale) {
+      if (aftersale.aftersaleStatus === "待审核") {
+        return `<button class="btn ghost" data-action="cancel-aftersale">撤销申请</button><button class="btn primary">联系卖家</button>`;
+      }
+      if (aftersale.aftersaleStatus === "待寄回") {
+        return `<button class="btn ghost" data-action="cancel-aftersale">撤销申请</button><button class="btn primary" data-action="fill-return-logistics">填写物流</button>`;
+      }
+      if (aftersale.aftersaleStatus === "待收货") {
+        return `<button class="btn ghost">联系卖家</button><button class="btn primary">查看退货物流</button>`;
+      }
+      if (aftersale.aftersaleStatus === "待买家收货") {
+        return `<button class="btn ghost">查看补寄物流</button><button class="btn primary">确认收货</button>`;
+      }
+      if (aftersale.aftersaleStatus === "已完成") {
+        return `<button class="btn primary">查看结果</button>`;
+      }
+      if (aftersale.aftersaleStatus === "已关闭") {
+        return `<button class="btn ghost">联系卖家</button><button class="btn primary">重新申请</button>`;
+      }
+      return `<button class="btn primary">联系卖家</button>`;
+    }
+
+    function renderAftersaleDetail(aftersale) {
+      const order = orderMap[aftersale.orderId];
+      const showReturnAddress = aftersale.aftersaleStatus === "待寄回" && aftersale.returnAddress;
+      const showReturnLogistics = ["待收货", "待退款", "退款中", "退款失败"].includes(aftersale.aftersaleStatus) && aftersale.returnLogistics;
+      const showReship = ["待补寄出库", "待买家收货"].includes(aftersale.aftersaleStatus);
+      const showClose = aftersale.aftersaleStatus === "已关闭" && aftersale.closeInfo;
+      const showRefundBreakdown = ["待退款", "退款中", "退款失败", "已完成"].includes(aftersale.aftersaleStatus) && aftersale.approvedAmount > 0;
+      return `
+        <section class="screen">
+          <section class="hero ${["待退款", "退款中"].includes(aftersale.aftersaleStatus) ? "soft" : ""} ${aftersale.aftersaleStatus === "已完成" ? "success" : ""} ${["退款失败", "已关闭", "待寄回", "待收货", "待买家收货", "待补寄出库"].includes(aftersale.aftersaleStatus) ? "warn" : ""}">
+            <h1>${aftersale.title}</h1>
+            <p>${aftersale.desc}</p>
+          </section>
+
+          <section class="card">
+            <div class="progress">
+              ${aftersale.progressLabels.map((label, index) => `
+                <span class="progress-step ${aftersale.progress[index] === "active" ? "active" : ""} ${aftersale.progress[index] === "done" ? "done" : ""}">
+                  <span class="progress-dot">${aftersale.progress[index] === "done" ? "✓" : index + 1}</span>
+                  <span>${label}</span>
+                </span>
+                ${index < aftersale.progressLabels.length - 1 ? `<span class="progress-arrow">></span>` : ""}
+              `).join("")}
+            </div>
+          </section>
+
+          <section class="card">
+            <h2 class="sec-title">商品与金额</h2>
+            <div class="item">
+              <div class="thumb" ${getThumbClass(order.items[0].thumb)}></div>
+              <div>
+                <p class="item-title">${order.items[0].title}</p>
+                <p class="sku">${order.items[0].sku}</p>
+                <div class="price-row"><span class="price">${formatMoney(order.items[0].unitPrice)}</span><span class="count">x1</span></div>
+              </div>
+            </div>
+            <div class="info-list" style="margin-top: 12px;">
+              <div class="info-row"><span>申请退款金额</span><strong>${formatMoney(aftersale.requestAmount)}</strong></div>
+              <div class="info-row"><span>最终审批退款金额</span><strong>${formatMoney(aftersale.approvedAmount)}</strong></div>
+            </div>
+          </section>
+
+          ${showReturnAddress ? `
+            <section class="card">
+              <h2 class="sec-title">退货地址</h2>
+              <div class="info-list">
+                <div class="info-row"><span>收件人</span><strong>${aftersale.returnAddress.name}</strong></div>
+                <div class="info-row"><span>电话</span><strong>${aftersale.returnAddress.phone}</strong></div>
+                <div class="info-row"><span>地址</span><strong>${aftersale.returnAddress.address}</strong></div>
+                <div class="info-row"><span>寄回截止</span><strong>${aftersale.returnAddress.deadline}</strong></div>
+              </div>
+              <div class="hint warn">请勿到付，寄回后保留物流单号。</div>
+            </section>
+          ` : ""}
+
+          ${showReturnLogistics ? `
+            <section class="card">
+              <h2 class="sec-title">买家退货物流</h2>
+              <div class="info-list">
+                <div class="info-row"><span>快递公司</span><strong>${aftersale.returnLogistics.company}</strong></div>
+                <div class="info-row"><span>快递单号</span><strong>${aftersale.returnLogistics.no}</strong></div>
+                <div class="info-row"><span>寄出时间</span><strong>${aftersale.returnLogistics.time}</strong></div>
+              </div>
+            </section>
+          ` : ""}
+
+          ${showRefundBreakdown ? `
+            <section class="card">
+              <h2 class="sec-title">退款明细</h2>
+              <div class="info-list">
+                ${formatBreakdown(aftersale.breakdown)}
+              </div>
+            </section>
+          ` : ""}
+
+          ${showReship ? `
+            <section class="card">
+              <h2 class="sec-title">补寄信息</h2>
+              <div class="info-list">
+                <div class="info-row"><span>补寄原因</span><strong>${aftersale.reshipReason || "少件 / 漏发"}</strong></div>
+                ${aftersale.reshipLogistics ? `
+                  <div class="info-row"><span>快递公司</span><strong>${aftersale.reshipLogistics.company}</strong></div>
+                  <div class="info-row"><span>快递单号</span><strong>${aftersale.reshipLogistics.no}</strong></div>
+                  <div class="info-row"><span>发货时间</span><strong>${aftersale.reshipLogistics.time}</strong></div>
+                ` : `<div class="info-row"><span>当前状态</span><strong>等待仓库出库</strong></div>`}
+              </div>
+            </section>
+          ` : ""}
+
+          ${showClose ? `
+            <section class="card">
+              <h2 class="sec-title">关闭信息</h2>
+              <div class="info-list">
+                <div class="info-row"><span>关闭类型</span><strong>${aftersale.closeInfo.type}</strong></div>
+                <div class="info-row"><span>关闭时间</span><strong>${aftersale.closeInfo.time}</strong></div>
+                <div class="info-row"><span>关闭原因</span><strong>${aftersale.closeInfo.reason}</strong></div>
+                <div class="info-row"><span>关闭说明</span><strong>${aftersale.closeInfo.desc}</strong></div>
+              </div>
+            </section>
+          ` : ""}
+
+          <section class="card">
+            <h2 class="sec-title">申请信息</h2>
+            <div class="info-list">
+              <div class="info-row"><span>订单编号</span><strong>${aftersale.orderNo}</strong></div>
+              <div class="info-row"><span>售后编号</span><strong>${aftersale.id}</strong></div>
+              <div class="info-row"><span>申请类型</span><strong>${aftersale.type}</strong></div>
+              <div class="info-row"><span>申请原因</span><strong>${aftersale.reasonLabel}</strong></div>
+              ${aftersale.note ? `<div class="info-row"><span>申请说明</span><strong>${aftersale.note}</strong></div>` : ""}
+            </div>
+          </section>
+
+          <section class="card">
+            <h2 class="sec-title">处理流程结果</h2>
+            <div class="result-list">
+              ${aftersale.timeline.map(item => `
+                <div class="timeline-card">
+                  <strong>${item.title}</strong>
+                  <p>${item.content}</p>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+        </section>
+        <div class="footer">${getAftersaleButtons(aftersale)}</div>
+      `;
+    }
+
+    function renderDialog() {
+      if (!appState.dialog) return "";
+      const order = getCurrentOrder();
+      if (appState.dialog === "non-logistics-confirm") {
+        return `
+          <div class="dialog">
+            <div class="dialog-body">
+              <strong>退款申请</strong>
+              <p>退款申请提交后，将等待商家处理退款，是否确认发出申请？</p>
+            </div>
+            <div class="dialog-actions">
+              <button data-action="close-dialog">取消</button>
+              <button data-action="confirm-non-logistics-refund" data-order-id="${order.id}">申请退款</button>
+            </div>
+          </div>
+        `;
+      }
+      return "";
+    }
+
+    function renderCurrentPage() {
+      const app = document.getElementById("app");
+      if (appState.currentPage === "order-list") {
+        app.innerHTML = renderOrderList();
+      } else if (appState.currentPage === "order-detail") {
+        app.innerHTML = renderOrderDetail(getCurrentOrder());
+      } else if (appState.currentPage === "aftersale-type") {
+        app.innerHTML = renderAftersaleType(getCurrentOrder());
+      } else if (appState.currentPage === "refund-form") {
+        app.innerHTML = renderRefundForm(getCurrentOrder(), appState.form, appState.form.kind === "pendingShip" ? "仅退款" : "仅退款（未收货仅退款）", appState.form.estimate.shippingHint);
+      } else if (appState.currentPage === "return-form") {
+        app.innerHTML = renderRefundForm(getCurrentOrder(), appState.form, "退货退款（已收到货）", appState.form.estimate.shippingHint);
+      } else if (appState.currentPage === "return-logistics") {
+        app.innerHTML = renderReturnLogistics(getCurrentAftersale());
+      } else if (appState.currentPage === "aftersale-detail") {
+        app.innerHTML = renderAftersaleDetail(getCurrentAftersale());
+      }
+    }
+
+    function renderOverlay() {
+      const overlay = document.getElementById("overlay");
+      overlay.innerHTML = renderDialog();
+      overlay.classList.toggle("show", Boolean(appState.dialog));
+    }
+
+    function render() {
+      renderNav();
+      renderCurrentPage();
+      renderOverlay();
+    }
+
+    function updateFormEstimate() {
+      const order = getCurrentOrder();
+      appState.form.estimate = computeEstimate(order, appState.form.items, appState.form.kind);
+      appState.form.amount = appState.form.estimate.maxRefundAmount.toFixed(2);
+    }
+
+    document.body.addEventListener("click", (event) => {
+      const target = event.target.closest("[data-action]");
+      if (!target) return;
+      const action = target.dataset.action;
+      if (action === "back") {
+        goBack();
+      }
+      if (action === "set-tab") {
+        appState.listTab = target.dataset.tab;
+        render();
+      }
+      if (action === "open-order") {
+        navigate({ currentPage: "order-detail", currentOrderId: target.dataset.orderId, currentAftersaleId: null, selectedType: "", form: null, dialog: null });
+      }
+      if (action === "open-aftersale") {
+        navigate({ currentPage: "aftersale-detail", currentOrderId: null, currentAftersaleId: target.dataset.aftersaleId, selectedType: "", form: null, dialog: null });
+      }
+      if (action === "open-aftersale-type") {
+        navigate({ currentPage: "aftersale-type", currentOrderId: target.dataset.orderId, currentAftersaleId: null, selectedType: "", form: null, dialog: null });
+      }
+      if (action === "start-pending-refund") {
+        const order = orderMap[target.dataset.orderId];
+        navigate({ currentPage: "refund-form", currentOrderId: order.id, currentAftersaleId: null, selectedType: "pendingShip", form: createForm(order, "pendingShip"), dialog: null });
+      }
+      if (action === "start-shipped-refund") {
+        const order = orderMap[target.dataset.orderId];
+        navigate({ currentPage: "refund-form", currentOrderId: order.id, currentAftersaleId: null, selectedType: "shippedRefund", form: createForm(order, "shippedRefund"), dialog: null });
+      }
+      if (action === "start-return-refund") {
+        const order = orderMap[target.dataset.orderId];
+        navigate({ currentPage: "return-form", currentOrderId: order.id, currentAftersaleId: null, selectedType: "returnRefund", form: createForm(order, "returnRefund"), dialog: null });
+      }
+      if (action === "non-logistics-confirm") {
+        appState.currentOrderId = target.dataset.orderId;
+        appState.dialog = "non-logistics-confirm";
+        renderOverlay();
+      }
+      if (action === "close-dialog") {
+        appState.dialog = null;
+        renderOverlay();
+      }
+      if (action === "confirm-non-logistics-refund") {
+        const order = orderMap[target.dataset.orderId];
+        const aftersaleId = createAftersaleFromNonLogistics(order);
+        appState.dialog = null;
+        navigate({ currentPage: "aftersale-detail", currentOrderId: null, currentAftersaleId: aftersaleId, selectedType: "", form: null, dialog: null });
+      }
+      if (action === "toggle-item") {
+        const item = appState.form.items.find(entry => entry.id === target.dataset.itemId);
+        if (!item) return;
+        item.checked = target.checked;
+        updateFormEstimate();
+        renderCurrentPage();
+      }
+      if (action === "decrease-qty" || action === "increase-qty") {
+        const item = appState.form.items.find(entry => entry.id === target.dataset.itemId);
+        if (!item || !item.checked) return;
+        if (action === "decrease-qty") item.qty = Math.max(1, item.qty - 1);
+        if (action === "increase-qty") item.qty = Math.min(item.maxQty, item.qty + 1);
+        updateFormEstimate();
+        renderCurrentPage();
+      }
+      if (action === "submit-form") {
+        const order = getCurrentOrder();
+        const aftersaleId = createAftersaleFromForm(order, appState.form);
+        navigate({ currentPage: "aftersale-detail", currentOrderId: null, currentAftersaleId: aftersaleId, selectedType: "", form: null, dialog: null });
+      }
+      if (action === "fill-return-logistics") {
+        navigate({ currentPage: "return-logistics", currentOrderId: null, currentAftersaleId: appState.currentAftersaleId, selectedType: "", form: null, dialog: null });
+      }
+      if (action === "submit-return-logistics") {
+        const record = getCurrentAftersale();
+        record.aftersaleStatus = "待收货";
+        record.title = "待收货";
+        record.desc = "商品已寄出，等待商家确认收货";
+        record.returnLogistics = { company: "韵达快递", no: "12412412", time: "2026.06.06 14:20" };
+        record.timeline.push({ title: "退货寄回结果", content: "买家已填写退货物流：韵达快递 12412412。" });
+        navigate({ currentPage: "aftersale-detail", currentOrderId: null, currentAftersaleId: record.id, selectedType: "", form: null, dialog: null });
+      }
+      if (action === "cancel-aftersale") {
+        const record = getCurrentAftersale();
+        record.aftersaleStatus = "已关闭";
+        record.title = "已关闭";
+        record.desc = "您已撤销售后申请";
+        record.closeType = "已撤销";
+        record.closeInfo = { type: "已撤销", time: "2026.06.07 10:50", reason: "消费者主动撤销", desc: "仍在售后期内，可重新申请" };
+        record.timeline.push({ title: "关闭结果", content: "消费者主动撤销售后申请。" });
+        render();
+      }
+      if (action === "jump-aftersale-statuses") {
+        navigate({ currentPage: "aftersale-detail", currentOrderId: null, currentAftersaleId: "AF-2002", selectedType: "", form: null, dialog: null });
+      }
+    });
+
+    document.body.addEventListener("change", (event) => {
+      const target = event.target;
+      if (target.matches("[data-action='update-form-reason']")) {
+        appState.form.reason = target.value;
+      }
+    });
+
+    document.body.addEventListener("input", (event) => {
+      const target = event.target;
+      if (target.matches("[data-action='update-form-note']")) {
+        appState.form.note = target.value;
+      }
+      if (target.matches("[data-action='update-form-phone']")) {
+        appState.form.contactPhone = target.value;
+      }
+      if (target.matches("[data-action='update-form-amount']")) {
+        const value = Number(target.value || 0);
+        appState.form.amount = Math.min(value, appState.form.estimate.maxRefundAmount).toFixed(2);
+        if (value > appState.form.estimate.maxRefundAmount) {
+          target.value = appState.form.amount;
+        }
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
