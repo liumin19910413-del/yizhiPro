@@ -776,6 +776,16 @@
                 inset 0 1px 0 rgba(255,255,255,0.85),
                 0 8px 18px rgba(22, 163, 74, 0.12);
         }
+        .status-pill-large.completed-substatus {
+            height: 30px;
+            padding: 0 12px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #ecfdf3 0%, #dcfce7 100%);
+            color: #15803d;
+            border-color: rgba(22, 163, 74, 0.18);
+            box-shadow: none;
+            font-size: 14px;
+        }
         .status-pill-large.closed {
             background: linear-gradient(180deg, #f8f9fb 0%, #eef2f6 100%);
             color: #667085;
@@ -3320,6 +3330,16 @@
             color: #dc2626;
             font-size: 18px;
         }
+        .refund-footer-total .refund-before {
+            color: #475467;
+            font-size: 15px;
+            font-weight: 800;
+        }
+        .refund-footer-total .refund-after {
+            color: #dc2626;
+            font-size: 18px;
+            font-weight: 900;
+        }
         .refund-footer-sub {
             margin-top: 2px;
             color: #667085;
@@ -3875,6 +3895,9 @@
             text-align: left;
             vertical-align: top;
         }
+        .reject-refund-reason-textarea {
+            min-height: 132px;
+        }
         .approve-amount-grid {
             display: flex;
             align-items: center;
@@ -4017,10 +4040,24 @@
         .approve-adjust-table th {
             background: #fffaf3;
         }
+        .approve-adjust-table th:nth-child(1),
+        .approve-adjust-table td:nth-child(1) {
+            width: 26%;
+        }
+        .approve-adjust-table th:nth-child(2),
+        .approve-adjust-table td:nth-child(2) {
+            width: 14%;
+            text-align: right;
+        }
         .approve-adjust-table th:nth-child(3),
-        .approve-adjust-table td:nth-child(3),
+        .approve-adjust-table td:nth-child(3) {
+            width: 14%;
+        }
         .approve-adjust-table th:nth-child(4),
-        .approve-adjust-table td:nth-child(4) {
+        .approve-adjust-table td:nth-child(4),
+        .approve-adjust-table th:nth-child(5),
+        .approve-adjust-table td:nth-child(5) {
+            width: 23%;
             text-align: right;
         }
         .approve-adjust-table .manual-money-input {
@@ -6849,13 +6886,29 @@
                 reshipNo,
                 reshipTrack: "已出库 -> 已揽收 -> 运输中 -> 派送中",
                 buyerState: statusKey === "completed"
-                    ? "客户已确认收货，补寄完成"
+                    ? (serial % 2 === 0 ? "客户已确认收货，补寄完成" : "系统自动签收，补寄完成")
                     : (serial % 2 === 0 ? "未确认收货，系统将在签收后 7 天自动完成" : "已查看物流，暂未确认收货"),
                 warehouseName: ["上海青浦 3 号仓", "北京顺义 1 号仓", "广州白云周转仓"][serial % 3],
                 warehouseAddress: ["上海市青浦区华新镇 XX 物流园 3 号库", "北京市顺义区 XX 仓储中心 1 号", "广州市白云区太和镇 XX 仓配中心"][serial % 3],
                 receiver: ["李四", "王敏", "周涛"][serial % 3],
                 receiverPhone: ["188****5678", "186****3290", "139****8812"][serial % 3]
             };
+        }
+
+        function isSystemAutoReshipReceipt(record) {
+            return String(record.logistics?.buyerState || "").includes("系统自动签收");
+        }
+
+        function getReshipCompletedSubtitle(record) {
+            return isSystemAutoReshipReceipt(record)
+                ? "发货后 7 天客户未确认收货，系统自动签收，补寄完成"
+                : "客户已确认收货，补寄完成";
+        }
+
+        function getReshipCompletedTimelineText(record) {
+            return isSystemAutoReshipReceipt(record)
+                ? "发货后 7 天客户未确认收货，系统自动签收，补寄售后单已完成。"
+                : "客户已确认收货，补寄售后单已完成。";
         }
 
         function buildFinanceSummary(statusKey, serial) {
@@ -7122,10 +7175,14 @@
             return Math.max(0, Number(input?.dataset?.defaultRefund) || 0);
         }
 
+        function getRefundInputMax(input) {
+            return Math.max(0, Number(input?.dataset?.maxRefund) || getRefundInputDefault(input));
+        }
+
         function getRefundInputAmount(input) {
-            const defaultRefund = getRefundInputDefault(input);
+            const maxRefund = getRefundInputMax(input);
             const currentRefund = Math.max(0, Number(input?.value) || 0);
-            return Math.min(defaultRefund, currentRefund);
+            return Math.min(maxRefund, currentRefund);
         }
 
         function clampRefundInput(input) {
@@ -7541,12 +7598,12 @@
                 if (closureType === "review_rejected") return 1;
                 if (closureType === "customer_cancelled") return record.flowMode === "refund_return" ? 2 : 1;
                 if (closureType === "return_timeout") return profile.steps.length - 1;
-                if (closureType === "finance_rejected") return 4;
+                if (closureType === "finance_rejected") return profile.steps.length - 1;
                 return 5;
             }
             if (profile.kind === "refund_only") {
                 if (closureType === "review_rejected" || closureType === "customer_cancelled") return 1;
-                if (closureType === "finance_rejected") return 2;
+                if (closureType === "finance_rejected") return profile.steps.length - 1;
                 return 3;
             }
             return 0;
@@ -7617,15 +7674,26 @@
             return icons[record.statusKey] || "ℹ";
         }
 
+        function getCompletedSubStatus(record) {
+            if (record.statusKey !== "completed") return "";
+            if (record.finalResult) return record.finalResult;
+            if (record.completedSource === "reship_only" || record.completedSource === "reship_with_refund" || record.afterSaleType === "补寄" || record.flowMode === "reship") {
+                return "补寄完成";
+            }
+            return "退款成功";
+        }
+
         function renderDrawerHeader(record) {
             const tone = getHeaderTone(record);
             const flow = getHeaderFlow(record);
+            const completedSubStatus = getCompletedSubStatus(record);
             document.getElementById("drawer-header").innerHTML = `
                 <div class="drawer-title-row">
                     <div class="drawer-title-main">
                         <div class="drawer-title">售后服务单</div>
                         <span class="case-pill">${record.id}</span>
                         <span class="status-pill-large ${tone}">${statusConfigs[record.statusKey].label}</span>
+                        ${completedSubStatus ? `<span class="status-pill-large completed-substatus">${completedSubStatus}</span>` : ""}
                         ${getClosedSubStatus(record) ? `<span class="status-pill-large closed-substatus">${getClosedSubStatus(record)}</span>` : ""}
                     </div>
                     <button class="drawer-close" id="drawer-close-btn">×</button>
@@ -8052,7 +8120,8 @@
                                     <div class="approval-record-item"><span class="approval-record-label">审批人</span><span class="approval-record-value">${record.auditOperator}</span></div>
                                     <div class="approval-record-item"><span class="approval-record-label">审批时间</span><span class="approval-record-value">${record.auditAt}</span></div>
                                     <div class="approval-record-item"><span class="approval-record-label">审批后实退</span><span class="approval-record-value amount-danger">${money(approvedTotalAmount)}</span></div>
-                                    <div class="approval-record-item"><span class="approval-record-label">责任信息</span><span class="approval-record-value">${record.currentResponsibility || record.defaultResponsibility} / ${record.currentFreightBearer || record.defaultFreightBearer || "不涉及"}</span></div>
+                                    <div class="approval-record-item"><span class="approval-record-label">退货责任方</span><span class="approval-record-value">${record.currentResponsibility || record.defaultResponsibility || "待判定"}</span></div>
+                                    <div class="approval-record-item"><span class="approval-record-label">退货运费责任方</span><span class="approval-record-value">${record.currentFreightBearer || record.defaultFreightBearer || "不涉及"}</span></div>
                                     ${hasAdjustedRefund ? `<div class="approval-record-item full"><span class="approval-record-label">调额结果</span><span class="approval-record-value">${money(appliedTotalAmount)} 调整为 <span class="amount-danger">${money(approvedTotalAmount)}</span>${adjustDeltaText ? `（${adjustDeltaText}）` : ""}</span></div>` : ""}
                                     ${hasAdjustedRefund ? `<div class="approval-record-item full"><span class="approval-record-label">调额原因</span><span class="approval-record-value">${record.manualAdjustedReason || `审批金额已由 ${money(appliedTotalAmount)} 调整为 ${money(approvedTotalAmount)}。`}</span></div>` : ""}
                                     ${record.amounts.freightCompensation > 0 ? `<div class="approval-record-item full"><span class="approval-record-label">运费补贴</span><span class="approval-record-value">${money(record.amounts.freightCompensation)}<span class="approval-record-note">仅记录后续统计，不随单补给客户；${record.compensationBasis}</span></span></div>` : ""}
@@ -8144,7 +8213,6 @@
             if (closureType === "return_timeout") {
                 return `
                     ${renderApprovedApplicationInfoModule(record)}
-                    ${renderPendingReturnLogisticsCard(record)}
                     ${renderResultReasonCard(record)}
                 `;
             }
@@ -8152,7 +8220,6 @@
                 if (record.flowMode === "refund_return" && record.afterSaleType === "退款退货") {
                     return `
                         ${renderApprovedApplicationInfoModule(record)}
-                        ${renderPendingReturnLogisticsCard(record)}
                         ${renderResultReasonCard(record)}
                     `;
                 }
@@ -8799,7 +8866,7 @@
                             <span class="manual-section-index">03</span>
                             <span class="manual-section-name">补寄物流单</span>
                         </div>
-                        <span class="manual-section-subtitle">${isCompleted ? "客户已确认收货，补寄完成" : "补寄已出库，跟进物流轨迹和客户收货进度"}</span>
+                        <span class="manual-section-subtitle">${isCompleted ? getReshipCompletedSubtitle(record) : "补寄已出库，跟进物流轨迹和客户收货进度"}</span>
                     </div>
                     <div class="manual-section-body">
                         <div class="logistics-inline-block">
@@ -8873,7 +8940,7 @@
             ];
             if (record.statusKey === "completed") {
                 return [
-                    { time: `${record.completeAt}`, text: "客户已确认收货，补寄售后单已完成。" },
+                    { time: `${record.completeAt}`, text: getReshipCompletedTimelineText(record) },
                     { time: `${record.sendbackAt}`, text: "补寄订单物流已同步，等待买家签收。" },
                     { time: `${record.auditAt}`, text: "仓库已接单并完成出库，物流已揽收。" },
                     { time: `${record.createdAt}`, text: "补寄单创建完成，已发往仓库处理。" }
@@ -9188,14 +9255,14 @@
                     <div class="manual-section-title">
                         <div class="manual-section-heading">
                             <span class="manual-section-index">${sectionIndex}</span>
-                            <span class="manual-section-name">退款信息</span>
+                            <span class="manual-section-name">处理结果</span>
                         </div>
-                        <span class="manual-section-subtitle">记录本次退款金额、完成时间、操作人和退回明细</span>
+                        <span class="manual-section-subtitle">记录本次处理结果、退款金额、完成时间、操作人和退回明细</span>
                     </div>
                     <div class="manual-section-body">
                         <div class="approval-record-panel">
                             <div class="approval-record-head">
-                                <div class="approval-record-title">退款结果</div>
+                                <div class="approval-record-title">退款成功</div>
                             </div>
                             <div class="approval-record-grid">
                                 <div class="approval-record-item"><span class="approval-record-label">申请退款金额</span><span class="approval-record-value">${money(record.amounts.applied)}</span></div>
@@ -10592,7 +10659,9 @@
                 }
                 const sum = Number((goodsSum + freightSum).toFixed(2));
                 if (totalDisplay) totalDisplay.textContent = `￥${sum.toFixed(2)}`;
-                if (footerTotal) footerTotal.textContent = `￥${sum.toFixed(2)}`;
+                if (footerTotal) {
+                    footerTotal.innerHTML = `从 <span class="refund-before">￥${fixedRefundTotal.toFixed(2)}</span> 调为 <span class="refund-after">￥${sum.toFixed(2)}</span>`;
+                }
                 if (footerSub) {
                     footerSub.textContent = freightRefund > 0
                         ? `含产品 ￥${goodsSum.toFixed(2)}，邮费 ￥${freightSum.toFixed(2)}`
@@ -10773,7 +10842,7 @@
             `;
         }
 
-        function renderApproveAdjustDetail(record) {
+        function renderApproveAdjustDetail(record, options = {}) {
             const appliedItems = record.items.filter((item) => item.qty > 0 && item.applyStatus !== "未申请");
             const freightRefund = Number(record.amounts?.freightRefund || 0);
             const defaultGoodsTotal = Number(appliedItems.reduce((sum, item) => sum + Number((item.refundAmount ?? item.unitPrice * item.qty).toFixed(2)), 0).toFixed(2));
@@ -10783,6 +10852,7 @@
                         <thead>
                             <tr>
                                 <th>商品 / SKU</th>
+                                <th>商品单价</th>
                                 <th>${getRefundQuantityColumnLabel(record)}</th>
                                 <th>申请退款金额</th>
                                 <th>本次审批退款金额</th>
@@ -10791,13 +10861,15 @@
                         <tbody>
                             ${appliedItems.map((item, index) => {
                                 const defaultRefund = Number((item.refundAmount ?? item.unitPrice * item.qty).toFixed(2));
+                                const maxRefund = Number((item.unitPrice * item.qty).toFixed(2));
                                 return `
                                     <tr>
                                         <td><strong>${item.name}</strong><br><span style="color:#667085;">${item.sku}</span></td>
+                                        <td>${money(item.unitPrice)}</td>
                                         <td>退 x${item.qty}</td>
                                         <td>${money(defaultRefund)}</td>
                                         <td>
-                                            <input class="manual-money-input" type="number" min="0" max="${defaultRefund}" step="0.01" value="${defaultRefund.toFixed(2)}" data-approve-refund-line data-refund-kind="goods" data-default-refund="${defaultRefund}" data-line-index="${index}" aria-label="${item.name}审批退款金额">
+                                            <input class="manual-money-input" type="number" min="0" max="${maxRefund}" step="0.01" value="${defaultRefund.toFixed(2)}" data-approve-refund-line data-refund-kind="goods" data-default-refund="${defaultRefund}" data-max-refund="${maxRefund}" data-line-index="${index}" aria-label="${item.name}审批退款金额">
                                         </td>
                                     </tr>
                                 `;
@@ -10805,68 +10877,24 @@
                             ${freightRefund > 0 ? `
                                 <tr class="manual-fee-row">
                                     <td><strong>运费退款</strong><br><span style="color:#667085;">满足退运费条件时展示</span></td>
+                                    <td><span style="color:#667085;">不涉及</span></td>
                                     <td>退运费</td>
                                     <td>${money(freightRefund)}</td>
                                     <td>
-                                        <input class="manual-money-input" type="number" min="0" max="${freightRefund}" step="0.01" value="${freightRefund.toFixed(2)}" data-approve-refund-line data-refund-kind="freight" data-default-refund="${freightRefund}" aria-label="原单运费审批退款金额">
+                                        <input class="manual-money-input" type="number" min="0" max="${Number(record.amounts?.originalFreight || freightRefund).toFixed(2)}" step="0.01" value="${freightRefund.toFixed(2)}" data-approve-refund-line data-refund-kind="freight" data-default-refund="${freightRefund}" data-max-refund="${Number(record.amounts?.originalFreight || freightRefund).toFixed(2)}" aria-label="原单运费审批退款金额">
                                     </td>
                                 </tr>
                             ` : ""}
                         </tbody>
                     </table>
                     <div class="audit-settlement-summary">
-                        <div class="audit-settlement-row">
-                            <div class="label">商品审批退款金额</div>
-                            <div class="value" data-approve-goods-refund-amount>${money(record.amounts.goods)}</div>
-                        </div>
-                        ${freightRefund > 0 ? `
-                            <div class="audit-settlement-row">
-                                <div class="label">运费审批退款金额</div>
-                                <div class="value" data-approve-freight-refund-amount>${money(freightRefund)}</div>
-                            </div>
-                        ` : ""}
                         <div class="audit-settlement-row total">
                             <div class="label">调整后审批退款金额</div>
                             <div class="value" data-approve-total-refund-amount>${money(record.amounts.applied)}</div>
                         </div>
-                        <div class="action-form-grid" style="margin-top:12px;">
-                            ${isShipping ? `
-                                <div class="field">
-                                    <label>${isReturn ? "退货责任方" : "责任方"}</label>
-                                    <select data-approve-responsibility>
-                                        <option ${record.currentResponsibility === "商家责任" ? "selected" : ""}>商家责任</option>
-                                        <option ${record.currentResponsibility === "物流责任" ? "selected" : ""}>物流责任</option>
-                                        <option ${record.currentResponsibility === "消费者责任" ? "selected" : ""}>消费者责任</option>
-                                        <option ${record.currentResponsibility === "云仓责任" ? "selected" : ""}>云仓责任</option>
-                                        <option ${record.currentResponsibility === "其他责任" ? "selected" : ""}>其他责任</option>
-                                    </select>
-                                </div>
-                            ` : ""}
-                        </div>
-                        <div class="action-form-grid" style="margin-top:12px;">
-                            ${scenario.showSubsidy ? `
-                                <div class="field full">
-                                    <label class="approve-checkbox-row">
-                                        <input type="checkbox" ${subsidyToggleAttr}>
-                                        <span>记录退回运费补贴（仅作线下补贴记录，不会随单退款）</span>
-                                    </label>
-                                    <div class="approve-light-panel subsidy-panel" ${subsidyPanelAttr}>
-                                        <div class="field">
-                                            <label>退回运费补贴金额</label>
-                                            <input type="number" min="0" step="0.01" value="${(record.amounts.freightCompensation || 0).toFixed(2)}" data-approve-subsidy-amount>
-                                            <div class="field-help">该补贴仅作系统台账记录，不会随单退款。</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ` : ""}
-                            <div class="field full multiline">
-                                <label>审批备注（必填）</label>
-                                <textarea class="manual-two-line-textarea" data-approve-remark required placeholder="请输入本次同意申请的审批备注"></textarea>
-                            </div>
-                        </div>
                     </div>
                     <div class="action-form-grid" style="margin-top:12px;">
-                        <div class="field">
+                        <div class="field full">
                             <label>调额原因（必填）</label>
                             <textarea class="manual-two-line-textarea" data-approve-adjust-reason placeholder="请输入调额原因"></textarea>
                             <div class="approve-reason-quick-list">
@@ -10907,7 +10935,52 @@
                     <div class="manual-section-body">
                         <div class="approve-readonly-grid">
                             ${renderApproveReadonlyItem("售后类型", record.afterSaleType)}
-                            ${renderApproveReadonlyItem("审批通过后状态", nextStatus)}
+                            ${renderApproveReadonlyItem("审批通过后状态", scenario.nextStatus)}
+                        </div>
+                        <div class="action-form-grid" style="margin-top:12px;">
+                            ${scenario.showResponsibility ? `
+                                <div class="field">
+                                    <label>${scenario.isReturn ? "退货责任方" : "责任方"}</label>
+                                    <select data-approve-responsibility>
+                                        <option ${record.currentResponsibility === "商家责任" ? "selected" : ""}>商家责任</option>
+                                        <option ${record.currentResponsibility === "物流责任" ? "selected" : ""}>物流责任</option>
+                                        <option ${record.currentResponsibility === "消费者责任" ? "selected" : ""}>消费者责任</option>
+                                        <option ${record.currentResponsibility === "云仓责任" ? "selected" : ""}>云仓责任</option>
+                                        <option ${record.currentResponsibility === "其他责任" ? "selected" : ""}>其他责任</option>
+                                    </select>
+                                </div>
+                            ` : ""}
+                            ${scenario.showFreightBearer ? `
+                                <div class="field">
+                                    <label>退回运费责任方</label>
+                                    <select data-approve-freight-bearer>
+                                        <option ${record.currentFreightBearer === "商家承担" ? "selected" : ""}>商家承担</option>
+                                        <option ${record.currentFreightBearer === "消费者承担" ? "selected" : ""}>消费者承担</option>
+                                        <option ${record.currentFreightBearer === "物流承担" ? "selected" : ""}>物流承担</option>
+                                        <option ${record.currentFreightBearer === "云仓承担" ? "selected" : ""}>云仓承担</option>
+                                        <option ${record.currentFreightBearer === "线下协商" ? "selected" : ""}>线下协商</option>
+                                    </select>
+                                </div>
+                            ` : ""}
+                            ${scenario.showSubsidy ? `
+                                <div class="field full">
+                                    <label class="approve-checkbox-row">
+                                        <input type="checkbox" ${subsidyToggleAttr}>
+                                        <span>记录退回运费补贴（仅作线下补贴记录，不会随单退款）</span>
+                                    </label>
+                                    <div class="approve-light-panel subsidy-panel" ${subsidyPanelAttr}>
+                                        <div class="field">
+                                            <label>退回运费补贴金额</label>
+                                            <input type="number" min="0" step="0.01" value="${(record.amounts.freightCompensation || 0).toFixed(2)}" data-approve-subsidy-amount>
+                                            <div class="field-help">该补贴仅作系统台账记录，不会随单退款。</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ""}
+                            <div class="field full multiline">
+                                <label>审批备注（必填）</label>
+                                <textarea class="manual-two-line-textarea" data-approve-remark required placeholder="请输入本次同意申请的审批备注"></textarea>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -10939,6 +11012,7 @@
             if (!canAdjust) return "";
             const panelAttr = options.panelMode ? "data-adjust-panel" : "data-approve-adjust-panel";
             const sectionAttr = options.panelMode ? "data-adjust-section" : "data-approve-adjust-section";
+            const scenario = options.scenario || getApproveScenario(record);
             return `
                 <section class="manual-section adjust-theme approve-adjust-section hidden" ${sectionAttr}>
                     <div class="manual-section-title">
@@ -10949,7 +11023,7 @@
                         <span class="manual-section-subtitle">请逐项调整商品及运费金额</span>
                     </div>
                     <div class="manual-section-body">
-                        ${renderApproveAdjustDetail(record).replace("data-approve-adjust-panel", panelAttr)}
+                        ${renderApproveAdjustDetail(record, { ...options, scenario }).replace("data-approve-adjust-panel", panelAttr)}
                     </div>
                 </section>
             `;
@@ -10981,13 +11055,16 @@
         function getApproveModalDraft(record) {
             const adjusted = !!(actionModalOverlay.querySelector("[data-approve-adjust-toggle]") || actionModalOverlay.querySelector("[data-adjust-toggle]"))?.checked;
             const inputs = Array.from(actionModalOverlay.querySelectorAll("[data-approve-refund-line]"));
-            const amountIncreased = adjusted && inputs.some((input) => {
+            const amountExceededMax = adjusted && inputs.some((input) => {
                 const currentRefund = Number(input.value) || 0;
-                return currentRefund - getRefundInputDefault(input) > 0.001;
+                return currentRefund - getRefundInputMax(input) > 0.001;
             });
             const amountChanged = adjusted && inputs.some((input) => {
                 return Math.abs(getRefundInputAmount(input) - getRefundInputDefault(input)) > 0.001;
             });
+            const maxTotalRefund = adjusted
+                ? Number(inputs.reduce((sum, input) => sum + getRefundInputMax(input), 0).toFixed(2))
+                : Number(record.amounts?.maxRefund || record.amounts?.applied || 0);
             const goodsRefund = adjusted
                 ? Number(inputs.filter(input => input.dataset.refundKind !== "freight").reduce((sum, input) => sum + getRefundInputAmount(input), 0).toFixed(2))
                 : Number(record.amounts?.goods || Math.max(0, (record.amounts?.applied || 0) - (record.amounts?.freightRefund || 0)));
@@ -11003,7 +11080,7 @@
             const approvalRemark = actionModalOverlay.querySelector("[data-approve-remark]")?.value.trim() || "";
             const subsidyEnabled = !!actionModalOverlay.querySelector("[data-approve-subsidy-toggle]")?.checked;
             const subsidyAmount = subsidyEnabled ? Math.max(0, Number(actionModalOverlay.querySelector("[data-approve-subsidy-amount]")?.value) || 0) : 0;
-            return { adjusted, amountChanged, amountIncreased, goodsRefund, freightRefund, totalRefund, reason, proofCount, responsibility, freightBearer, approvalRemark, subsidyEnabled, subsidyAmount };
+            return { adjusted, amountChanged, amountExceededMax, maxTotalRefund, goodsRefund, freightRefund, totalRefund, reason, proofCount, responsibility, freightBearer, approvalRemark, subsidyEnabled, subsidyAmount };
         }
 
         function validateApproveModalDraft(record) {
@@ -11012,8 +11089,8 @@
                 showToast("请填写审批备注");
                 return false;
             }
-            if (draft.totalRefund > Number(record.amounts?.maxRefund || draft.totalRefund)) {
-                showToast(`审批退款金额 ${money(draft.totalRefund)} 超过最大可退 ${money(record.amounts.maxRefund)}`);
+            if (draft.totalRefund > Number(draft.maxTotalRefund || draft.totalRefund)) {
+                showToast(`审批退款金额 ${money(draft.totalRefund)} 超过最大可退 ${money(draft.maxTotalRefund)}`);
                 return false;
             }
             if (getApproveScenario(record).showSubsidy && draft.subsidyEnabled && draft.subsidyAmount <= 0) {
@@ -11021,8 +11098,8 @@
                 return false;
             }
             if (!draft.adjusted) return true;
-            if (draft.amountIncreased) {
-                showToast("审批退款金额只能下调，不能超过默认退款金额");
+            if (draft.amountExceededMax) {
+                showToast("审批退款金额不能超过单项最大可退金额");
                 return false;
             }
             if (!draft.amountChanged) {
@@ -11071,6 +11148,7 @@
                 return `
                     ${renderApproveSections(record)}
                     <div class="action-note">${renderApproveActionNote(record)}</div>
+                    <div class="approve-adjust-change-note hidden" data-approve-adjust-change-note></div>
                     <div class="modal-actions">
                         <button class="btn" type="button" data-close-action-modal>取消</button>
                         <button class="btn primary" type="button" data-confirm-action-approve>确认同意申请</button>
@@ -11090,6 +11168,7 @@
                 approve: `
                     ${renderApproveSections(record)}
                     <div class="action-note">${renderApproveActionNote(record)}</div>
+                    <div class="approve-adjust-change-note hidden" data-approve-adjust-change-note></div>
                     <div class="modal-actions">
                         <button class="btn" type="button" data-close-action-modal>取消</button>
                         <button class="btn primary" type="button" data-confirm-action-approve>确认同意申请</button>
@@ -11192,15 +11271,15 @@
                     </div>
                 `,
                 reject_refund: `
-                    <div class="action-note" style="margin-top:0;margin-bottom:12px;color:#92400e;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;">
-                        确认拒绝退款后，售后单状态将流转为「售后关闭」，关闭子状态为「商家拒绝退款」。
-                    </div>
                     <div class="action-form-grid">
                         <div class="field full multiline">
                             <label>拒绝退款原因（必填）</label>
                             <div class="field-help">该原因会展示在消费者端，请使用消费者可理解的说明。</div>
-                            <textarea class="reject-reason-textarea" data-reject-refund-reason>退回商品不满足退款条件，商家拒绝本次退款。</textarea>
+                            <textarea class="reject-reason-textarea reject-refund-reason-textarea" rows="4" data-reject-refund-reason>退回商品不满足退款条件，商家拒绝本次退款。</textarea>
                         </div>
+                    </div>
+                    <div class="action-note" style="margin-top:12px;margin-bottom:12px;color:#92400e;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;">
+                        确认拒绝退款后，售后单状态将流转为「售后关闭」，关闭子状态为「商家拒绝退款」。
                     </div>
                     <div class="modal-actions">
                         <button class="btn" type="button" data-close-action-modal>取消</button>
@@ -11310,7 +11389,7 @@
                     if (changeNote) {
                         changeNote.classList.toggle("hidden", !draft.amountChanged);
                         changeNote.innerHTML = draft.amountChanged
-                            ? `退款金额由 <strong>${money(defaultTotal)}</strong> 调整为 <strong class="changed">${money(draft.totalRefund)}</strong>`
+                            ? `审批退款金额由 <strong>${money(defaultTotal)}</strong> 调整为 <strong class="changed">${money(draft.totalRefund)}</strong>`
                             : "";
                     }
                 };
@@ -11346,7 +11425,7 @@
                 <div class="audit-footer-wrap">
                     <div class="audit-footer-actions">
                         ${actions.map((actionKey) => `
-                            <button class="btn ${actionKey === "approve" ? "primary" : ""}" data-action-switch="${actionKey}">${actionLabel(actionKey, record)}</button>
+                            <button class="btn ${actionKey === "approve" ? "primary" : ""}" type="button" data-action-switch="${actionKey}">${actionLabel(actionKey, record)}</button>
                         `).join("")}
                     </div>
                 </div>
