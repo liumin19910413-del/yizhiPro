@@ -175,45 +175,55 @@
             color: #fff;
         }
         .filter-card {
-            padding: 14px 16px 14px;
-        }
-        .filter-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        .filter-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text);
-        }
-        .filter-desc {
-            font-size: 12px;
-            color: var(--muted);
+            padding: 14px 16px;
+            max-width: calc(100vw - 240px);
+            overflow: hidden;
         }
         .filter-grid {
-            display: grid;
-            grid-template-columns:
-                minmax(140px, 0.9fr)
-                minmax(220px, 1.35fr)
-                minmax(128px, 0.8fr)
-                minmax(128px, 0.8fr)
-                minmax(150px, 0.95fr)
-                minmax(150px, 0.95fr)
-                auto;
-            align-items: end;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
             gap: 12px;
+        }
+        .filter-search-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1 1 390px;
         }
         .field {
             min-width: 0;
         }
+        #store-filter-field {
+            flex: 0 0 190px;
+        }
         .field.search-field {
+            flex: 1 1 200px;
             min-width: 0;
         }
         .field.action-field {
+            flex: 0 0 auto;
             min-width: auto;
+        }
+        .filter-card .field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-card .field label {
+            flex: 0 0 auto;
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+        .filter-card #store-filter {
+            width: 120px;
+        }
+        .filter-card #search-input {
+            min-width: 0;
+        }
+        .filter-card .action-field {
+            display: block;
         }
         .field label {
             display: block;
@@ -271,6 +281,9 @@
         }
         .field.hidden {
             display: none;
+        }
+        .filter-grid:has(#store-filter-field.hidden) .filter-search-row {
+            flex-basis: 100%;
         }
         .btn {
             height: 36px;
@@ -3074,6 +3087,16 @@
             max-height: none;
             padding-bottom: 96px;
         }
+        .center-modal.manual-side-drawer .manual-section {
+            margin-bottom: 24px;
+        }
+        .center-modal.manual-side-drawer .manual-section:last-child {
+            margin-bottom: 0;
+        }
+        .center-modal.manual-side-drawer .manual-section-title {
+            position: relative;
+            z-index: 1;
+        }
         .manual-side-footer {
             flex: 0 0 auto;
             display: flex;
@@ -3731,6 +3754,18 @@
         }
         .manual-section .action-form-grid {
             margin: 0;
+        }
+        .manual-apply-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px 18px;
+            align-items: start;
+        }
+        .manual-apply-grid .field.full,
+        .manual-apply-grid .manual-adjust-card {
+            grid-column: 1 / -1;
+        }
+        .manual-apply-grid textarea {
+            min-height: 74px;
         }
         .approve-modal-stack {
             display: flex;
@@ -4662,15 +4697,16 @@
                                 <label>交易门店</label>
                                 <select id="store-filter"></select>
                             </div>
-                            <div class="field search-field">
-                                <label>搜索</label>
-                                <input id="search-input" type="text" placeholder="售后单号 / 订单号 / 物流单号 / 手机号">
-                            </div>
-                            <div class="field action-field">
-                                <label>&nbsp;</label>
-                                <div class="btn-group">
-                                    <button class="btn primary" id="search-btn">查询</button>
-                                    <button class="btn primary" id="manual-create-btn" type="button">创建售后单</button>
+                            <div class="filter-search-row">
+                                <div class="field search-field">
+                                    <label>搜索</label>
+                                    <input id="search-input" type="text" placeholder="售后单号 / 订单号 / 物流单号 / 手机号">
+                                </div>
+                                <div class="field action-field">
+                                    <div class="btn-group">
+                                        <button class="btn primary" id="search-btn">查询</button>
+                                        <button class="btn primary" id="manual-create-btn" type="button">创建售后单</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -5261,8 +5297,14 @@
             statusOrder.forEach((statusKey, statusIndex) => {
                 const scenarios = statusScenarioMatrix[statusKey] || Array.from({ length: 5 }, () => ({}));
                 scenarios.forEach((scenario, i) => {
-                    records.push(buildOneRecord(statusKey, statusIndex, i, serial, scenario));
-                    serial += 1;
+                    storeCatalog.forEach((storeEntry) => {
+                        records.push(buildOneRecord(statusKey, statusIndex, i, serial, {
+                            ...scenario,
+                            brand: storeEntry.brand,
+                            store: storeEntry.store
+                        }));
+                        serial += 1;
+                    });
                 });
             });
             return records;
@@ -5349,7 +5391,9 @@
             const flowMode = scenario.flowMode || chooseFlowMode(statusKey, serial, orderScene);
             const product = getProductForOrderType(orderScene, serial);
             const customer = customerNames[(serial - 1) % customerNames.length];
-            const storeEntry = storeCatalog[(serial - 1) % storeCatalog.length];
+            const storeEntry = scenario.store
+                ? { brand: scenario.brand || "伊站品牌总部", store: scenario.store }
+                : storeCatalog[(serial - 1) % storeCatalog.length];
             const store = storeEntry.store;
             const pair = responsibilityPairs[(serial - 1) % responsibilityPairs.length];
             const qty = scenario.qty || chooseOrderQty(orderScene, serial);
@@ -5995,7 +6039,7 @@
                 <div class="manual-section order-theme">
                     <div class="manual-section-title">
                         <div class="manual-section-heading">
-                            <span class="manual-section-index">02</span>
+                            <span class="manual-section-index">01</span>
                             <span class="manual-section-name">原订单信息</span>
                         </div>
                         <button class="btn ghost" type="button" data-manual-reselect>重新选择订单</button>
@@ -6010,7 +6054,6 @@
                             <div class="manual-info-item"><span class="manual-info-label">原单运费</span><span class="manual-info-value">${money(order.freight)}</span></div>
                             <div class="manual-info-item full"><span class="manual-info-label">支付构成</span><span class="manual-info-value">${order.paymentSummary}</span></div>
                         </div>
-                    </div>
                     </div>
                 </div>
             `;
@@ -6036,7 +6079,7 @@
                         <span class="manual-section-subtitle">填写本次售后的类型和原因，凭证可选</span>
                     </div>
                     <div class="manual-section-body">
-                    <div class="action-form-grid">
+                    <div class="action-form-grid manual-apply-grid">
                         <div class="field">
                             <label>售后类型</label>
                             <select data-manual-type-select>
@@ -7194,9 +7237,9 @@
             }
         }
 
-        function getFilteredRecords() {
-            const records = mockRecords.filter((record) => {
-                if (state.currentTab !== "all") {
+        function getRecordsForCurrentScope({ includeTab = true } = {}) {
+            return mockRecords.filter((record) => {
+                if (includeTab && state.currentTab !== "all") {
                     if (state.currentTab === "rejected") {
                         if (!["rejected", "cancelled"].includes(record.statusKey)) return false;
                     } else if (record.statusKey !== state.currentTab) {
@@ -7205,7 +7248,7 @@
                 }
                 const scopeStore = state.filters.scope === "store" ? state.currentAccountStore : "";
                 if (scopeStore && record.store !== scopeStore) return false;
-                if (state.filters.store && record.store !== state.filters.store) return false;
+                if (!scopeStore && state.filters.store && record.store !== state.filters.store) return false;
                 const keyword = state.filters.keyword.trim();
                 if (keyword) {
                     const haystack = [
@@ -7227,6 +7270,10 @@
                 if (state.filters.freight && record.currentFreightBearer !== state.filters.freight) return false;
                 return true;
             });
+        }
+
+        function getFilteredRecords() {
+            const records = getRecordsForCurrentScope({ includeTab: true });
             if (state.currentTab === "audit") {
                 records.sort((a, b) => {
                     const aNonLogistics = !isShippingScene(a.orderScene);
@@ -7272,13 +7319,14 @@
 
         function getTabCounts() {
             const counts = {};
+            const scopedRecords = getRecordsForCurrentScope({ includeTab: false });
             Object.keys(statusConfigs).forEach((key) => {
                 if (key === "all") {
-                    counts[key] = mockRecords.length;
+                    counts[key] = scopedRecords.length;
                 } else if (key === "rejected") {
-                    counts[key] = mockRecords.filter(item => item.statusKey === "rejected" || item.statusKey === "cancelled").length;
+                    counts[key] = scopedRecords.filter(item => item.statusKey === "rejected" || item.statusKey === "cancelled").length;
                 } else {
-                    counts[key] = mockRecords.filter(item => item.statusKey === key).length;
+                    counts[key] = scopedRecords.filter(item => item.statusKey === key).length;
                 }
             });
             return counts;
@@ -8762,9 +8810,9 @@
         function renderOriginalOrderAmountFields(record) {
             const orderAmount = Number(record.orderAmount || 0);
             const originalFreight = Number(record.amounts?.originalFreight || 0);
+            const freightText = originalFreight > 0 ? `（含运费${money(originalFreight)}）` : "";
             return `
-                <div class="manual-info-item"><span class="manual-info-label">原订单金额</span><span class="manual-info-value">${money(orderAmount)}</span></div>
-                <div class="manual-info-item"><span class="manual-info-label">原订单运费</span><span class="manual-info-value">${money(originalFreight)}</span></div>
+                <div class="manual-info-item"><span class="manual-info-label">原订单金额</span><span class="manual-info-value">${money(orderAmount)}${freightText}</span></div>
             `;
         }
 
@@ -11724,7 +11772,6 @@
             const scopeInput = document.getElementById("scope-filter");
             const storeFilter = document.getElementById("store-filter");
             const storeFilterField = document.getElementById("store-filter-field");
-            const filterScopeDesc = document.getElementById("filter-scope-desc");
             scopeInput.value = state.filters.scope;
             document.querySelectorAll("[data-scope-tab]").forEach((button) => {
                 const isActive = button.dataset.scopeTab === state.filters.scope;
@@ -11732,15 +11779,14 @@
                 button.setAttribute("aria-selected", isActive ? "true" : "false");
             });
             if (state.filters.scope === "store") {
+                state.filters.store = state.currentAccountStore;
                 storeFilter.value = state.currentAccountStore;
                 storeFilter.disabled = true;
                 storeFilterField.classList.add("hidden");
-                if (filterScopeDesc) filterScopeDesc.textContent = `分店账号锁定当前门店：${state.currentAccountStore}，筛选区不再显示交易门店条件`;
             } else {
                 storeFilterField.classList.remove("hidden");
                 storeFilter.disabled = false;
                 storeFilter.value = state.filters.store;
-                if (filterScopeDesc) filterScopeDesc.textContent = "总部账号可查看全部交易门店，并按门店筛选";
             }
         }
 
@@ -11806,6 +11852,10 @@
             document.querySelectorAll("[data-scope-tab]").forEach((button) => {
                 button.addEventListener("click", () => {
                     state.filters.scope = button.dataset.scopeTab;
+                    if (state.filters.scope === "hq") {
+                        state.filters.store = "";
+                        document.getElementById("store-filter").value = "";
+                    }
                     document.getElementById("scope-filter").value = state.filters.scope;
                     applyFilters();
                 });
@@ -11839,6 +11889,7 @@
             state.filters.freight = "";
             syncScopeFilterUI();
             state.currentPage = 1;
+            renderStatusTabs();
             renderTable();
         }
 
@@ -11857,6 +11908,7 @@
             document.getElementById("search-input").value = "";
             syncScopeFilterUI();
             state.currentPage = 1;
+            renderStatusTabs();
             renderTable();
         }
 
