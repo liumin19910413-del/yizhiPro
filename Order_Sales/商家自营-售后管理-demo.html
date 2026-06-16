@@ -198,6 +198,9 @@
         #store-filter-field {
             flex: 0 0 190px;
         }
+        .filter-card .compact-filter-field {
+            flex: 0 0 150px;
+        }
         .field.search-field {
             flex: 1 1 200px;
             min-width: 0;
@@ -218,6 +221,9 @@
         }
         .filter-card #store-filter {
             width: 120px;
+        }
+        .filter-card .compact-filter-field select {
+            width: 96px;
         }
         .filter-card #search-input {
             min-width: 0;
@@ -459,10 +465,9 @@
                 minmax(140px, 0.88fr)
                 minmax(120px, 0.76fr)
                 minmax(140px, 0.88fr)
-                minmax(155px, 0.94fr)
                 minmax(118px, 0.78fr)
                 minmax(160px, 0.96fr);
-            min-width: 1368px;
+            min-width: 1200px;
         }
         /* 固定右列 */
         .table-fixed-right .table-header,
@@ -4728,7 +4733,7 @@
                 <span class="terminal-switch-label">端切换</span>
                 <div class="terminal-switch-tabs" aria-label="B端C端切换">
                     <span class="terminal-switch-tab active">B端</span>
-                    <a class="terminal-switch-tab" href="../aftersale_v5.html">C端</a>
+                    <a class="terminal-switch-tab" href="aftersale_v5.html">C端</a>
                 </div>
             </div>
             <div class="shell-topbar-tabs">
@@ -4764,6 +4769,14 @@
                             <div class="field" id="store-filter-field">
                                 <label>交易门店</label>
                                 <select id="store-filter"></select>
+                            </div>
+                            <div class="field compact-filter-field">
+                                <label>订单类型</label>
+                                <select id="order-type-filter"></select>
+                            </div>
+                            <div class="field compact-filter-field">
+                                <label>子类型</label>
+                                <select id="order-scene-filter"></select>
                             </div>
                             <div class="filter-search-row">
                                 <div class="field search-field">
@@ -4804,7 +4817,6 @@
                                     <div>金额摘要</div>
                                     <div>用户</div>
                                     <div>售后原因</div>
-                                    <div>退回物流/补寄物流</div>
                                     <div>交易门店</div>
                                     <div>申请时间</div>
                                 </div>
@@ -5021,7 +5033,7 @@
             { name: "周年庆活动预定金", sku: "套餐抵扣券", price: 199 },
             { name: "双 11 抢购预定金", sku: "爆品优先购", price: 50 }
         ];
-        const selfOrderTypes = ["微商城", "拼团", "秒杀", "积分订单", "开充值订单"];
+        const selfOrderTypes = ["微商城", "拼团", "秒杀", "积分订单", "预定金订单", "开充值订单"];
         const customerNames = ["张三", "李四", "王五", "赵六", "小水", "小丽", "周敏", "陈念", "林禾", "苏晴"];
         const storeCatalog = [
             { brand: "伊站品牌总部", store: "南京新街口店" },
@@ -5045,8 +5057,7 @@
                 { scenarioName: "发货订单退款退货-质量问题", orderType: "拼团", orderScene: "发货订单", flowMode: "refund_return", reason: "产品质量问题", responsibility: "商家责任", freightBearer: "商家承担", qty: 1, secondQty: 1 },
                 { scenarioName: "发货订单仅退款-物流时效补偿", orderType: "秒杀", orderScene: "发货订单", flowMode: "refund_only", reason: "物流时效过慢", responsibility: "商家责任", freightBearer: "不涉及", qty: 1, freightRefund: 0 },
                 { scenarioName: "发货订单仅退款-客服复核", orderType: "微商城", orderScene: "发货订单", flowMode: "refund_only", reason: "协商退款", qty: 1 },
-                { scenarioName: "发货订单退款退货-多商品", orderType: "积分订单", orderScene: "发货订单", flowMode: "refund_return", reason: "产品质量问题", responsibility: "商家责任", freightBearer: "商家承担", qty: 2, secondQty: 1 },
-                { scenarioName: "发货订单仅退款-待发货部分退", orderType: "开充值订单", orderScene: "发货订单", flowMode: "refund_only", reason: "不想要了", qty: 1 }
+                { scenarioName: "发货订单退款退货-多商品", orderType: "积分订单", orderScene: "发货订单", flowMode: "refund_return", reason: "产品质量问题", responsibility: "商家责任", freightBearer: "商家承担", qty: 2, secondQty: 1 }
             ],
             sendback: [
                 { scenarioName: "待客户寄回-审批调价扣减配件", orderType: "拼团", orderScene: "发货订单", flowMode: "refund_return", reason: "产品质量问题", responsibility: "商家责任", freightBearer: "商家承担", qty: 2, secondQty: 1, freightRefund: 10, approvedDelta: -24, adjustReason: "已与买家确认缺少原包装配件，审批退款金额扣减 ¥24.00，买家按调整后金额寄回。", issueTag: "审批已调价" },
@@ -5076,6 +5087,7 @@
                 { scenarioName: "待商家退款-商品自提客服代申请", orderType: "微商城", orderScene: "自提订单", flowMode: "refund_only", reason: "客服协商取消自提", qty: 1, applicationSource: "客服代客申请", issueTag: "商品自提客服代申请" },
                 { scenarioName: "待商家退款-套餐次卡消费者申请", orderType: "积分订单", orderScene: "直接到资产", flowMode: "refund_only", reason: "未核销套餐退款", qty: 1, applicationSource: "消费者申请", issueTag: "套餐次卡待退款" },
                 { scenarioName: "待商家退款-套餐次卡客服代申请", orderType: "积分订单", orderScene: "直接到资产", flowMode: "refund_only", reason: "客服协助未核销套餐退款", qty: 1, applicationSource: "客服代客申请", issueTag: "套餐次卡客服代申请" },
+                { scenarioName: "待商家退款-预定金消费者申请", orderType: "预定金订单", orderScene: "预定金订单", flowMode: "refund_only", reason: "预约时间不合适", qty: 1, applicationSource: "消费者申请", issueTag: "预定金待退款" },
                 { scenarioName: "待商家退款-开充值订单消费者申请", orderType: "开充值订单", orderScene: "储值卡资产", flowMode: "refund_only", reason: "充值金额退回", qty: 1, applicationSource: "消费者申请", issueTag: "开充值订单待退款" },
                 { scenarioName: "待商家退款-开充值订单客服代申请", orderType: "开充值订单", orderScene: "储值卡资产", flowMode: "refund_only", reason: "客服协助储值退款", qty: 1, applicationSource: "客服代客申请", issueTag: "开充值订单客服代申请" }
             ],
@@ -5084,6 +5096,7 @@
                 { scenarioName: "退款中-退款退货原路退", orderType: "拼团", orderScene: "发货订单", flowMode: "refund_return", reason: "产品质量问题", responsibility: "商家责任", freightBearer: "商家承担", qty: 2 },
                 { scenarioName: "退款中-自提订单整单退", orderType: "微商城", orderScene: "自提订单", flowMode: "refund_only", reason: "不想到店自提了" },
                 { scenarioName: "退款中-套餐次卡资产回退", orderType: "积分订单", orderScene: "直接到资产", flowMode: "refund_only", reason: "未核销套餐退款" },
+                { scenarioName: "退款中-预定金原路退", orderType: "预定金订单", orderScene: "预定金订单", flowMode: "refund_only", reason: "预约时间不合适" },
                 { scenarioName: "退款中-储值卡充值回退", orderType: "开充值订单", orderScene: "储值卡资产", flowMode: "refund_only", reason: "充值金额退回" }
             ],
             refund_failed: [
@@ -5091,6 +5104,7 @@
                 { scenarioName: "退款失败-退款退货分账校验失败", orderType: "拼团", orderScene: "发货订单", flowMode: "refund_return", reason: "产品质量问题", issueTag: "分账回退校验失败", responsibility: "商家责任", freightBearer: "商家承担", qty: 2 },
                 { scenarioName: "退款失败-自提订单账户异常", orderType: "微商城", orderScene: "自提订单", flowMode: "refund_only", reason: "不想到店自提了", issueTag: "买家收款账户异常" },
                 { scenarioName: "退款失败-套餐资产核销冲突", orderType: "积分订单", orderScene: "直接到资产", flowMode: "refund_only", reason: "未核销套餐退款", issueTag: "资产核销状态回写失败" },
+                { scenarioName: "退款失败-预定金渠道超时", orderType: "预定金订单", orderScene: "预定金订单", flowMode: "refund_only", reason: "活动时间不合适", issueTag: "预定金原路退款渠道超时" },
                 { scenarioName: "退款失败-储值卡水单冲正失败", orderType: "开充值订单", orderScene: "储值卡资产", flowMode: "refund_only", reason: "充值金额退回", issueTag: "储值水单冲正失败" }
             ],
             reship_pending: [
@@ -5114,6 +5128,7 @@
                 { scenarioName: "已完成-非物流订单退款成功", orderType: "微商城", orderScene: "非物流订单", flowMode: "refund_only", reason: "线上服务未使用退款", qty: 1 },
                 { scenarioName: "已完成-自提订单退款成功", orderType: "微商城", orderScene: "自提订单", flowMode: "refund_only", reason: "不想到店自提了" },
                 { scenarioName: "已完成-套餐次卡退款成功", orderType: "积分订单", orderScene: "直接到资产", flowMode: "refund_only", reason: "未核销套餐退款" },
+                { scenarioName: "已完成-预定金退款成功", orderType: "预定金订单", orderScene: "预定金订单", flowMode: "refund_only", reason: "活动时间不合适" },
                 { scenarioName: "已完成-储值卡退款成功", orderType: "开充值订单", orderScene: "储值卡资产", flowMode: "refund_only", reason: "充值金额退回" }
             ],
             rejected: [
@@ -5121,6 +5136,7 @@
                 { scenarioName: "已关闭-审核拒绝-退货退款凭证不足", closureType: "review_rejected", orderType: "拼团", orderScene: "发货订单", flowMode: "refund_return", reason: "产品质量问题", rejectReason: "买家提交的图片无法证明商品质量问题，商家已拒绝本次申请。" },
                 { scenarioName: "已关闭-财务拒绝退款-质检不通过", closureType: "finance_rejected", orderType: "秒杀", orderScene: "发货订单", flowMode: "refund_return", reason: "产品破损", responsibility: "消费者责任", freightBearer: "消费者承担", qty: 1, qualityResult: "有使用痕迹", qualityNote: "仓库验收发现商品已拆封并有明显使用痕迹，影响二次销售。", rejectReason: "财务复核质检记录后判定本次退回商品不满足退款条件，拒绝本次退款。" },
                 { scenarioName: "已关闭-审核拒绝-自提已核销", closureType: "review_rejected", orderType: "微商城", orderScene: "自提订单", flowMode: "refund_only", reason: "不想到店自提了", rejectReason: "门店核验该自提商品已核销，当前不支持退款。" },
+                { scenarioName: "已关闭-预定金不可退", closureType: "review_rejected", orderType: "预定金订单", orderScene: "预定金订单", flowMode: "refund_only", reason: "活动时间不合适", rejectReason: "该预定金已抵扣或超过活动退款规则时效，当前不支持退款。" },
                 { scenarioName: "已关闭-财务拒绝退款-退回商品短缺", closureType: "finance_rejected", orderType: "拼团", orderScene: "发货订单", flowMode: "refund_return", reason: "产品质量问题", responsibility: "消费者责任", freightBearer: "消费者承担", qty: 2, secondQty: 1, qualityResult: "商品短缺", qualityNote: "仓库验收发现退回包裹缺少 1 件商品及关键配件，无法按原申请金额退款。", rejectReason: "财务复核仓库短缺记录后拒绝退款，本次售后关闭。" }
             ],
             cancelled: [
@@ -5128,6 +5144,7 @@
                 { scenarioName: "已关闭-待客户寄回超时关闭", closureType: "return_timeout", orderType: "拼团", orderScene: "发货订单", flowMode: "refund_return", reason: "7天无理由", cancelReason: "商家审核通过并下发退货地址后，客户在寄回时效内未填写物流，系统自动关闭本次售后。" },
                 { scenarioName: "已关闭-客户主动撤销-待寄回", closureType: "customer_cancelled", orderType: "秒杀", orderScene: "发货订单", flowMode: "refund_return", reason: "物流破损", cancelReason: "客户收到退货地址后主动撤销，改为与商家线下协商处理。" },
                 { scenarioName: "已关闭-套餐退款撤销", closureType: "customer_cancelled", orderType: "积分订单", orderScene: "直接到资产", flowMode: "refund_only", reason: "未核销套餐退款", cancelReason: "客户确认继续保留套餐权益，主动撤回退款申请。" },
+                { scenarioName: "已关闭-预定金退款撤销", closureType: "customer_cancelled", orderType: "预定金订单", orderScene: "预定金订单", flowMode: "refund_only", reason: "活动时间不合适", cancelReason: "客户确认继续保留活动名额，主动撤回退款申请。" },
                 { scenarioName: "已关闭-待客户寄回系统到期", closureType: "return_timeout", orderType: "微商城", orderScene: "发货订单", flowMode: "refund_return", reason: "不想要了", responsibility: "消费者责任", freightBearer: "消费者承担", cancelReason: "客户超过寄回截止时间仍未填写退货物流，系统按规则自动关闭售后。" }
             ]
         };
@@ -5151,6 +5168,7 @@
                 keyword: "",
                 type: "",
                 orderType: "",
+                orderScene: "",
                 responsibility: "",
                 freight: ""
             }
@@ -5172,13 +5190,30 @@
             "发货订单": "商品发货",
             "非物流订单": "非物流订单",
             "自提订单": "商品自提",
+            "商品自提订单": "商品自提",
             "直接到资产": "套餐次卡",
-            "储值卡资产": "会员储值卡"
+            "套餐订单": "套餐次卡",
+            "预定金订单": "预定金",
+            "储值卡资产": "储值卡",
+            "开充值订单": "储值卡"
         };
+        const orderSubTypeOptions = ["商品发货", "商品自提", "套餐次卡", "储值卡", "预定金"];
         const reshipReasons = ["少件漏发", "错发商品", "赠品缺失", "配件缺失"];
 
         function getOrderSceneDisplay(scene) {
             return orderSceneDisplayMap[scene] || scene;
+        }
+
+        function getOrderSubType(record) {
+            const scene = record?.orderScene || "";
+            const type = record?.orderType || "";
+            const sourceText = `${scene} ${type}`;
+            if (type === "开充值订单" || scene === "储值卡资产" || scene === "开充值订单") return "储值卡";
+            if (scene === "发货订单") return "商品发货";
+            if (scene === "自提订单" || scene === "商品自提订单") return "商品自提";
+            if (scene === "直接到资产" || /套餐|次卡/.test(sourceText)) return "套餐次卡";
+            if (scene === "预定金订单" || type === "预定金订单" || /预定|定金/.test(sourceText)) return "预定金";
+            return getOrderSceneDisplay(scene);
         }
 
         function getOrderSceneTagTone(scene) {
@@ -5186,11 +5221,21 @@
             if (scene === "自提订单") return "warning";
             if (scene === "直接到资产") return "success";
             if (scene === "储值卡资产") return "purple";
+            if (scene === "预定金订单") return "warning";
             return "primary";
         }
 
         function isShippingScene(scene) {
             return scene === "发货订单";
+        }
+
+        function isDepositOrder(recordOrScene) {
+            if (typeof recordOrScene === "string") return recordOrScene === "预定金订单";
+            return recordOrScene?.orderType === "预定金订单" || recordOrScene?.orderScene === "预定金订单";
+        }
+
+        function getItemDisplayName(record, item) {
+            return isDepositOrder(record) ? item.name : `${item.name}（${item.sku}）`;
         }
 
         function getApplyFulfillmentStatus(record) {
@@ -5461,14 +5506,17 @@
             statusOrder.forEach((statusKey, statusIndex) => {
                 const scenarios = statusScenarioMatrix[statusKey] || Array.from({ length: 5 }, () => ({}));
                 scenarios.forEach((scenario, i) => {
-                    storeCatalog.forEach((storeEntry) => {
-                        records.push(buildOneRecord(statusKey, statusIndex, i, serial, {
-                            ...scenario,
-                            brand: storeEntry.brand,
-                            store: storeEntry.store
-                        }));
-                        serial += 1;
-                    });
+                    const storeEntry = storeCatalog[(serial - 1) % storeCatalog.length];
+                    const scenarioScene = scenario.orderScene || chooseOrderScene(scenario.orderType || chooseOrderType(statusKey, serial), statusKey, serial);
+                    const normalizedStatusKey = statusKey === "audit" && !isShippingScene(scenarioScene) ? "received" : statusKey;
+                    const normalizedStatusIndex = normalizedStatusKey === statusKey ? statusIndex : statusOrder.indexOf(normalizedStatusKey);
+                    records.push(buildOneRecord(normalizedStatusKey, normalizedStatusIndex, i, serial, {
+                        ...scenario,
+                        orderScene: scenarioScene,
+                        brand: scenario.brand || storeEntry.brand,
+                        store: scenario.store || storeEntry.store
+                    }));
+                    serial += 1;
                 });
             });
             return records;
@@ -5485,6 +5533,7 @@
             if (statusKey === "rejected" && serial % 4 === 0) return "发货订单";
             if (statusKey === "cancelled" && serial % 3 === 0) return "发货订单";
             if (orderType === "开充值订单") return "储值卡资产";
+            if (orderType === "预定金订单") return "预定金订单";
             if (["sendback", "returning", "received", "reship_pending", "buyer_receipt"].includes(statusKey)) return "发货订单";
             return ["发货订单", "自提订单", "直接到资产"][(serial - 1) % 3];
         }
@@ -5515,6 +5564,7 @@
             if (orderScene === "自提订单") return pickupProducts;
             if (orderScene === "直接到资产") return packageProducts;
             if (orderScene === "储值卡资产") return storedValueProducts;
+            if (orderScene === "预定金订单") return depositProducts;
             return baseProducts;
         }
 
@@ -6698,7 +6748,7 @@
                 issueTag: isNonShipping ? "非物流全额退款" : (amountDraft.adjusted ? "客服创建时调额" : "客服代客创建"),
                 logs: [
                     { time: createdAt, text: `商家客服王静代客创建${afterSaleType}售后单。` },
-                    { time: createdAt, text: `本次选择商品：${selectedItems.map(item => `${item.name}(${item.sku}) x${item.qty}`).join("；")}` },
+                    { time: createdAt, text: `本次选择商品：${selectedItems.map(item => `${getItemDisplayName(order, item)} x${item.qty}`).join("；")}` },
                     { time: createdAt, text: isReship ? `${reshipWarehouseNote} 当前待仓库发货。` : (isNonShipping ? `非物流订单原因固定为我不想要了，本次全额原路退款 ${money(amountDraft.totalApply)}。` : `系统默认退款 ${money(amountDraft.totalDefault)}，本次申请退款 ${money(amountDraft.totalApply)}${amountDraft.adjusted ? "，调额原因：电话沟通后按协商金额处理，凭证已上传。" : "。"}`) },
                     { time: createdAt, text: `消费者可见说明：${visibleNoteMap[type]}` }
                 ],
@@ -7610,6 +7660,7 @@
                 }
                 if (state.filters.type && record.afterSaleType !== state.filters.type) return false;
                 if (state.filters.orderType && record.orderType !== state.filters.orderType) return false;
+                if (state.filters.orderScene && getOrderSubType(record) !== state.filters.orderScene) return false;
                 if (state.filters.responsibility && record.currentResponsibility !== state.filters.responsibility) return false;
                 if (state.filters.freight && record.currentFreightBearer !== state.filters.freight) return false;
                 return true;
@@ -7701,7 +7752,6 @@
 
             pagedRecords.forEach((record) => {
                 const statusTone = mapTone(record.statusKey);
-                const logisticsText = getListLogisticsText(record);
                 const displayType = getDisplayType(record.afterSaleType);
                 const applyFulfillmentStatus = getApplyFulfillmentStatus(record);
                 const listItems = record.items.filter(item => item.qty > 0 && item.applyStatus !== "未申请");
@@ -7716,7 +7766,7 @@
                         : "");
                 const orderTypeSubs = `
                     <div class="mini-tags compact">
-                        <span class="mini-tag ${getOrderSceneTagTone(record.orderScene)}">${getOrderSceneDisplay(record.orderScene)}</span>
+                        <span class="mini-tag ${getOrderSceneTagTone(record.orderScene)}">${getOrderSubType(record)}</span>
                     </div>
                 `;
                 const freightSuffix = record.amounts.freightRefund > 0 ? `（含运费 ${money(record.amounts.freightRefund)}）` : "";
@@ -7726,7 +7776,8 @@
                 const amountSubs = isCompleted
                     ? `<div class="cell-sub">实退 ${money(record.amounts.actual)}${freightSuffix}</div>`
                     : (isAdjustedAmount ? `<div class="cell-sub">审批后实退 ${money(record.amounts.approved)} · 已调价</div>` : ``);
-                const logisticsEmpty = logisticsText.title === "-" && !logisticsText.detail;
+                const isDeposit = isDepositOrder(record);
+                const listProductPriceLine = isDeposit ? "" : `<div class="product-price-line">${money(mainItem.unitPrice)} × ${mainItem.qty}</div>`;
 
                 leftRows.push(`
                     <div class="table-row" data-open-id="${record.id}">
@@ -7755,8 +7806,8 @@
                                 <div class="product-thumb">${getProductEmoji(mainItem.name)}</div>
                                 <div class="product-meta">
                                     <div class="cell-title">${mainItem.name}</div>
-                                    <div class="product-price-line">${money(mainItem.unitPrice)} × ${mainItem.qty}</div>
-                                    ${extraCount > 0 ? `<div class="cell-sub">等 ${listItems.length} 件商品</div>` : ``}
+                                    ${listProductPriceLine}
+                                    ${!isDeposit && extraCount > 0 ? `<div class="cell-sub">等 ${listItems.length} 件商品</div>` : ``}
                                     ${productSubs}
                                 </div>
                             </div>
@@ -7771,10 +7822,6 @@
                         </div>
                         <div class="cell-stack">
                             <div class="cell-title">${record.reason}</div>
-                        </div>
-                        <div class="cell-stack">
-                            <div class="cell-title">${logisticsText.title}</div>
-                            ${logisticsEmpty ? `` : `<div class="cell-sub">${logisticsText.detail}</div>`}
                         </div>
                         <div class="cell-stack">
                             <div class="cell-title">${record.store}</div>
@@ -8919,6 +8966,7 @@
         }
 
         function renderAuditProductSummaryList(record) {
+            const isDeposit = isDepositOrder(record);
             return `
                 <div class="audit-product-list">
                     ${record.items.map((item) => `
@@ -8926,12 +8974,12 @@
                             <div class="audit-product-thumb">${getProductEmoji(item.name)}</div>
                             <div class="audit-product-main">
                                 <div class="audit-product-name">${item.name}</div>
-                                <div class="audit-product-price">单价: ${money(item.unitPrice)}</div>
+                                ${isDeposit ? "" : `<div class="audit-product-price">单价: ${money(item.unitPrice)}</div>`}
                             </div>
-                            <div class="audit-product-side">
+                            ${isDeposit ? "" : `<div class="audit-product-side">
                                 <div class="audit-product-qty">× ${item.qty}</div>
                                 <div class="audit-product-total">${money(item.qty * item.unitPrice)}</div>
-                            </div>
+                            </div>`}
                         </div>
                     `).join("")}
                     ${record.amounts.freightRefund > 0 ? `
@@ -10020,7 +10068,7 @@
                     <div class="detail-grid">
                         <div class="detail-item full">
                             <div class="key">商品明细</div>
-                            <div class="val">${record.items.map((item) => `${item.name}（${item.sku}）x${item.qty} · 单价 ${money(item.unitPrice)}`).join("<br>")}</div>
+                            <div class="val">${record.items.map((item) => isDepositOrder(record) ? item.name : `${item.name}（${item.sku}）x${item.qty} · 单价 ${money(item.unitPrice)}`).join("<br>")}</div>
                         </div>
                         <div class="detail-item"><div class="key">售后类型</div><div class="val">${record.afterSaleType}</div></div>
                         <div class="detail-item"><div class="key">售后范围</div><div class="val">${record.appliedRange}</div></div>
@@ -12262,11 +12310,37 @@
             select.innerHTML = options.join("");
         }
 
+        function renderListFilterOptions() {
+            const orderTypeSelect = document.getElementById("order-type-filter");
+            const orderSceneSelect = document.getElementById("order-scene-filter");
+            const orderTypes = [...new Set(mockRecords.map(record => record.orderType).filter(Boolean))];
+            const selectedOrderType = state.filters.orderType || orderTypeSelect.value;
+            const subTypes = selectedOrderType === "开充值订单"
+                ? ["储值卡"]
+                : (selectedOrderType === "预定金订单" ? ["预定金"] : orderSubTypeOptions);
+            orderTypeSelect.innerHTML = ['<option value="">全部</option>']
+                .concat(orderTypes.map(type => `<option value="${type}">${type}</option>`))
+                .join("");
+            orderTypeSelect.value = state.filters.orderType;
+            orderSceneSelect.innerHTML = ['<option value="">全部</option>']
+                .concat(subTypes.map(type => `<option value="${type}">${type}</option>`))
+                .join("");
+            if (state.filters.orderScene && subTypes.includes(state.filters.orderScene)) {
+                orderSceneSelect.value = state.filters.orderScene;
+            } else {
+                orderSceneSelect.value = "";
+            }
+        }
+
         function syncScopeFilterUI() {
             const scopeInput = document.getElementById("scope-filter");
             const storeFilter = document.getElementById("store-filter");
             const storeFilterField = document.getElementById("store-filter-field");
+            const orderTypeFilter = document.getElementById("order-type-filter");
+            const orderSceneFilter = document.getElementById("order-scene-filter");
             scopeInput.value = state.filters.scope;
+            orderTypeFilter.value = state.filters.orderType;
+            orderSceneFilter.value = state.filters.orderScene;
             document.querySelectorAll("[data-scope-tab]").forEach((button) => {
                 const isActive = button.dataset.scopeTab === state.filters.scope;
                 button.classList.toggle("active", isActive);
@@ -12357,6 +12431,9 @@
             ["store-filter", "search-input"].forEach((id) => {
                 document.getElementById(id).addEventListener(id === "search-input" ? "input" : "change", applyFilters);
             });
+            ["order-type-filter", "order-scene-filter"].forEach((id) => {
+                document.getElementById(id).addEventListener("change", applyFilters);
+            });
             document.getElementById("pagination").addEventListener("click", (event) => {
                 const pageButton = event.target.closest("[data-page]");
                 const actionButton = event.target.closest("[data-page-action]");
@@ -12374,13 +12451,19 @@
         }
 
         function applyFilters() {
+            const selectedOrderType = document.getElementById("order-type-filter").value;
+            const selectedOrderScene = document.getElementById("order-scene-filter").value;
             state.filters.scope = document.getElementById("scope-filter").value;
             state.filters.store = state.filters.scope === "store" ? state.currentAccountStore : document.getElementById("store-filter").value;
             state.filters.keyword = document.getElementById("search-input").value;
             state.filters.type = "";
-            state.filters.orderType = "";
+            state.filters.orderType = selectedOrderType;
+            state.filters.orderScene = selectedOrderType === "开充值订单"
+                ? "储值卡"
+                : (selectedOrderType === "预定金订单" ? "预定金" : selectedOrderScene);
             state.filters.responsibility = "";
             state.filters.freight = "";
+            renderListFilterOptions();
             syncScopeFilterUI();
             state.currentPage = 1;
             renderStatusTabs();
@@ -12394,12 +12477,16 @@
                 keyword: "",
                 type: "",
                 orderType: "",
+                orderScene: "",
                 responsibility: "",
                 freight: ""
             };
             document.getElementById("scope-filter").value = state.filters.scope;
             document.getElementById("store-filter").value = "";
             document.getElementById("search-input").value = "";
+            document.getElementById("order-type-filter").value = "";
+            document.getElementById("order-scene-filter").value = "";
+            renderListFilterOptions();
             syncScopeFilterUI();
             state.currentPage = 1;
             renderStatusTabs();
@@ -12679,6 +12766,7 @@
             state.currentTab = record.statusKey;
             state.currentPage = 1;
             closeActionModal();
+            renderListFilterOptions();
             renderStatusTabs();
             renderTable();
             renderDrawer(record);
@@ -12687,6 +12775,7 @@
 
         function init() {
             renderStoreFilterOptions();
+            renderListFilterOptions();
             syncScopeFilterUI();
             renderStatusTabs();
             renderTable();
