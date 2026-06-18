@@ -1,4 +1,6 @@
 .DS_Store
+._*
+.claude/
 .playwright-cli/
 .vscode/
 node_modules/

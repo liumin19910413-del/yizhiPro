@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财务结算体系 V2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            color: #1890ff;
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .tab:hover {
+            background: #e6f7ff;
+        }
+        
+        .tab.active {
+            background: #1890ff;
+            color: white;
+        }
+        
+        .content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card .label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .stat-card .note {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-top: 6px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e8e8e8;
+            font-size: 13px;
+        }
+        
+        th {
+            background: #fafafa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+        
+        .btn-success {
+            background: #52c41a;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #73d13d;
+        }
+        
+        .amount-positive {
+            color: #52c41a;
+            font-weight: 600;
+        }
+        
+        .amount-negative {
+            color: #ff4d4f;
+            font-weight: 600;
+        }
+        
+        .amount-neutral {
+            color: #1890ff;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-unpaid {
+            background: #fff2f0;
+            color: #ff4d4f;
+        }
+        
+        .status-partial {
+            background: #fffbe6;
+            color: #fa8c16;
+        }
+        
+        .status-paid {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .toolbar input, .toolbar select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        /* 清分明细表格 - 固定表头和首列 */
+        .clearing-table-container {
+            position: relative;
+            max-height: 600px;
+            overflow: auto;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+        }
+        
+        .clearing-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0;
+        }
+        
+        .clearing-table thead th {
+            position: sticky;
+            top: 0;
+            background: #fafafa;
+            z-index: 20;
+            border: 1px solid #e8e8e8;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* 固定首列（订单号） */
+        .clearing-table th:nth-child(1),
+        .clearing-table td:nth-child(1) {
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 15;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+        }
+        
+        .clearing-table thead th:nth-child(1) {
+            z-index: 25;
+            background: #fafafa;
+        }
+        
+        /* 固定操作列（最后一列） */
+        .clearing-table th:last-child,
+        .clearing-table td:last-child {
+            position: sticky;
+            right: 0;
+            background: white;
+            z-index: 15;
+            box-shadow: -2px 0 4px rgba(0,0,0,0.05);
+        }
+        
+        .clearing-table thead th:last-child {
+            z-index: 25;
+            background: #fafafa;
+        }
+        
+        /* 表格行悬停效果 */
+        .clearing-table tbody tr:hover td {
+            background: #f5f5f5;
+        }
+        
+        .clearing-table tbody tr:hover td:nth-child(1),
+        .clearing-table tbody tr:hover td:last-child {
+            background: #f5f5f5;
+        }
+        
+        /* 表格单元格基础样式 */
+        .clearing-table th,
+        .clearing-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e8e8e8;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        
+        /* 清分明细列允许换行 */
+        .clearing-table td.clearing-detail-cell {
+            white-space: pre-wrap;
+            max-width: 200px;
+            min-width: 180px;
+        }
+        
+        /* 表尾固定在底部 */
+        .clearing-table tfoot {
+            position: sticky;
+            bottom: 0;
+            background: #fafafa;
+            z-index: 20;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .clearing-table tfoot td {
+            background: #fafafa;
+            font-weight: 600;
+        }
+        
+        .clearing-table tfoot td:nth-child(1),
+        .clearing-table tfoot td:last-child {
+            z-index: 25;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 财务结算体系 V2.0</h1>
+            <p style="color: #666; font-size: 14px;">按照架构设计重新实现 - 数据源统一、视角分离、清分透明</p>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('order-detail')">📋 订单明细对账</div>
+            <div class="tab" onclick="switchTab('supplier')">📦 供应商对账</div>
+            <div class="tab" onclick="switchTab('distributor')">🏢 经销商对账</div>
+            <div class="tab" onclick="switchTab('headquarter')">🏛️ 连锁总部对账</div>
+            <div class="tab" onclick="switchTab('operation')">🎯 代运营对账</div>
+        </div>
+        
+        <div id="content" class="content">
+            <div class="loading">正在加载...</div>
+        </div>
+    </div>
+
+    <!-- 引入依赖 -->
+    <script src="shared/data.js"></script>
+    <script src="shared/amount-formatter.js"></script>
+    
+    <script>
+        let currentTab = 'order-detail';
+        
+        // 切换Tab
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // 更新Tab样式
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 渲染对应内容
+            renderContent();
+        }
+        
+        // 渲染内容
+        function renderContent() {
+            const content = document.getElementById('content');
+            
+            switch(currentTab) {
+                case 'order-detail':
+                    renderOrderDetail(content);
+                    break;
+                case 'supplier':
+                    renderSupplier(content);
+                    break;
+                case 'distributor':
+                    renderDistributor(content);
+                    break;
+                case 'headquarter':
+                    renderHeadquarter(content);
+                    break;
+                case 'operation':
+                    renderOperation(content);
+                    break;
+            }
+        }
+        
+        // 页面加载完成
+        window.onload = function() {
+            renderContent();
+        };
+    </script>
+    
+    <!-- 订单明细对账模块 -->
+    <script src="financial-settlement-v2/order-detail.js"></script>
+    
+    <!-- 供应商对账模块 -->
+    <script src="financial-settlement-v2/supplier.js"></script>
+    
+    <!-- 经销商对账模块 -->
+    <script src="financial-settlement-v2/distributor.js"></script>
+    
+    <!-- 连锁总部对账模块 -->
+    <script src="financial-settlement-v2/headquarter.js"></script>
+    
+    <!-- 代运营对账模块 -->
+    <script src="financial-settlement-v2/operation.js"></script>
+</body>
+</html>

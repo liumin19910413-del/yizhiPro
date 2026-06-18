@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>创建满减/送</title>
+  <style>
+    :root {
+      --blue: #2f7cf6;
+      --blue-soft: #eef5ff;
+      --text-1: #1f2329;
+      --text-2: #646a73;
+      --text-3: #9aa0a6;
+      --line: #e5e6eb;
+      --line-dark: #d8dadf;
+      --bg: #f5f6f8;
+      --table-head: #f4f4f6;
+      --warn: #ff7d00;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-width: 1200px;
+      min-height: 100vh;
+      padding-bottom: 76px;
+      color: var(--text-1);
+      background:
+        repeating-linear-gradient(-12deg, rgba(31, 35, 41, .035) 0 1px, transparent 1px 220px),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+    }
+
+    .topbar {
+      height: 46px;
+      padding: 0 12px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 1px 5px rgba(15, 23, 42, .06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .page-title {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .close-btn {
+      width: 88px;
+      height: 32px;
+      border: 1px solid #c9cdd4;
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text-1);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .content {
+      min-height: calc(100vh - 122px);
+      margin: 10px 4px 0;
+      background: rgba(255, 255, 255, .92);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 24px 0 80px;
+    }
+
+    .form {
+      width: 880px;
+      margin: 0 auto;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: flex-start;
+      min-height: 48px;
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      width: 88px;
+      padding-top: 8px;
+      text-align: right;
+      color: var(--text-1);
+      line-height: 24px;
+      flex-shrink: 0;
+    }
+
+    .required {
+      color: #f53f3f;
+      margin-right: 4px;
+    }
+
+    .form-control {
+      flex: 1;
+      min-width: 0;
+      padding-left: 14px;
+    }
+
+    .input-wrap {
+      width: 460px;
+      height: 32px;
+      border: 1px solid #c9cdd4;
+      border-radius: 3px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      outline: none;
+      padding: 0 12px;
+      color: var(--text-1);
+      font-size: 14px;
+    }
+
+    .count {
+      padding: 0 12px;
+      color: var(--text-2);
+      font-size: 12px;
+      border-left: 1px solid transparent;
+    }
+
+    .link {
+      color: var(--blue);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .time-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .time-input {
+      width: 216px;
+      height: 32px;
+      border: 1px solid #c9cdd4;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text-1);
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .clock {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #a9adb5;
+      border-radius: 50%;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .clock::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 3px;
+      width: 1px;
+      height: 5px;
+      background: #a9adb5;
+    }
+
+    .clock::after {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 7px;
+      width: 5px;
+      height: 1px;
+      background: #a9adb5;
+      transform: rotate(35deg);
+      transform-origin: left center;
+    }
+
+    .quick-btn {
+      min-width: 54px;
+      height: 32px;
+      padding: 0 14px;
+      border: 1px solid #c9cdd4;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text-1);
+      font-size: 14px;
+    }
+
+    .radio-line,
+    .check-line {
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-1);
+      cursor: pointer;
+      line-height: 22px;
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    label.disabled {
+      color: var(--text-3);
+      cursor: not-allowed;
+    }
+
+    label.disabled input {
+      cursor: not-allowed;
+    }
+
+    .muted {
+      color: var(--text-3);
+    }
+
+    .orange {
+      color: var(--warn);
+    }
+
+    .order-type-box {
+      width: 812px;
+      padding: 11px 14px 12px;
+      border-radius: 4px;
+      background: #f7f8fa;
+    }
+
+    .order-type-box .check-line {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .order-type-box label {
+      font-size: 13px;
+      line-height: 20px;
+    }
+
+    .order-type-note {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .order-type-box .hint {
+      margin-top: 8px;
+      color: var(--text-3);
+      font-size: 13px;
+    }
+
+    .rule-table {
+      width: 812px;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      margin-top: 8px;
+      color: var(--text-1);
+    }
+
+    .rule-table th,
+    .rule-table td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .rule-table th {
+      height: 56px;
+      padding: 0 14px;
+      background: var(--table-head);
+      font-weight: 500;
+    }
+
+    .rule-table td {
+      height: 58px;
+      padding: 0 14px;
+      background: #fff;
+    }
+
+    .rule-table th:last-child,
+    .rule-table td:last-child {
+      border-right: 0;
+    }
+
+    .num-cell {
+      width: 60px;
+      text-align: center !important;
+    }
+
+    .condition-cell {
+      width: 230px;
+    }
+
+    .discount-cell {
+      width: 230px;
+    }
+
+    .coupon-cell {
+      width: 230px;
+    }
+
+    .edit-cell {
+      width: 64px;
+      text-align: center !important;
+    }
+
+    .table-input {
+      width: 140px;
+      height: 32px;
+      border: 1px solid #c9cdd4;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px 0 12px;
+      color: var(--text-3);
+      background: #fff;
+    }
+
+    .discount-control {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .discount-input {
+      width: 140px;
+      height: 32px;
+      border: 1px solid #c9cdd4;
+      border-right: 0;
+      border-radius: 3px 0 0 3px;
+      background: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px 0 12px;
+      color: var(--text-3);
+    }
+
+    .discount-select {
+      width: 40px;
+      height: 32px;
+      border: 1px solid #c9cdd4;
+      border-radius: 0 3px 3px 0;
+      background: #fff;
+      color: var(--text-1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .discount-select::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 1px;
+      height: 18px;
+      background: var(--line);
+    }
+
+    .discount-menu {
+      display: none;
+      position: absolute;
+      left: 58px;
+      top: 40px;
+      width: 106px;
+      padding: 8px 0;
+      border-radius: 3px;
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, .14);
+      z-index: 5;
+    }
+
+    .discount-menu::before {
+      content: "";
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      margin-left: -8px;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 8px solid #fff;
+    }
+
+    .discount-control.open .discount-menu {
+      display: block;
+    }
+
+    .discount-menu-item {
+      height: 40px;
+      padding: 0 18px;
+      color: var(--text-1);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .discount-menu-item:hover {
+      background: #f7f8fa;
+    }
+
+    .discount-control.no-amount .discount-input,
+    .discount-control.no-amount .discount-select {
+      opacity: .45;
+    }
+
+    .discount-control.no-amount .discount-input {
+      display: none;
+    }
+
+    .discount-control.no-amount .discount-select {
+      border-left: 1px solid #c9cdd4;
+      border-radius: 3px;
+      opacity: 1;
+      margin-left: 6px;
+    }
+
+    .reward-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .reward-options {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .reward-chip {
+      min-height: 28px;
+      padding: 0 8px;
+      border: 1px solid #c9cdd4;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text-1);
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reward-chip input {
+      width: 14px;
+      height: 14px;
+    }
+
+    .reward-picker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: var(--text-2);
+      font-size: 13px;
+    }
+
+    .gift-summary {
+      color: var(--text-2);
+      font-size: 13px;
+      line-height: 20px;
+    }
+
+    .suffix {
+      color: var(--text-2);
+      margin-left: 4px;
+    }
+
+    .plus-circle {
+      width: 14px;
+      height: 14px;
+      border: 1px solid #4e5969;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #4e5969;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .add-level {
+      margin-top: 16px;
+      width: 142px;
+      height: 32px;
+      border: 1px solid var(--blue);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--blue);
+      font-size: 14px;
+    }
+
+    .scope-box {
+      width: 812px;
+      padding: 16px;
+      background: #f7f8fa;
+      border-radius: 4px;
+    }
+
+    .scope-box .radio-line {
+      margin-bottom: 12px;
+    }
+
+    .scope-note {
+      margin-left: 24px;
+      color: var(--text-3);
+      font-size: 13px;
+      line-height: 20px;
+    }
+
+    .sub-check {
+      margin-top: 10px;
+    }
+
+    .audience-panel {
+      width: 812px;
+      margin-top: 10px;
+      padding: 12px 14px;
+      border: 1px solid #d8e6ff;
+      border-radius: 4px;
+      background: #f7fbff;
+      display: none;
+    }
+
+    .audience-panel.show {
+      display: block;
+    }
+
+    .audience-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .audience-tag {
+      height: 26px;
+      padding: 0 10px;
+      border: 1px solid #b7d4ff;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--blue);
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .32);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-mask.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 680px;
+      max-height: 78vh;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, .2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal.sm {
+      width: 560px;
+    }
+
+    .modal-head {
+      height: 48px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 500;
+    }
+
+    .modal-close {
+      border: 0;
+      background: transparent;
+      font-size: 20px;
+      color: var(--text-2);
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 16px 18px;
+      overflow: auto;
+    }
+
+    .modal-foot {
+      height: 56px;
+      padding: 0 18px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      min-width: 72px;
+      height: 32px;
+      border: 1px solid #c9cdd4;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text-1);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .modal-btn.primary {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .gift-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--line);
+      margin: -16px -18px 14px;
+      padding: 0 18px;
+    }
+
+    .gift-tab {
+      height: 42px;
+      padding: 0 18px;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: var(--text-2);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .gift-tab.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+      font-weight: 500;
+    }
+
+    .gift-pane {
+      display: none;
+    }
+
+    .gift-pane.active {
+      display: block;
+    }
+
+    .modal-search {
+      width: 260px;
+      height: 32px;
+      border: 1px solid #c9cdd4;
+      border-radius: 3px;
+      padding: 0 10px;
+      margin-bottom: 12px;
+      color: var(--text-1);
+      outline: none;
+      font-size: 13px;
+    }
+
+    .choice-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .choice-table th,
+    .choice-table td {
+      height: 42px;
+      border-bottom: 1px solid var(--line);
+      padding: 0 12px;
+      text-align: left;
+      color: var(--text-1);
+    }
+
+    .choice-table th {
+      background: #f7f8fa;
+      font-weight: 500;
+      color: var(--text-2);
+    }
+
+    .qty-input {
+      width: 58px;
+      height: 28px;
+      border: 1px solid #c9cdd4;
+      border-radius: 3px;
+      text-align: center;
+      color: var(--text-1);
+    }
+
+    .qty-cell .qty-input {
+      display: none;
+    }
+
+    tr.selected .qty-cell .qty-input {
+      display: inline-block;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 58px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 8px rgba(15, 23, 42, .06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .submit-btn {
+      width: 138px;
+      height: 34px;
+      border: 0;
+      border-radius: 3px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .help-icon {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #86909c;
+      border-radius: 50%;
+      color: #4e5969;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      margin-left: 4px;
+      vertical-align: -2px;
+      position: relative;
+      cursor: default;
+    }
+
+    .help-icon[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%;
+      top: 24px;
+      transform: translateX(-50%);
+      width: 280px;
+      padding: 8px 10px;
+      border-radius: 4px;
+      background: rgba(31, 35, 41, .92);
+      color: #fff;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 400;
+      text-align: left;
+      z-index: 30;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, .16);
+    }
+
+    .help-icon[data-tip]:hover::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 18px;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid rgba(31, 35, 41, .92);
+      z-index: 31;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="page-title">创建满减/送</div>
+    <button class="close-btn" onclick="location.href='满减满赠活动列表_交互演示.html'">关闭</button>
+  </header>
+
+  <main class="content">
+    <form class="form">
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>活动名称:</div>
+        <div class="form-control">
+          <div class="input-wrap">
+            <input type="text" placeholder="请输入活动名称" maxlength="20">
+            <span class="count">0/20</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label">适用门店:</div>
+        <div class="form-control" style="padding-top:8px;">
+          <a class="link">选择门店</a>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>适用类型:</div>
+        <div class="form-control">
+          <div class="order-type-box">
+            <div class="check-line">
+              <label><input type="checkbox">微商城订单</label>
+              <label><input type="checkbox">线下订单</label>
+            </div>
+            <div class="orange order-type-note">
+              微商城订单需在门店商城设置中启用电商模式后，该满减配置才会生效。
+            </div>
+            <div class="orange order-type-note" style="margin-top:2px;">
+              线下订单暂时仅可使用1张优惠券，且不受人群限制和优惠共享限制，其余逻辑沿用原有线下规则。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>活动时间:</div>
+        <div class="form-control">
+          <div class="time-row">
+            <div class="time-input"><span class="clock"></span><span>2026.05.21 15:27:26</span></div>
+            <span>至</span>
+            <div class="time-input"><span class="clock"></span><span class="muted">结束时间</span></div>
+            <button type="button" class="quick-btn">1天</button>
+            <button type="button" class="quick-btn">15天</button>
+            <button type="button" class="quick-btn">30天</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>优惠规则:</div>
+        <div class="form-control">
+          <div class="radio-line" style="height:32px;">
+            <label><input type="radio" checked>阶梯优惠</label>
+          </div>
+
+          <table class="rule-table">
+            <thead>
+              <tr>
+                <th class="num-cell">序号</th>
+                <th class="condition-cell">门槛<span class="help-icon" data-tip="“按会员价”核算是否适用品项的总金额是否达成门槛条件。">?</span></th>
+                <th class="discount-cell">减价/打折</th>
+                <th class="coupon-cell">参与活动后送赠品<span class="help-icon">?</span></th>
+                <th class="edit-cell">编辑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num-cell">1</td>
+                <td class="condition-cell">
+                  满 <span class="table-input">金额<span class="suffix">元</span></span>
+                </td>
+                <td class="discount-cell">
+                  <div class="discount-control" data-discount-type="minus">
+                    <span class="discount-prefix" style="margin-right:6px;">减</span>
+                    <span class="discount-input"><span class="discount-placeholder">金额</span><span class="suffix discount-unit">元</span></span>
+                    <button type="button" class="discount-select">⌄</button>
+                    <div class="discount-menu">
+                      <div class="discount-menu-item" data-type="minus">减x元</div>
+                      <div class="discount-menu-item" data-type="fold">打x折</div>
+                      <div class="discount-menu-item" data-type="none">无金额优惠</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="coupon-cell">
+                  <div class="reward-box">
+                    <div class="reward-picker">
+                      <a class="link js-open-gift">选择礼品</a>
+                    </div>
+                    <div class="gift-summary"></div>
+                  </div>
+                </td>
+                <td class="edit-cell">-</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <button type="button" class="add-level">+ 添加下一级优惠</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>适用范围:</div>
+        <div class="form-control">
+          <div class="scope-box">
+            <div class="radio-line">
+              <label><input type="radio" name="scope" checked>全部可用</label>
+              <label><input type="radio" name="scope">指定品项可用</label>
+              <label><input type="radio" name="scope">指定分类可用</label>
+              <label><input type="radio" name="scope">指定不可用</label>
+            </div>
+          </div>
+          <label class="sub-check"><input type="checkbox">自定义套餐<span class="muted">（勾选后，线下自定义套餐开单可使用此活动）</span></label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>参与限制:</div>
+        <div class="form-control">
+          <div class="radio-line" style="min-height:36px;">
+            <label><input type="radio" name="audience" value="all" checked>全部可参与</label>
+            <label><input type="radio" name="audience" value="include">指定人群参与</label>
+            <label><input type="radio" name="audience" value="exclude">指定人群不可参与</label>
+          </div>
+          <div class="orange" style="margin-top:4px;font-size:13px;">
+            参与限制仅控制微商城订单，线下订单不受限制。
+          </div>
+          <div class="audience-panel" id="audiencePanel">
+            <div class="audience-row">
+              <a class="link" id="openAudience">选择参与人群</a>
+              <span id="audienceSummary" class="muted">未选择人群</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label">优惠同享:</div>
+        <div class="form-control">
+          <div class="check-line" style="min-height:32px;">
+            <label><input type="checkbox">与优惠券优惠共享</label>
+            <label><input type="checkbox">可与赠送金共用</label>
+            <label><input type="checkbox">可与积分抵扣共用</label>
+          </div>
+          <div class="orange" style="margin-top:4px;font-size:13px;">
+            优惠同享仅控制微商城订单，线下订单不受限制；线下订单最多仅使用1张券。
+          </div>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <div class="modal-mask" id="giftModal">
+    <div class="modal">
+      <div class="modal-head">
+        <span>选择礼品</span>
+        <button type="button" class="modal-close" data-close="giftModal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="gift-tabs">
+          <button type="button" class="gift-tab active" data-tab="goodsPane">实物商品</button>
+          <button type="button" class="gift-tab" data-tab="couponPane">优惠券</button>
+        </div>
+        <div class="gift-pane active" id="goodsPane">
+          <input class="modal-search gift-search" type="text" placeholder="搜索商品名称">
+          <table class="choice-table">
+            <thead>
+              <tr>
+                <th style="width:64px;">选择</th>
+                <th>商品名称</th>
+                <th style="width:96px;">库存参考</th>
+                <th style="width:96px;">数量</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" class="gift-choice" data-name="护手霜 30ml" data-kind="实物"></td>
+                <td class="choice-name">护手霜 30ml</td>
+                <td>386</td>
+                <td class="qty-cell"><input class="qty-input" type="number" value="1" min="1"></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="gift-choice" data-name="面膜体验装" data-kind="实物"></td>
+                <td class="choice-name">面膜体验装</td>
+                <td>128</td>
+                <td class="qty-cell"><input class="qty-input" type="number" value="1" min="1"></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="gift-choice" data-name="精华旅行套装" data-kind="实物"></td>
+                <td class="choice-name">精华旅行套装</td>
+                <td>64</td>
+                <td class="qty-cell"><input class="qty-input" type="number" value="1" min="1"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="gift-pane" id="couponPane">
+          <input class="modal-search gift-search" type="text" placeholder="搜索优惠券名称">
+          <table class="choice-table">
+            <thead>
+              <tr>
+                <th style="width:64px;">选择</th>
+                <th>优惠券名称</th>
+                <th style="width:120px;">类型</th>
+                <th style="width:96px;">数量</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" class="gift-choice" data-name="50元现金券" data-kind="券"></td>
+                <td class="choice-name">50元现金券</td>
+                <td>现金券</td>
+                <td class="qty-cell"><input class="qty-input" type="number" value="1" min="1"></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="gift-choice" data-name="8折复购券" data-kind="券"></td>
+                <td class="choice-name">8折复购券</td>
+                <td>折扣券</td>
+                <td class="qty-cell"><input class="qty-input" type="number" value="1" min="1"></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="gift-choice" data-name="护理项目抵用券" data-kind="券"></td>
+                <td class="choice-name">护理项目抵用券</td>
+                <td>项目抵用券</td>
+                <td class="qty-cell"><input class="qty-input" type="number" value="1" min="1"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="orange" style="margin-top:10px;font-size:13px;line-height:20px;">
+          赠送实物商品时，自提单跟单自提，物流单跟单发货；实物赠品下单时不校验库存，库存不足允许扣为负库存。<br>
+          赠送优惠券时，支付成功后自动发放到客户资产。<br>
+          订单全额退款时，优惠券会原路回退，实物赠品也会跟单回退。
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="modal-btn" data-close="giftModal">取消</button>
+        <button type="button" class="modal-btn primary" id="confirmGift">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="audienceModal">
+    <div class="modal sm">
+      <div class="modal-head">
+        <span>选择参与人群</span>
+        <button type="button" class="modal-close" data-close="audienceModal">×</button>
+      </div>
+      <div class="modal-body">
+        <input class="modal-search" id="audienceSearch" type="text" placeholder="搜索人群名称">
+        <table class="choice-table">
+          <thead>
+            <tr>
+              <th style="width:64px;">选择</th>
+              <th>人群名称</th>
+              <th style="width:120px;">人数</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" class="audience-choice" data-name="高价值会员"></td>
+              <td class="choice-name">高价值会员</td>
+              <td>2,486</td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="audience-choice" data-name="30天未复购客户"></td>
+              <td class="choice-name">30天未复购客户</td>
+              <td>6,102</td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="audience-choice" data-name="新客首购人群"></td>
+              <td class="choice-name">新客首购人群</td>
+              <td>1,754</td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="audience-choice" data-name="直播间成交客户"></td>
+              <td class="choice-name">直播间成交客户</td>
+              <td>928</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="modal-btn" data-close="audienceModal">取消</button>
+        <button type="button" class="modal-btn primary" id="confirmAudience">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <button class="submit-btn">创建活动</button>
+  </footer>
+
+  <script>
+    const audiencePanel = document.getElementById('audiencePanel');
+    let currentGiftSummary = null;
+
+    document.querySelectorAll('input[name="audience"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        audiencePanel.classList.toggle('show', radio.value !== 'all' && radio.checked);
+      });
+    });
+
+    function setDiscountType(control, type) {
+      const prefix = control.querySelector('.discount-prefix');
+      const unit = control.querySelector('.discount-unit');
+      const placeholder = control.querySelector('.discount-placeholder');
+      control.dataset.discountType = type;
+      control.classList.toggle('no-amount', type === 'none');
+      if (type === 'fold') {
+        prefix.textContent = '打';
+        placeholder.textContent = '折扣';
+        unit.textContent = '折';
+      } else if (type === 'none') {
+        prefix.textContent = '无';
+        placeholder.textContent = '';
+        unit.textContent = '';
+      } else {
+        prefix.textContent = '减';
+        placeholder.textContent = '金额';
+        unit.textContent = '元';
+      }
+    }
+
+    document.addEventListener('click', (event) => {
+      const select = event.target.closest('.discount-select');
+      const menuItem = event.target.closest('.discount-menu-item');
+      const giftLink = event.target.closest('.js-open-gift');
+      const closeBtn = event.target.closest('[data-close]');
+
+      if (select) {
+        const control = select.closest('.discount-control');
+        document.querySelectorAll('.discount-control.open').forEach((item) => {
+          if (item !== control) item.classList.remove('open');
+        });
+        control.classList.toggle('open');
+        return;
+      }
+
+      if (menuItem) {
+        const control = menuItem.closest('.discount-control');
+        setDiscountType(control, menuItem.dataset.type);
+        control.classList.remove('open');
+        return;
+      }
+
+      if (giftLink) {
+        currentGiftSummary = giftLink.closest('.reward-box').querySelector('.gift-summary');
+        document.getElementById('giftModal').classList.add('show');
+        return;
+      }
+
+      if (event.target.id === 'openAudience') {
+        document.getElementById('audienceModal').classList.add('show');
+        return;
+      }
+
+      if (closeBtn) {
+        document.getElementById(closeBtn.dataset.close).classList.remove('show');
+        return;
+      }
+
+      if (!event.target.closest('.discount-control')) {
+        document.querySelectorAll('.discount-control.open').forEach((item) => item.classList.remove('open'));
+      }
+    });
+
+    document.querySelectorAll('.gift-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.gift-tab').forEach((item) => item.classList.remove('active'));
+        document.querySelectorAll('.gift-pane').forEach((item) => item.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    function bindChoiceQuantity(scope) {
+      scope.querySelectorAll('.gift-choice').forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+          checkbox.closest('tr').classList.toggle('selected', checkbox.checked);
+        });
+      });
+    }
+
+    function filterRows(input, tableSelector) {
+      const keyword = input.value.trim().toLowerCase();
+      input.closest('.gift-pane, .modal-body').querySelectorAll(tableSelector).forEach((row) => {
+        const name = row.querySelector('.choice-name').textContent.toLowerCase();
+        row.style.display = name.includes(keyword) ? '' : 'none';
+      });
+    }
+
+    bindChoiceQuantity(document);
+
+    document.querySelectorAll('.gift-search').forEach((input) => {
+      input.addEventListener('input', () => filterRows(input, 'tbody tr'));
+    });
+
+    document.getElementById('audienceSearch').addEventListener('input', (event) => {
+      const keyword = event.target.value.trim().toLowerCase();
+      document.querySelectorAll('#audienceModal tbody tr').forEach((row) => {
+        const name = row.querySelector('.choice-name').textContent.toLowerCase();
+        row.style.display = name.includes(keyword) ? '' : 'none';
+      });
+    });
+
+    document.getElementById('confirmGift').addEventListener('click', () => {
+      const selected = Array.from(document.querySelectorAll('.gift-choice:checked')).map((item) => {
+        const qty = item.closest('tr').querySelector('.qty-input').value || 1;
+        return `${item.dataset.name}×${qty}`;
+      });
+      if (currentGiftSummary) {
+        currentGiftSummary.textContent = selected.length ? selected.join('，') : '';
+      }
+      document.getElementById('giftModal').classList.remove('show');
+    });
+
+    document.getElementById('confirmAudience').addEventListener('click', () => {
+      const selected = Array.from(document.querySelectorAll('.audience-choice:checked')).map((item) => item.dataset.name);
+      const summary = document.getElementById('audienceSummary');
+      summary.className = selected.length ? 'audience-tag' : 'muted';
+      summary.textContent = selected.length ? selected.join('，') : '未选择人群';
+      document.getElementById('audienceModal').classList.remove('show');
+    });
+
+    document.querySelector('.add-level').addEventListener('click', () => {
+      const tbody = document.querySelector('.rule-table tbody');
+      const nextIndex = tbody.querySelectorAll('tr').length + 1;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="num-cell">${nextIndex}</td>
+        <td class="condition-cell">
+          满 <span class="table-input">金额<span class="suffix">元</span></span>
+        </td>
+        <td class="discount-cell">
+          <div class="discount-control" data-discount-type="minus">
+            <span class="discount-prefix" style="margin-right:6px;">减</span>
+            <span class="discount-input"><span class="discount-placeholder">金额</span><span class="suffix discount-unit">元</span></span>
+            <button type="button" class="discount-select">⌄</button>
+            <div class="discount-menu">
+              <div class="discount-menu-item" data-type="minus">减x元</div>
+              <div class="discount-menu-item" data-type="fold">打x折</div>
+              <div class="discount-menu-item" data-type="none">无金额优惠</div>
+            </div>
+          </div>
+        </td>
+        <td class="coupon-cell">
+          <div class="reward-box">
+            <div class="reward-picker">
+              <a class="link js-open-gift">选择礼品</a>
+            </div>
+            <div class="gift-summary"></div>
+          </div>
+        </td>
+        <td class="edit-cell"><a class="link js-remove-level">删除</a></td>
+      `;
+      tbody.appendChild(tr);
+      bindChoiceQuantity(tr);
+    });
+
+    document.querySelector('.rule-table tbody').addEventListener('click', (event) => {
+      if (!event.target.classList.contains('js-remove-level')) return;
+      event.target.closest('tr').remove();
+      document.querySelectorAll('.rule-table tbody tr').forEach((row, index) => {
+        row.querySelector('.num-cell').textContent = index + 1;
+      });
+    });
+  </script>
+</body>
+</html>

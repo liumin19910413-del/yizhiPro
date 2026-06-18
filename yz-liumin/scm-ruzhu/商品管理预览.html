@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品管理预览 - 列表模式</title>
+    <link rel="stylesheet" href="shared/styles.css">
+    <style>
+        .preview-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .comparison-item {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .comparison-item h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .old-style {
+            background: #fff7e6;
+            border-color: #ffd591;
+        }
+        .new-style {
+            background: #f6ffed;
+            border-color: #b7eb8f;
+        }
+        .preview-section {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <h1>商品管理页面改进预览</h1>
+        
+        <div class="comparison">
+            <div class="comparison-item old-style">
+                <h3>🔸 原来的卡片式布局</h3>
+                <ul>
+                    <li>卡片式展示，视觉效果好</li>
+                    <li>信息密度较低，需要滚动查看</li>
+                    <li>不便于快速对比商品数据</li>
+                    <li>移动端体验较好</li>
+                </ul>
+            </div>
+            
+            <div class="comparison-item new-style">
+                <h3>✅ 新的列表式布局</h3>
+                <ul>
+                    <li>表格式展示，信息密度高</li>
+                    <li>便于快速浏览和对比数据</li>
+                    <li>支持排序和筛选功能</li>
+                    <li>更适合商务数据展示</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <h2>新增的数据列</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div class="card" style="padding: 15px;">
+                    <h4>💰 收益分析</h4>
+                    <p>显示预计收益金额和毛利率</p>
+                </div>
+                <div class="card" style="padding: 15px;">
+                    <h4>📊 成本信息</h4>
+                    <p>展示成本价格和利润空间</p>
+                </div>
+                <div class="card" style="padding: 15px;">
+                    <h4>🏷️ 价格对比</h4>
+                    <p>销售价与原价的对比展示</p>
+                </div>
+                <div class="card" style="padding: 15px;">
+                    <h4>📋 详细信息</h4>
+                    <p>点击查看完整的商品详情</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <h2>功能特点</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h4>🔍 搜索筛选</h4>
+                    <ul>
+                        <li>支持商品名称搜索</li>
+                        <li>支持SPU ID搜索</li>
+                        <li>按分类筛选商品</li>
+                        <li>实时搜索结果</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>📱 响应式设计</h4>
+                    <ul>
+                        <li>桌面端完整表格展示</li>
+                        <li>移动端横向滚动</li>
+                        <li>保持数据完整性</li>
+                        <li>优化触摸体验</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <h2>商品详情弹窗</h2>
+            <p>点击"详情"按钮可查看：</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+                <div class="card" style="padding: 15px;">
+                    <h4>💵 价格信息</h4>
+                    <p>销售价、原价、成本价、毛利率</p>
+                </div>
+                <div class="card" style="padding: 15px;">
+                    <h4>💰 收益分析</h4>
+                    <p>详细的收益计算和分成明细</p>
+                </div>
+                <div class="card" style="padding: 15px;">
+                    <h4>📦 产品组合</h4>
+                    <p>组合产品的详细清单</p>
+                </div>
+                <div class="card" style="padding: 15px;">
+                    <h4>📊 分账预览</h4>
+                    <p>各方分账金额和比例</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f0f2f5; border-radius: 8px;">
+            <h3>🚀 立即体验</h3>
+            <p style="margin: 10px 0; color: #666;">
+                新的列表式商品管理页面已经准备就绪，提供更高效的数据浏览体验
+            </p>
+            <div style="margin-top: 15px;">
+                <a href="lite/index.html" target="_blank" class="btn btn-primary" style="margin: 0 10px;">打开 Lite端</a>
+                <a href="mg/index.html" target="_blank" class="btn btn-outline" style="margin: 0 10px;">打开 MG端</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

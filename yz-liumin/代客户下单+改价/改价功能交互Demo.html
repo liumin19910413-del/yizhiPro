@@ -1,0 +1,2571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>改价功能交互Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .demo-title {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .demo-title-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            text-align: left;
+        }
+        .demo-title-copy {
+            flex: 1;
+            min-width: 0;
+        }
+        .doc-entry-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border: 1px solid rgba(255,255,255,0.32);
+            background: rgba(255,255,255,0.14);
+            color: white;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s, border-color 0.2s;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .doc-entry-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.48);
+        }
+        .doc-entry-icon {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.18);
+            font-size: 15px;
+        }
+        .doc-entry-copy {
+            display: grid;
+            gap: 2px;
+            line-height: 1.15;
+            text-align: left;
+        }
+        .doc-entry-copy span {
+            font-size: 12px;
+            font-weight: 400;
+            opacity: 0.86;
+        }
+        .demo-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .demo-tab {
+            padding: 10px 20px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .demo-tab.active {
+            background: #667eea;
+            color: white;
+        }
+        .demo-section {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .demo-section.active {
+            display: block;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        /* PC端样式 */
+        .pc-header {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 20px;
+        }
+        .pc-top-nav {
+            display: flex;
+            gap: 30px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+        .pc-top-nav a {
+            color: #666;
+            text-decoration: none;
+        }
+        .pc-top-nav a.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+        .pc-side-nav {
+            display: flex;
+            gap: 20px;
+            padding: 12px 0;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        .pc-side-nav a {
+            color: #999;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .pc-side-nav a.active {
+            color: #667eea;
+            font-weight: 500;
+        }
+        .pc-filter-bar {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .pc-filter-bar input, .pc-filter-bar select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .pc-filter-bar button {
+            padding: 8px 16px;
+            border: 1px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .pc-filter-bar button.primary {
+            background: #667eea;
+            color: white;
+        }
+        .pc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .pc-table th {
+            background: #f8f9fa;
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 500;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .pc-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        .pc-table tr:hover {
+            background: #f8f9fa;
+        }
+        .order-product {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .order-product img {
+            width: 50px;
+            height: 50px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        .order-product-info {
+            max-width: 200px;
+        }
+        .order-product-name {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .order-product-spec {
+            color: #999;
+            font-size: 12px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-badge.pending {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+        .status-badge.paid {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        .status-badge.shipped {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        .status-badge.closed {
+            background: #f5f5f5;
+            color: #999;
+        }
+        .action-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 4px 10px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        .action-btn.price-change {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .action-btn.delete-order {
+            color: #ff4d4f;
+            border-color: #ff4d4f;
+        }
+        .action-btn.delete-order:hover {
+            background: #ff4d4f;
+            color: white;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: auto;
+            animation: modalIn 0.3s ease;
+        }
+        .doc-modal-box {
+            max-width: 900px;
+            border-radius: 20px;
+        }
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 20px;
+            color: #999;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            background: #f5f5f5;
+            color: #666;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .doc-modal-body {
+            padding: 20px 24px 24px;
+            max-height: calc(90vh - 84px);
+            overflow: auto;
+        }
+        .doc-modal-summary {
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: #f6f8ff;
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .doc-sections {
+            display: grid;
+            gap: 16px;
+        }
+        .doc-block {
+            border: 1px solid #e8eaf8;
+            border-radius: 14px;
+            padding: 16px 18px;
+            background: #fbfcff;
+        }
+        .doc-block h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #2d3a8c;
+        }
+        .doc-block ul {
+            margin: 0;
+            padding-left: 18px;
+            color: #4a5568;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+        .doc-block li + li {
+            margin-top: 6px;
+        }
+
+        /* 改价表单样式 */
+        .order-info-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .order-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 13px;
+        }
+        .order-info-label {
+            color: #666;
+        }
+        .order-info-value {
+            color: #333;
+            font-weight: 500;
+        }
+        .goods-list {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .goods-list-header {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            font-weight: 500;
+            font-size: 13px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .goods-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .goods-item:last-child {
+            border-bottom: none;
+        }
+        .goods-name {
+            font-size: 13px;
+        }
+        .goods-price {
+            font-weight: 500;
+            font-size: 13px;
+        }
+        .payment-detail {
+            margin-bottom: 20px;
+        }
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        .payment-row.total {
+            font-weight: 600;
+            font-size: 15px;
+            padding-top: 12px;
+            margin-top: 5px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .price-adjust {
+            background: #fff7e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .price-adjust-title {
+            font-weight: 500;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+        .price-type-select {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+        .price-type-option {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .price-type-option input[type="radio"] {
+            accent-color: #667eea;
+        }
+        .price-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .price-input-wrap span {
+            color: #666;
+            font-size: 13px;
+        }
+        .price-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
+        .price-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .final-price {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+        .reason-input {
+            margin-bottom: 20px;
+        }
+        .reason-input label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .reason-input label span {
+            color: #ff4d4f;
+        }
+        .reason-input textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+        .reason-input textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .submit-btn:hover {
+            background: #5a70e0;
+        }
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* 移动端样式 */
+        .mobile-header {
+            background: white;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .mobile-back {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #666;
+        }
+        .mobile-title {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .mobile-store-switch {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            font-size: 13px;
+            color: #666;
+        }
+        .mobile-stats {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .mobile-stat-card {
+            flex: 1;
+            text-align: center;
+        }
+        .mobile-stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .mobile-stat-label {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        .mobile-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            overflow-x: auto;
+        }
+        .mobile-tab {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #666;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+        }
+        .mobile-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 500;
+        }
+        .mobile-search {
+            padding: 10px 15px;
+            background: white;
+            display: flex;
+            gap: 10px;
+        }
+        .mobile-search input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .mobile-filter-btn {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .mobile-order-card {
+            margin: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .mobile-order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .mobile-order-id {
+            font-size: 12px;
+            color: #999;
+        }
+        .mobile-order-status {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .mobile-order-status.pending {
+            color: #fa8c16;
+        }
+        .mobile-order-status.shipped {
+            color: #52c41a;
+        }
+        .mobile-order-status.closed {
+            color: #999;
+        }
+        .mobile-order-content {
+            padding: 12px 15px;
+        }
+        .mobile-order-goods {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .mobile-order-goods img {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+        .mobile-order-goods-info {
+            flex: 1;
+        }
+        .mobile-order-goods-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .mobile-order-goods-price {
+            font-size: 13px;
+            color: #666;
+        }
+        .mobile-order-customer {
+            font-size: 12px;
+            color: #999;
+            padding: 8px 0;
+            border-top: 1px solid #f0f0f0;
+        }
+        .mobile-order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #fafafa;
+            border-top: 1px solid #f0f0f0;
+        }
+        .mobile-order-total {
+            font-size: 13px;
+        }
+        .mobile-order-total span {
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        .mobile-order-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .mobile-action-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+        .mobile-action-btn.primary {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .mobile-action-btn.danger {
+            color: #ff4d4f;
+            border-color: #ff4d4f;
+        }
+
+        /* 移动端改价页面 */
+        .mobile-price-change-page {
+            display: none;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        .mobile-price-change-page.show {
+            display: block;
+        }
+        .mobile-price-change-content {
+            padding: 15px;
+        }
+        .mobile-order-info {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .mobile-order-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+        .mobile-goods-section {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .mobile-goods-header {
+            padding: 12px 15px;
+            background: #f8f9fa;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .mobile-goods-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .mobile-goods-item:last-child {
+            border-bottom: none;
+        }
+        .mobile-payment-section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .mobile-payment-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        .mobile-price-adjust-section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .mobile-price-type-select {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .mobile-price-type-option {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .mobile-price-type-option.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .mobile-price-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .mobile-price-input-wrap span {
+            color: #666;
+        }
+        .mobile-price-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .mobile-final-price {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+        .mobile-reason-section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .mobile-reason-section label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .mobile-reason-section label span {
+            color: #ff4d4f;
+        }
+        .mobile-reason-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            resize: none;
+            min-height: 80px;
+            font-family: inherit;
+        }
+        .mobile-submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* 客户端样式（用户端） */
+        .client-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .client-back {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #333;
+        }
+        .client-title {
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .client-more {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .client-status-banner {
+            padding: 20px;
+            text-align: center;
+        }
+        .client-status-banner.pending {
+            background: linear-gradient(135deg, #fa8c16 0%, #ff6b00 100%);
+            color: white;
+        }
+        .client-status-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .client-status-desc {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .client-section {
+            background: white;
+            margin-bottom: 10px;
+        }
+        .client-section-title {
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .client-section-content {
+            padding: 12px 15px;
+        }
+        .client-recipient {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        .client-recipient-name {
+            color: #333;
+        }
+        .client-recipient-phone {
+            color: #666;
+        }
+        .client-recipient-addr {
+            color: #999;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .client-goods-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .client-goods-item:last-child {
+            border-bottom: none;
+        }
+        .client-goods-img {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+        .client-goods-info {
+            flex: 1;
+        }
+        .client-goods-name {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .client-goods-spec {
+            font-size: 12px;
+            color: #999;
+        }
+        .client-goods-price {
+            text-align: right;
+        }
+        .client-goods-price .price {
+            font-weight: 500;
+        }
+        .client-goods-price .num {
+            color: #999;
+            font-size: 12px;
+        }
+        .client-price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        .client-price-row.discount {
+            color: #52c41a;
+        }
+        .client-price-row.manual-adjust {
+            color: #fa8c16;
+            font-weight: 500;
+        }
+        .client-price-row.final {
+            font-weight: 600;
+            font-size: 15px;
+            padding-top: 12px;
+            margin-top: 5px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .client-delivery-info {
+            padding: 12px 0;
+        }
+        .client-delivery-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+        .client-delivery-label {
+            color: #666;
+        }
+        .client-delivery-value {
+            color: #333;
+        }
+        .client-footer-btns {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            position: sticky;
+            bottom: 0;
+            border-top: 1px solid #e0e0e0;
+        }
+        .client-footer-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+        }
+        .client-footer-btn.secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+        .client-footer-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            z-index: 2000;
+            display: none;
+        }
+        .toast.show {
+            display: block;
+            animation: toastIn 0.3s ease;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* 确认对话框 */
+        .confirm-modal .modal-box {
+            max-width: 320px;
+        }
+        .confirm-modal .modal-body {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .confirm-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 15px;
+            background: #fff7e6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fa8c16;
+        }
+        .confirm-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .confirm-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .confirm-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .confirm-btns button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+        .confirm-btns .cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+        .confirm-btns .ok {
+            background: #ff4d4f;
+            color: white;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .demo-title-bar {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            .demo-title-copy {
+                text-align: center;
+            }
+            .doc-entry-btn {
+                justify-content: center;
+            }
+            .pc-table {
+                font-size: 12px;
+            }
+            .pc-table th, .pc-table td {
+                padding: 8px 6px;
+            }
+            .action-btns {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-title">
+            <div class="demo-title-bar">
+                <div class="demo-title-copy">
+                    <h1>改价功能交互Demo</h1>
+                    <p style="margin-top: 8px; opacity: 0.8;">按当前 Demo 代码行为整理改价相关需求说明与交互规则</p>
+                </div>
+                <button class="doc-entry-btn" id="openDocOverview" title="查看需求说明">
+                    <span class="doc-entry-icon">📘</span>
+                    <span class="doc-entry-copy">
+                        <strong>需求说明</strong>
+                        <span>覆盖当前 5 个演示分区</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <div class="demo-tabs">
+            <button class="demo-tab active" data-section="pc-order-list">PC端订单列表</button>
+            <button class="demo-tab" data-section="mobile-order-list">移动端订单列表</button>
+            <button class="demo-tab" data-section="client-order-detail">客户端订单详情</button>
+        </div>
+
+        <!-- PC端订单列表 -->
+        <div id="pc-order-list" class="demo-section active">
+            <h2 class="section-title">PC端 - 微商城订单列表（新增改价入口）</h2>
+            <div style="background: #fff3cd; padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
+                <strong>交互说明：</strong>仅"客户自己下单"且"待付款"状态的订单显示"改价"按钮，其他状态订单不显示
+            </div>
+
+            <div class="pc-header">
+                <div class="pc-top-nav">
+                    <a href="#">营销应用</a>
+                    <a href="#" class="active">小程序商城订单</a>
+                    <a href="#">小程序商城装修</a>
+                </div>
+                <div class="pc-side-nav">
+                    <a href="#">发货中心</a>
+                    <a href="#">待审批</a>
+                    <a href="#">待发货</a>
+                    <a href="#">订单中心</a>
+                    <a href="#" class="active">微商城订单</a>
+                    <a href="#">拼团订单</a>
+                    <a href="#">秒杀订单</a>
+                    <a href="#">积分订单</a>
+                    <a href="#">会员卡订单</a>
+                </div>
+            </div>
+
+            <div class="pc-filter-bar">
+                <input type="date" value="2026-03-01">
+                <span>至</span>
+                <input type="date" value="2026-03-23">
+                <select>
+                    <option>全部订单类型</option>
+                    <option>微商城订单</option>
+                </select>
+                <select>
+                    <option>全部订单状态</option>
+                    <option>待付款</option>
+                    <option>待发货</option>
+                    <option>备货中</option>
+                    <option>已发货</option>
+                    <option>已完成</option>
+                    <option>交易关闭</option>
+                </select>
+                <input type="text" placeholder="搜索商品/订单号/顾客" style="flex: 1;">
+                <button>筛选</button>
+                <button class="primary">导出</button>
+            </div>
+
+            <table class="pc-table">
+                <thead>
+                    <tr>
+                        <th style="width: 280px;">商品信息</th>
+                        <th>下单时间</th>
+                        <th>单号</th>
+                        <th>顾客信息</th>
+                        <th>应付</th>
+                        <th>订单来源</th>
+                        <th>所属门店</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 待付款订单 - 客户自下单 - 显示改价按钮 -->
+                    <tr>
+                        <td>
+                            <div class="order-product">
+                                <div style="width: 50px; height: 50px; background: #e8f0fe; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🎁</div>
+                                <div class="order-product-info">
+                                    <div class="order-product-name">素颜霜 + 修护面膜礼盒</div>
+                                    <div class="order-product-spec">共2件</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>2026-03-23 14:32:15</td>
+                        <td>20260323000185295125</td>
+                        <td>ct 15827745293</td>
+                        <td><strong style="color: #667eea;">¥320.00</strong></td>
+                        <td>微商城</td>
+                        <td>热浪嘉禾（厚街）</td>
+                        <td><span class="status-badge pending">待付款</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn price-change" onclick="openPriceChangeModal('pc')">改价</button>
+                                <button class="action-btn delete-order" onclick="openDeleteConfirm()">删单</button>
+                                <button class="action-btn" onclick="openPriceChangeLog()">调价日志</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 待发货订单 -->
+                    <tr>
+                        <td>
+                            <div class="order-product">
+                                <div style="width: 50px; height: 50px; background: #fce8e8; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px;">💄</div>
+                                <div class="order-product-info">
+                                    <div class="order-product-name">素颜霜</div>
+                                    <div class="order-product-spec">x1</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>2026-03-22 10:15:33</td>
+                        <td>20260322000185294988</td>
+                        <td>李女士 13612345678</td>
+                        <td><strong>¥0.10</strong></td>
+                        <td>微商城</td>
+                        <td>热浪嘉禾（厚街）</td>
+                        <td><span class="status-badge shipped">待发货</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn">发货</button>
+                                <button class="action-btn">退款</button>
+                                <button class="action-btn">打印购物单</button>
+                                <button class="action-btn">打印发货单</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 备货中订单 -->
+                    <tr>
+                        <td>
+                            <div class="order-product">
+                                <div style="width: 50px; height: 50px; background: #e8f0fe; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px;">💄</div>
+                                <div class="order-product-info">
+                                    <div class="order-product-name">素颜霜</div>
+                                    <div class="order-product-spec">x1</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>2026-03-22 09:20:11</td>
+                        <td>20260322000185294922</td>
+                        <td>王先生 13812345678</td>
+                        <td><strong>¥0</strong></td>
+                        <td>微商城</td>
+                        <td>热浪嘉禾（厚街）</td>
+                        <td><span class="status-badge paid">备货中</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn">备货完成</button>
+                                <button class="action-btn">退款</button>
+                                <button class="action-btn">打印购物单</button>
+                                <button class="action-btn">打印发货单</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 交易关闭订单 -->
+                    <tr>
+                        <td>
+                            <div class="order-product">
+                                <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🧴</div>
+                                <div class="order-product-info">
+                                    <div class="order-product-name">清洁补水套餐年卡</div>
+                                    <div class="order-product-spec">x1</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>2026-03-20 16:45:22</td>
+                        <td>20260320000185294800</td>
+                        <td>张女士 15512345678</td>
+                        <td><strong>¥2930</strong></td>
+                        <td>微商城</td>
+                        <td>热浪嘉禾（厚街）</td>
+                        <td><span class="status-badge closed">交易关闭</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn">打印购物单</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PC端改价弹窗 -->
+        <div id="pc-price-change-modal" class="demo-section">
+            <h2 class="section-title">PC端 - 改价弹窗</h2>
+            <div style="background: #fff3cd; padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
+                <strong>交互说明：</strong>点击"改价"按钮后弹出此弹窗，可分别调整商品还需支付和邮费还需支付，最终金额必须大于0
+            </div>
+
+            <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.1);">
+                <div class="order-info-section">
+                    <div style="font-weight: 500; margin-bottom: 10px; font-size: 14px;">订单信息</div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">订单号：</span>
+                        <span class="order-info-value">20260323000185295125</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">订单类型：</span>
+                        <span class="order-info-value">微商城订单</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">顾客：</span>
+                        <span class="order-info-value">ct 15827745293</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">状态：</span>
+                        <span class="order-info-value" style="color: #fa8c16;">待付款</span>
+                    </div>
+                </div>
+
+                <div class="goods-list">
+                    <div class="goods-list-header">商品列表</div>
+                    <div class="goods-item">
+                        <span class="goods-name">素颜霜 x1</span>
+                        <span class="goods-price">¥200.00</span>
+                    </div>
+                    <div class="goods-item">
+                        <span class="goods-name">修护面膜礼盒 x1</span>
+                        <span class="goods-price">¥100.00</span>
+                    </div>
+                </div>
+
+                <div class="payment-detail">
+                    <div class="payment-row">
+                        <span>商品金额：</span>
+                        <span>¥300.00</span>
+                    </div>
+                    <div class="payment-row">
+                        <span style="color: #52c41a;">优惠合计：</span>
+                        <span style="color: #52c41a;">-¥0</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>运费：</span>
+                        <span>¥20.00</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>商品还需支付：</span>
+                        <span id="pcGoodsCurrent">¥300.00</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>邮费还需支付：</span>
+                        <span id="pcShippingCurrent">¥20.00</span>
+                    </div>
+                    <div class="payment-row total">
+                        <span>还需支付：</span>
+                        <span id="currentTotal">¥320.00</span>
+                    </div>
+                </div>
+
+                <div class="price-adjust">
+                    <div class="price-adjust-title">商品人工调价</div>
+                    <div class="price-type-select">
+                        <label class="price-type-option">
+                            <input type="radio" name="goodsPriceType" value="add" onchange="updateFinalPrice()">
+                            <span>人工加价</span>
+                        </label>
+                        <label class="price-type-option">
+                            <input type="radio" name="goodsPriceType" value="subtract" checked onchange="updateFinalPrice()">
+                            <span>人工减价</span>
+                        </label>
+                    </div>
+                    <div class="price-input-wrap">
+                        <span>金额：</span>
+                        <input type="number" class="price-input" id="goodsAdjustAmount" placeholder="请输入商品调价金额" min="0" oninput="updateFinalPrice()">
+                    </div>
+                    <div class="price-adjust-title" style="margin-top: 16px;">邮费人工调价</div>
+                    <div class="price-type-select">
+                        <label class="price-type-option">
+                            <input type="radio" name="shippingPriceType" value="add" onchange="updateFinalPrice()">
+                            <span>人工加价</span>
+                        </label>
+                        <label class="price-type-option">
+                            <input type="radio" name="shippingPriceType" value="subtract" checked onchange="updateFinalPrice()">
+                            <span>人工减价</span>
+                        </label>
+                    </div>
+                    <div class="price-input-wrap">
+                        <span>金额：</span>
+                        <input type="number" class="price-input" id="shippingAdjustAmount" placeholder="请输入邮费调价金额" min="0" oninput="updateFinalPrice()">
+                    </div>
+                    <div class="payment-row" style="padding: 12px 0 0; color: #666; font-size: 13px;">
+                        <span>商品调价后还需支付：</span>
+                        <span id="pcGoodsFinal">¥300.00</span>
+                    </div>
+                    <div class="payment-row" style="padding: 6px 0 0; color: #666; font-size: 13px;">
+                        <span>邮费调价后还需支付：</span>
+                        <span id="pcShippingFinal">¥20.00</span>
+                    </div>
+                    <div class="final-price">
+                        <span>改动后还需支付：</span>
+                        <span id="finalPrice">¥320.00</span>
+                    </div>
+                    <div id="pcPriceError" style="display: none; margin-top: 10px; color: #ff4d4f; font-size: 12px;">调价后商品金额、邮费金额不能小于0，且订单最终仍需客户支付</div>
+                </div>
+
+                <div class="reason-input">
+                    <label>调价原因（必填）<span>*</span></label>
+                    <textarea id="priceChangeReason" placeholder="请输入调价原因，如补收运费、手工优惠、尾款补差等"></textarea>
+                </div>
+
+                <button class="submit-btn" onclick="submitPriceChange()">提交订单并复制付款链接</button>
+            </div>
+        </div>
+
+        <!-- 移动端订单列表 -->
+        <div id="mobile-order-list" class="demo-section">
+            <h2 class="section-title">移动端 - 商城订单列表（新增改价入口）</h2>
+            <div style="background: #fff3cd; padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
+                <strong>交互说明：</strong>待付款订单卡片底部显示"改价"和"删单"按钮，其他状态订单按钮保持原样
+            </div>
+
+            <div style="max-width: 375px; margin: 0 auto; background: #f5f5f5; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div class="mobile-header">
+                    <span class="mobile-back">←</span>
+                    <span class="mobile-title">商城订单</span>
+                    <span style="width: 24px;"></span>
+                </div>
+
+                <div class="mobile-store-switch">
+                    门店切换：热浪嘉禾（厚街）
+                </div>
+
+                <div class="mobile-stats">
+                    <div class="mobile-stat-card">
+                        <div class="mobile-stat-value">¥12,850</div>
+                        <div class="mobile-stat-label">今日成交</div>
+                    </div>
+                    <div class="mobile-stat-card">
+                        <div class="mobile-stat-value">28</div>
+                        <div class="mobile-stat-label">本月订单</div>
+                    </div>
+                </div>
+
+                <div class="mobile-tabs">
+                    <div class="mobile-tab">秒杀订单</div>
+                    <div class="mobile-tab">拼团订单</div>
+                    <div class="mobile-tab active">商城订单</div>
+                    <div class="mobile-tab">会员卡</div>
+                </div>
+
+                <div class="mobile-search">
+                    <input type="text" placeholder="输入手机号/订单号搜索">
+                    <button class="mobile-filter-btn">筛选</button>
+                </div>
+
+                <!-- 待付款订单卡片 -->
+                <div class="mobile-order-card">
+                    <div class="mobile-order-header">
+                        <span class="mobile-order-id">订单号：20260323000185295125</span>
+                        <span class="mobile-order-status pending">待付款</span>
+                    </div>
+                    <div class="mobile-order-content">
+                        <div class="mobile-order-goods">
+                            <div style="width: 60px; height: 60px; background: #e8f0fe; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎁</div>
+                            <div class="mobile-order-goods-info">
+                                <div class="mobile-order-goods-name">素颜霜 + 修护面膜礼盒</div>
+                                <div class="mobile-order-goods-price">共2件 · ¥320.00</div>
+                            </div>
+                        </div>
+                        <div class="mobile-order-customer">顾客：ct 15827745293</div>
+                    </div>
+                    <div class="mobile-order-footer">
+                        <div class="mobile-order-total">共2个商品，合计<span>¥320.00</span></div>
+                        <div class="mobile-order-actions">
+                            <button class="mobile-action-btn primary" onclick="showMobilePriceChange()">改价</button>
+                            <button class="mobile-action-btn danger" onclick="openDeleteConfirm()">删单</button>
+                            <button class="mobile-action-btn" onclick="openPriceChangeLog()">调价日志</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 待发货订单卡片 -->
+                <div class="mobile-order-card">
+                    <div class="mobile-order-header">
+                        <span class="mobile-order-id">订单号：20260322000185294988</span>
+                        <span class="mobile-order-status shipped">待发货</span>
+                    </div>
+                    <div class="mobile-order-content">
+                        <div class="mobile-order-goods">
+                            <div style="width: 60px; height: 60px; background: #fce8e8; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 24px;">💄</div>
+                            <div class="mobile-order-goods-info">
+                                <div class="mobile-order-goods-name">素颜霜</div>
+                                <div class="mobile-order-goods-price">x1 · ¥399</div>
+                            </div>
+                        </div>
+                        <div class="mobile-order-customer">顾客：李女士 13612345678</div>
+                    </div>
+                    <div class="mobile-order-footer">
+                        <div class="mobile-order-total">共1个商品，合计<span style="color: #52c41a;">¥0.10</span></div>
+                        <div class="mobile-order-actions">
+                            <button class="mobile-action-btn">发货</button>
+                            <button class="mobile-action-btn">退款</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 交易关闭订单卡片 -->
+                <div class="mobile-order-card">
+                    <div class="mobile-order-header">
+                        <span class="mobile-order-id">订单号：20260322000185294922</span>
+                        <span class="mobile-order-status closed">交易关闭</span>
+                    </div>
+                    <div class="mobile-order-content">
+                        <div class="mobile-order-goods">
+                            <div style="width: 60px; height: 60px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🧴</div>
+                            <div class="mobile-order-goods-info">
+                                <div class="mobile-order-goods-name">清洁补水套餐年卡</div>
+                                <div class="mobile-order-goods-price">x1 · ¥2930</div>
+                            </div>
+                        </div>
+                        <div class="mobile-order-customer">顾客：张女士 15512345678</div>
+                    </div>
+                    <div class="mobile-order-footer">
+                        <div class="mobile-order-total">共1个商品，合计<span>¥2930</span></div>
+                        <div class="mobile-order-actions">
+                            <button class="mobile-action-btn">查看</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 移动端改价页面 -->
+        <div id="mobile-price-change" class="demo-section">
+            <h2 class="section-title">移动端 - 改价页面</h2>
+            <div style="background: #fff3cd; padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
+                <strong>交互说明：</strong>点击"改价"后进入改价页面，商品和邮费分别调价，结构与PC端保持一致
+            </div>
+
+            <div style="max-width: 375px; margin: 0 auto;">
+                <div class="mobile-price-change-page show">
+                    <div class="mobile-header">
+                        <span class="mobile-back" onclick="hideMobilePriceChange()">×</span>
+                        <span class="mobile-title">改价</span>
+                        <span style="width: 24px;"></span>
+                    </div>
+
+                    <div class="mobile-price-change-content">
+                        <div class="mobile-order-info">
+                            <div class="mobile-order-info-row">
+                                <span style="color: #666;">订单号：</span>
+                                <span>20260323000185295125</span>
+                            </div>
+                            <div class="mobile-order-info-row">
+                                <span style="color: #666;">订单类型：</span>
+                                <span>商城订单</span>
+                            </div>
+                            <div class="mobile-order-info-row">
+                                <span style="color: #666;">顾客：</span>
+                                <span>ct 15827745293</span>
+                            </div>
+                            <div class="mobile-order-info-row">
+                                <span style="color: #666;">状态：</span>
+                                <span style="color: #fa8c16;">待付款</span>
+                            </div>
+                        </div>
+
+                        <div class="mobile-goods-section">
+                            <div class="mobile-goods-header">商品列表</div>
+                            <div class="mobile-goods-item">
+                                <span>素颜霜 x1</span>
+                                <span style="font-weight: 500;">¥200.00</span>
+                            </div>
+                            <div class="mobile-goods-item">
+                                <span>修护面膜礼盒 x1</span>
+                                <span style="font-weight: 500;">¥100.00</span>
+                            </div>
+                        </div>
+
+                        <div class="mobile-payment-section">
+                            <div class="mobile-payment-row">
+                                <span>商品金额：</span>
+                                <span>¥300.00</span>
+                            </div>
+                            <div class="mobile-payment-row">
+                                <span style="color: #52c41a;">优惠合计：</span>
+                                <span style="color: #52c41a;">-¥0</span>
+                            </div>
+                            <div class="mobile-payment-row">
+                                <span>运费：</span>
+                                <span>¥20.00</span>
+                            </div>
+                            <div class="mobile-payment-row">
+                                <span>商品还需支付：</span>
+                                <span id="mobileGoodsCurrent">¥300.00</span>
+                            </div>
+                            <div class="mobile-payment-row">
+                                <span>邮费还需支付：</span>
+                                <span id="mobileShippingCurrent">¥20.00</span>
+                            </div>
+                            <div class="mobile-payment-row" style="font-weight: 600; padding-top: 10px; margin-top: 5px; border-top: 1px solid #e0e0e0;">
+                                <span>还需支付：</span>
+                                <span id="mobileCurrentTotal">¥320.00</span>
+                            </div>
+                        </div>
+
+                        <div class="mobile-price-adjust-section">
+                            <div style="font-weight: 500; margin-bottom: 12px;">商品人工调价</div>
+                            <div class="mobile-price-type-select">
+                                <div class="mobile-price-type-option" id="mobileGoodsSubtractBtn" onclick="setMobilePriceType('goods','subtract')">人工减价</div>
+                                <div class="mobile-price-type-option" id="mobileGoodsAddBtn" onclick="setMobilePriceType('goods','add')">人工加价</div>
+                            </div>
+                            <div class="mobile-price-input-wrap">
+                                <span>金额：</span>
+                                <input type="number" class="mobile-price-input" id="mobileGoodsAdjustAmount" placeholder="请输入商品调价金额" min="0" oninput="updateMobileFinalPrice()">
+                            </div>
+                            <div style="font-weight: 500; margin: 16px 0 12px;">邮费人工调价</div>
+                            <div class="mobile-price-type-select">
+                                <div class="mobile-price-type-option" id="mobileShippingSubtractBtn" onclick="setMobilePriceType('shipping','subtract')">人工减价</div>
+                                <div class="mobile-price-type-option" id="mobileShippingAddBtn" onclick="setMobilePriceType('shipping','add')">人工加价</div>
+                            </div>
+                            <div class="mobile-price-input-wrap">
+                                <span>金额：</span>
+                                <input type="number" class="mobile-price-input" id="mobileShippingAdjustAmount" placeholder="请输入邮费调价金额" min="0" oninput="updateMobileFinalPrice()">
+                            </div>
+                            <div class="mobile-payment-row" style="padding-top: 12px; color: #666; font-size: 13px;">
+                                <span>商品调价后还需支付：</span>
+                                <span id="mobileGoodsFinal">¥300.00</span>
+                            </div>
+                            <div class="mobile-payment-row" style="padding-top: 6px; color: #666; font-size: 13px;">
+                                <span>邮费调价后还需支付：</span>
+                                <span id="mobileShippingFinal">¥20.00</span>
+                            </div>
+                            <div class="mobile-final-price">
+                                <span>改动后还需支付：</span>
+                                <span id="mobileFinalPrice">¥320.00</span>
+                            </div>
+                            <div id="mobilePriceError" style="display: none; margin-top: 10px; color: #ff4d4f; font-size: 12px;">调价后商品金额、邮费金额不能小于0，且订单最终仍需客户支付</div>
+                        </div>
+
+                        <div class="mobile-reason-section">
+                            <label>调价原因（必填）<span>*</span></label>
+                            <textarea id="mobilePriceChangeReason" placeholder="请输入调价原因，如补收运费、手工优惠、尾款补差等"></textarea>
+                        </div>
+
+                        <button class="mobile-submit-btn" onclick="submitMobilePriceChange()">提交订单并复制付款链接</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 客户端订单详情 -->
+        <div id="client-order-detail" class="demo-section">
+            <h2 class="section-title">客户端 - 订单详情页（含人工调价展示）</h2>
+            <div style="background: #fff3cd; padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
+                <strong>交互说明：</strong>待付款订单显示汇总人工调价与还需支付，已付款订单保留人工调价历史，并按商品还需支付占比展示分摊后的商品实付结果
+            </div>
+
+            <div style="max-width: 375px; margin: 0 auto; background: #f5f5f5; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <!-- 切换tabs -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; padding: 0 15px;">
+                    <button class="demo-tab active" style="padding: 8px 16px;" onclick="showClientTab('pending')">待付款状态</button>
+                    <button class="demo-tab" style="padding: 8px 16px;" onclick="showClientTab('paid')">已付款状态</button>
+                </div>
+
+                <!-- 待付款状态 -->
+                <div id="clientPending" style="background: white; border-radius: 8px; overflow: hidden;">
+                    <div class="client-header">
+                        <span class="client-back">←</span>
+                        <span class="client-title">订单详情</span>
+                        <span class="client-more">⋯</span>
+                    </div>
+
+                    <div class="client-status-banner pending">
+                        <div class="client-status-title">订单待付款</div>
+                        <div class="client-status-desc">请尽快完成付款，订单将在规定时间后关闭</div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">收货人信息</div>
+                        <div class="client-section-content">
+                            <div class="client-recipient">
+                                <span class="client-recipient-name">刘小姐</span>
+                                <span class="client-recipient-phone">185*****2413</span>
+                            </div>
+                            <div class="client-recipient-addr">北京市 北京市 东城区 某某街道某某小区1号楼101室</div>
+                        </div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">店铺信息</div>
+                        <div class="client-section-content" style="padding: 12px 15px;">
+                            伊智AI私域宝演示
+                        </div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">商品清单</div>
+                        <div class="client-section-content">
+                            <div class="client-goods-item">
+                                <div class="client-goods-img" style="display: flex; align-items: center; justify-content: center; font-size: 24px; background: #e8f0fe;">🎁</div>
+                                <div class="client-goods-info">
+                                    <div class="client-goods-name">素颜霜</div>
+                                    <div class="client-goods-spec">x1</div>
+                                </div>
+                                <div class="client-goods-price">
+                                    <div class="price">¥200.00</div>
+                                    <div class="num">x1</div>
+                                </div>
+                            </div>
+                            <div class="client-goods-item">
+                                <div class="client-goods-img" style="display: flex; align-items: center; justify-content: center; font-size: 24px; background: #fce8e8;">🎁</div>
+                                <div class="client-goods-info">
+                                    <div class="client-goods-name">修护面膜礼盒</div>
+                                    <div class="client-goods-spec">x1</div>
+                                </div>
+                                <div class="client-goods-price">
+                                    <div class="price">¥100.00</div>
+                                    <div class="num">x1</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">金额明细</div>
+                        <div class="client-section-content">
+                            <div class="client-price-row">
+                                <span>商品总额</span>
+                                <span>¥300.00</span>
+                            </div>
+                            <div class="client-price-row">
+                                <span>运费</span>
+                                <span>¥20.00</span>
+                            </div>
+                            <div class="client-price-row">
+                                <span>订单总额</span>
+                                <span>¥320.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>折扣优惠</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>预定金抵扣</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>满减活动</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>券优惠</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>积分抵扣</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>赠送金</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>卡金抵扣</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>优惠立减</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row manual-adjust" style="color: #fa8c16;">
+                                <span>人工调价</span>
+                                <span>-¥50.00</span>
+                            </div>
+                            <div class="client-price-row final">
+                                <span>还需支付</span>
+                                <span style="color: #fa8c16;">¥270.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">配送方式</div>
+                        <div class="client-section-content">
+                            <div class="client-delivery-row">
+                                <span class="client-delivery-label">配送方式</span>
+                                <span class="client-delivery-value">快递</span>
+                            </div>
+                            <div class="client-delivery-row">
+                                <span class="client-delivery-label">支付方式</span>
+                                <span class="client-delivery-value">组合支付</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">订单信息</div>
+                        <div class="client-section-content">
+                            <div class="client-delivery-row">
+                                <span class="client-delivery-label">订单编号</span>
+                                <span class="client-delivery-value">20260323000185295125</span>
+                            </div>
+                            <div class="client-delivery-row">
+                                <span class="client-delivery-label">下单时间</span>
+                                <span class="client-delivery-value">2026-03-23 14:32:15</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="client-footer-btns">
+                        <button class="client-footer-btn secondary">取消订单</button>
+                        <button class="client-footer-btn primary">去付款</button>
+                    </div>
+                </div>
+
+                <!-- 已付款状态 -->
+                <div id="clientPaid" style="background: white; border-radius: 8px; overflow: hidden; display: none;">
+                    <div class="client-header">
+                        <span class="client-back">←</span>
+                        <span class="client-title">订单详情</span>
+                        <span class="client-more">⋯</span>
+                    </div>
+
+                    <div class="client-status-banner" style="background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);">
+                        <div class="client-status-title">订单待发货</div>
+                        <div class="client-status-desc">商家正在准备商品，请耐心等待</div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">收货人信息</div>
+                        <div class="client-section-content">
+                            <div class="client-recipient">
+                                <span class="client-recipient-name">刘小姐</span>
+                                <span class="client-recipient-phone">185*****2413</span>
+                            </div>
+                            <div class="client-recipient-addr">北京市 北京市 东城区 某某街道某某小区1号楼101室</div>
+                        </div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">店铺信息</div>
+                        <div class="client-section-content" style="padding: 12px 15px;">
+                            伊智AI私域宝演示
+                        </div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">商品清单</div>
+                        <div class="client-section-content">
+                            <div class="client-goods-item">
+                                <div class="client-goods-img" style="display: flex; align-items: center; justify-content: center; font-size: 24px; background: #e8f0fe;">💄</div>
+                                <div class="client-goods-info">
+                                    <div class="client-goods-name">素颜霜</div>
+                                    <div class="client-goods-spec">已按商品还需支付占比分摊</div>
+                                </div>
+                                <div class="client-goods-price">
+                                    <div class="price">¥166.67</div>
+                                    <div class="num">x1</div>
+                                </div>
+                            </div>
+                            <div class="client-goods-item">
+                                <div class="client-goods-img" style="display: flex; align-items: center; justify-content: center; font-size: 24px; background: #fce8e8;">🎁</div>
+                                <div class="client-goods-info">
+                                    <div class="client-goods-name">修护面膜礼盒</div>
+                                    <div class="client-goods-spec">已按商品还需支付占比分摊</div>
+                                </div>
+                                <div class="client-goods-price">
+                                    <div class="price">¥83.33</div>
+                                    <div class="num">x1</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">金额明细</div>
+                        <div class="client-section-content">
+                            <div class="client-price-row">
+                                <span>商品总额</span>
+                                <span>¥250.00</span>
+                            </div>
+                            <div class="client-price-row">
+                                <span>运费</span>
+                                <span>¥20.00</span>
+                            </div>
+                            <div class="client-price-row">
+                                <span>订单总额</span>
+                                <span>¥270.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>折扣优惠</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>预定金抵扣</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>满减活动</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>券优惠</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>积分抵扣</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>赠送金</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>卡金抵扣</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row discount">
+                                <span>优惠立减</span>
+                                <span>¥0.00</span>
+                            </div>
+                            <div class="client-price-row manual-adjust" style="color: #fa8c16;">
+                                <span>人工调价</span>
+                                <span>-¥50.00</span>
+                            </div>
+                            <div class="client-price-row" style="padding-top: 12px; margin-top: 5px; border-top: 1px solid #e0e0e0;">
+                                <span class="client-delivery-label">实付款</span>
+                                <span style="font-weight: 600;">¥270.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">配送方式</div>
+                        <div class="client-section-content">
+                            <div class="client-delivery-row">
+                                <span class="client-delivery-label">配送方式</span>
+                                <span class="client-delivery-value">快递</span>
+                            </div>
+                            <div class="client-delivery-row">
+                                <span class="client-delivery-label">支付方式</span>
+                                <span class="client-delivery-value">组合支付</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="client-section">
+                        <div class="client-section-title">订单信息</div>
+                        <div class="client-section-content">
+                            <div class="client-delivery-row">
+                                <span class="client-delivery-label">订单编号</span>
+                                <span class="client-delivery-value">20260323000185295125</span>
+                            </div>
+                            <div class="client-delivery-row">
+                                <span class="client-delivery-label">下单时间</span>
+                                <span class="client-delivery-value">2026-03-23 14:32:15</span>
+                            </div>
+                            <div class="client-delivery-row">
+                                <span class="client-delivery-label">付款时间</span>
+                                <span class="client-delivery-value">2026-03-23 15:10:25</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="client-footer-btns">
+                        <button class="client-footer-btn secondary">申请退款</button>
+                        <button class="client-footer-btn secondary">提醒发货</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="docOverviewModal" class="modal-overlay">
+        <div class="modal-box doc-modal-box">
+            <div class="modal-header">
+                <div>
+                    <span class="modal-title" id="docModalTitle">改价功能交互 Demo 需求说明</span>
+                    <div style="margin-top: 6px; color: #666; font-size: 13px;" id="docModalSubtitle">按当前代码里的入口、状态、校验与结果展示反写整理</div>
+                </div>
+                <button class="modal-close" id="closeDocOverview" aria-label="关闭需求说明">×</button>
+            </div>
+            <div class="doc-modal-body">
+                <div class="doc-modal-summary" id="docModalSummary"></div>
+                <div class="doc-sections" id="docModalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PC端改价弹窗 -->
+    <div id="priceChangeModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">改价</span>
+                <button class="modal-close" onclick="closePriceChangeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="order-info-section">
+                    <div style="font-weight: 500; margin-bottom: 10px; font-size: 14px;">订单信息</div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">订单号：</span>
+                        <span class="order-info-value">20260323000185295125</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">订单类型：</span>
+                        <span class="order-info-value">微商城订单</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">顾客：</span>
+                        <span class="order-info-value">ct 15827745293</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">状态：</span>
+                        <span class="order-info-value" style="color: #fa8c16;">待付款</span>
+                    </div>
+                </div>
+
+                <div class="goods-list">
+                    <div class="goods-list-header">商品列表</div>
+                    <div class="goods-item">
+                        <span class="goods-name">素颜霜 x1</span>
+                        <span class="goods-price">¥200.00</span>
+                    </div>
+                    <div class="goods-item">
+                        <span class="goods-name">修护面膜礼盒 x1</span>
+                        <span class="goods-price">¥100.00</span>
+                    </div>
+                </div>
+
+                <div class="payment-detail">
+                    <div class="payment-row">
+                        <span>商品金额：</span>
+                        <span>¥300.00</span>
+                    </div>
+                    <div class="payment-row">
+                        <span style="color: #52c41a;">优惠合计：</span>
+                        <span style="color: #52c41a;">-¥0</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>运费：</span>
+                        <span>¥20.00</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>商品还需支付：</span>
+                        <span id="modalGoodsCurrent">¥300.00</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>邮费还需支付：</span>
+                        <span id="modalShippingCurrent">¥20.00</span>
+                    </div>
+                    <div class="payment-row total">
+                        <span>还需支付：</span>
+                        <span id="modalCurrentTotal">¥320.00</span>
+                    </div>
+                </div>
+
+                <div class="price-adjust">
+                    <div class="price-adjust-title">商品人工调价</div>
+                    <div class="price-type-select">
+                        <label class="price-type-option">
+                            <input type="radio" name="modalGoodsPriceType" value="add" onchange="updateModalFinalPrice()">
+                            <span>人工加价</span>
+                        </label>
+                        <label class="price-type-option">
+                            <input type="radio" name="modalGoodsPriceType" value="subtract" checked onchange="updateModalFinalPrice()">
+                            <span>人工减价</span>
+                        </label>
+                    </div>
+                    <div class="price-input-wrap">
+                        <span>金额：</span>
+                        <input type="number" class="price-input" id="modalGoodsAdjustAmount" placeholder="请输入商品调价金额" min="0" oninput="updateModalFinalPrice()">
+                    </div>
+                    <div class="price-adjust-title" style="margin-top: 16px;">邮费人工调价</div>
+                    <div class="price-type-select">
+                        <label class="price-type-option">
+                            <input type="radio" name="modalShippingPriceType" value="add" onchange="updateModalFinalPrice()">
+                            <span>人工加价</span>
+                        </label>
+                        <label class="price-type-option">
+                            <input type="radio" name="modalShippingPriceType" value="subtract" checked onchange="updateModalFinalPrice()">
+                            <span>人工减价</span>
+                        </label>
+                    </div>
+                    <div class="price-input-wrap">
+                        <span>金额：</span>
+                        <input type="number" class="price-input" id="modalShippingAdjustAmount" placeholder="请输入邮费调价金额" min="0" oninput="updateModalFinalPrice()">
+                    </div>
+                    <div class="payment-row" style="padding: 12px 0 0; color: #666; font-size: 13px;">
+                        <span>商品调价后还需支付：</span>
+                        <span id="modalGoodsFinal">¥300.00</span>
+                    </div>
+                    <div class="payment-row" style="padding: 6px 0 0; color: #666; font-size: 13px;">
+                        <span>邮费调价后还需支付：</span>
+                        <span id="modalShippingFinal">¥20.00</span>
+                    </div>
+                    <div class="final-price">
+                        <span>改动后还需支付：</span>
+                        <span id="modalFinalPrice">¥320.00</span>
+                    </div>
+                    <div id="modalPriceError" style="display: none; margin-top: 10px; color: #ff4d4f; font-size: 12px;">调价后商品金额、邮费金额不能小于0，且订单最终仍需客户支付</div>
+                </div>
+
+                <div class="reason-input">
+                    <label>调价原因（必填）<span>*</span></label>
+                    <textarea id="modalPriceChangeReason" placeholder="请输入调价原因，如补收运费、手工优惠、尾款补差等"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="submit-btn" style="width: auto; margin: 0;" onclick="submitModalPriceChange()">提交订单并复制付款链接</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="deleteConfirmModal" class="modal-overlay confirm-modal">
+        <div class="modal-box">
+            <div class="modal-body">
+                <div class="confirm-icon">!</div>
+                <div class="confirm-title">确认删单？</div>
+                <div class="confirm-desc">删除后客户将无法继续支付该订单，此操作不可撤销</div>
+                <div class="confirm-btns">
+                    <button class="cancel" onclick="closeDeleteConfirm()">取消</button>
+                    <button class="ok" onclick="confirmDelete()">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 调价日志弹窗 -->
+    <div id="priceChangeLogModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 600px;">
+            <div class="modal-header">
+                <span class="modal-title">调价日志</span>
+                <button class="modal-close" onclick="closePriceChangeLog()">×</button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div style="padding: 15px 20px; background: #f8f9fa; border-bottom: 1px solid #e0e0e0;">
+                    <div style="font-size: 13px; color: #666;">
+                        订单号：<span style="color: #333; font-weight: 500;">20260323000185295125</span>
+                    </div>
+                </div>
+                <div style="padding: 15px 20px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 10px 8px; text-align: left; font-weight: 500; border-bottom: 1px solid #e0e0e0;">操作时间</th>
+                                <th style="padding: 10px 8px; text-align: left; font-weight: 500; border-bottom: 1px solid #e0e0e0;">操作人</th>
+                                <th style="padding: 10px 8px; text-align: right; font-weight: 500; border-bottom: 1px solid #e0e0e0;">商品原金额</th>
+                                <th style="padding: 10px 8px; text-align: right; font-weight: 500; border-bottom: 1px solid #e0e0e0;">邮费原金额</th>
+                                <th style="padding: 10px 8px; text-align: right; font-weight: 500; border-bottom: 1px solid #e0e0e0;">汇总调价额</th>
+                                <th style="padding: 10px 8px; text-align: right; font-weight: 500; border-bottom: 1px solid #e0e0e0;">新金额</th>
+                                <th style="padding: 10px 8px; text-align: left; font-weight: 500; border-bottom: 1px solid #e0e0e0;">原因</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; color: #666;">2026-03-23 15:30:22</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0;">张运营</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; text-align: right;">¥300.00</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; text-align: right;">¥20.00</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; text-align: right; color: #52c41a;">-¥50.00</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; text-align: right; font-weight: 500;">¥270.00</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; color: #666;">手工优惠，商品部分减价</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; color: #666;">2026-03-23 16:45:10</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0;">李客服</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; text-align: right;">¥250.00</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; text-align: right;">¥20.00</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; text-align: right; color: #fa8c16;">+¥20.00</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; text-align: right; font-weight: 500;">¥290.00</td>
+                                <td style="padding: 10px 8px; border-bottom: 1px solid #f0f0f0; color: #666;">补收邮费差额</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const docOverview = {
+            title: '改价功能交互 Demo 需求说明',
+            subtitle: '按当前代码里的入口、状态、校验与结果展示反写整理',
+            summary: '当前页面覆盖 PC 订单列表、PC 改价弹窗、移动端订单列表、移动端改价页面、客户端订单详情 5 个演示分区。以下说明仅描述现有代码已展示出来的行为，不额外补充未实现规则。',
+            sections: [
+                {
+                    title: 'PC 订单列表',
+                    items: [
+                        '当前列表中只有“微商城”来源且“待付款”状态的示例订单显示“改价”按钮，同时显示“删单”和“调价日志”。',
+                        '待发货、备货中、交易关闭等非待付款示例订单不显示“改价”按钮，保留各自状态下的原有操作按钮。',
+                        '改价入口由订单行操作区触发，点击后打开居中的 PC 改价弹窗。'
+                    ]
+                },
+                {
+                    title: 'PC 改价弹窗',
+                    items: [
+                        '弹窗将商品还需支付与邮费还需支付拆开处理，均支持“人工加价”和“人工减价”。',
+                        '代码校验要求商品调价后金额不能小于 0、邮费调价后金额不能小于 0、订单最终仍需客户支付，最终金额必须大于 0。',
+                        '调价原因必填，提交通过后反馈“改价成功，付款链接已复制”。'
+                    ]
+                },
+                {
+                    title: '移动端订单列表',
+                    items: [
+                        '移动端待付款订单卡片底部显示“改价”“删单”“调价日志”按钮。',
+                        '待发货与交易关闭示例订单不提供改价入口，只保留各自状态对应的查看或履约操作。',
+                        '点击移动端“改价”会切换到独立的移动端改价页面。'
+                    ]
+                },
+                {
+                    title: '移动端改价页面',
+                    items: [
+                        '移动端改价页面与 PC 端保持同一套调价结构：商品与邮费分别调价，并实时刷新调价后金额。',
+                        '移动端默认选中“人工减价”，提交前同样要求调价原因必填，且订单最终仍需客户支付。',
+                        '提交通过后反馈“改价成功，付款链接已复制”，并返回演示列表。'
+                    ]
+                },
+                {
+                    title: '客户端订单详情',
+                    items: [
+                        '客户端分为“待付款状态”和“已付款状态”两个演示视图，用于对比调价前后用户看到的结果。',
+                        '待付款视图重点展示汇总人工调价、剩余应付金额与付款提醒。',
+                        '已付款视图保留人工调价历史，并展示支付完成后的订单结果与商品实付表现。'
+                    ]
+                }
+            ]
+        };
+
+        // Demo标签切换
+        document.querySelectorAll('.demo-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const section = this.dataset.section;
+                if (!section) return;
+                activateSection(section, section);
+            });
+        });
+
+        const priceChangeBase = {
+            goodsPayable: 300,
+            shippingPayable: 20
+        };
+
+        function formatMoney(value) {
+            return '¥' + value.toFixed(2);
+        }
+
+        function getSignedAmount(type, amount) {
+            return type === 'add' ? amount : -amount;
+        }
+
+        function calculateAdjustedValues(goodsType, goodsAmount, shippingType, shippingAmount) {
+            const goodsFinal = priceChangeBase.goodsPayable + getSignedAmount(goodsType, goodsAmount);
+            const shippingFinal = priceChangeBase.shippingPayable + getSignedAmount(shippingType, shippingAmount);
+            const totalFinal = goodsFinal + shippingFinal;
+            const valid = goodsFinal >= 0 && shippingFinal >= 0 && totalFinal > 0;
+
+            return {
+                goodsFinal,
+                shippingFinal,
+                totalFinal,
+                valid
+            };
+        }
+
+        function renderDocOverview() {
+            document.getElementById('docModalTitle').textContent = docOverview.title;
+            document.getElementById('docModalSubtitle').textContent = docOverview.subtitle;
+            document.getElementById('docModalSummary').textContent = docOverview.summary;
+            document.getElementById('docModalContent').innerHTML = docOverview.sections.map((section) => `
+                <div class="doc-block">
+                    <h4>${section.title}</h4>
+                    <ul>
+                        ${section.items.map((item) => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+
+        function openDocOverview() {
+            renderDocOverview();
+            document.getElementById('docOverviewModal').classList.add('show');
+        }
+
+        function closeDocOverview() {
+            document.getElementById('docOverviewModal').classList.remove('show');
+        }
+
+        // PC端改价弹窗
+        function openPriceChangeModal() {
+            document.getElementById('priceChangeModal').classList.add('show');
+        }
+
+        function closePriceChangeModal() {
+            document.getElementById('priceChangeModal').classList.remove('show');
+        }
+
+        function updateFinalPrice() {
+            const goodsType = document.querySelector('input[name="goodsPriceType"]:checked').value;
+            const shippingType = document.querySelector('input[name="shippingPriceType"]:checked').value;
+            const goodsAmount = parseFloat(document.getElementById('goodsAdjustAmount').value) || 0;
+            const shippingAmount = parseFloat(document.getElementById('shippingAdjustAmount').value) || 0;
+            const result = calculateAdjustedValues(goodsType, goodsAmount, shippingType, shippingAmount);
+
+            document.getElementById('pcGoodsFinal').textContent = formatMoney(Math.max(result.goodsFinal, 0));
+            document.getElementById('pcShippingFinal').textContent = formatMoney(Math.max(result.shippingFinal, 0));
+            document.getElementById('finalPrice').textContent = formatMoney(Math.max(result.totalFinal, 0));
+            document.getElementById('pcPriceError').style.display = result.valid ? 'none' : 'block';
+            document.getElementById('finalPrice').style.color = result.valid ? '#ff6b35' : '#ff4d4f';
+        }
+
+        function updateModalFinalPrice() {
+            const goodsType = document.querySelector('input[name="modalGoodsPriceType"]:checked').value;
+            const shippingType = document.querySelector('input[name="modalShippingPriceType"]:checked').value;
+            const goodsAmount = parseFloat(document.getElementById('modalGoodsAdjustAmount').value) || 0;
+            const shippingAmount = parseFloat(document.getElementById('modalShippingAdjustAmount').value) || 0;
+            const result = calculateAdjustedValues(goodsType, goodsAmount, shippingType, shippingAmount);
+
+            document.getElementById('modalGoodsFinal').textContent = formatMoney(Math.max(result.goodsFinal, 0));
+            document.getElementById('modalShippingFinal').textContent = formatMoney(Math.max(result.shippingFinal, 0));
+            document.getElementById('modalFinalPrice').textContent = formatMoney(Math.max(result.totalFinal, 0));
+            document.getElementById('modalPriceError').style.display = result.valid ? 'none' : 'block';
+            document.getElementById('modalFinalPrice').style.color = result.valid ? '#ff6b35' : '#ff4d4f';
+        }
+
+        function submitPriceChange() {
+            const reason = document.getElementById('priceChangeReason').value;
+            if (!reason.trim()) {
+                showToast('请填写调价原因');
+                return;
+            }
+            const goodsType = document.querySelector('input[name="goodsPriceType"]:checked').value;
+            const shippingType = document.querySelector('input[name="shippingPriceType"]:checked').value;
+            const goodsAmount = parseFloat(document.getElementById('goodsAdjustAmount').value) || 0;
+            const shippingAmount = parseFloat(document.getElementById('shippingAdjustAmount').value) || 0;
+            if (!calculateAdjustedValues(goodsType, goodsAmount, shippingType, shippingAmount).valid) {
+                showToast('请调整商品或邮费金额，确保订单最终仍需客户支付');
+                return;
+            }
+            showToast('改价成功，付款链接已复制');
+            closePriceChangeModal();
+        }
+
+        function submitModalPriceChange() {
+            const reason = document.getElementById('modalPriceChangeReason').value;
+            if (!reason.trim()) {
+                showToast('请填写调价原因');
+                return;
+            }
+            const goodsType = document.querySelector('input[name="modalGoodsPriceType"]:checked').value;
+            const shippingType = document.querySelector('input[name="modalShippingPriceType"]:checked').value;
+            const goodsAmount = parseFloat(document.getElementById('modalGoodsAdjustAmount').value) || 0;
+            const shippingAmount = parseFloat(document.getElementById('modalShippingAdjustAmount').value) || 0;
+            if (!calculateAdjustedValues(goodsType, goodsAmount, shippingType, shippingAmount).valid) {
+                showToast('请调整商品或邮费金额，确保订单最终仍需客户支付');
+                return;
+            }
+            showToast('改价成功，付款链接已复制');
+            closePriceChangeModal();
+        }
+
+        // 移动端改价
+        let mobileGoodsPriceType = 'subtract';
+        let mobileShippingPriceType = 'subtract';
+
+        function activateSection(sectionId, tabSectionId) {
+            document.querySelectorAll('.demo-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.demo-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.section === tabSectionId);
+            });
+        }
+
+        function showMobilePriceChange() {
+            activateSection('mobile-price-change', 'mobile-order-list');
+        }
+
+        function hideMobilePriceChange() {
+            activateSection('mobile-order-list', 'mobile-order-list');
+        }
+
+        function setMobilePriceType(target, type) {
+            if (target === 'goods') {
+                mobileGoodsPriceType = type;
+                document.getElementById('mobileGoodsAddBtn').classList.toggle('active', type === 'add');
+                document.getElementById('mobileGoodsSubtractBtn').classList.toggle('active', type === 'subtract');
+            } else {
+                mobileShippingPriceType = type;
+                document.getElementById('mobileShippingAddBtn').classList.toggle('active', type === 'add');
+                document.getElementById('mobileShippingSubtractBtn').classList.toggle('active', type === 'subtract');
+            }
+            updateMobileFinalPrice();
+        }
+
+        // 初始化移动端默认选中人工减价
+        document.addEventListener('DOMContentLoaded', function() {
+            setMobilePriceType('goods', 'subtract');
+            setMobilePriceType('shipping', 'subtract');
+            updateFinalPrice();
+            updateModalFinalPrice();
+            renderDocOverview();
+        });
+
+        function updateMobileFinalPrice() {
+            const goodsAmount = parseFloat(document.getElementById('mobileGoodsAdjustAmount').value) || 0;
+            const shippingAmount = parseFloat(document.getElementById('mobileShippingAdjustAmount').value) || 0;
+            const result = calculateAdjustedValues(mobileGoodsPriceType, goodsAmount, mobileShippingPriceType, shippingAmount);
+
+            document.getElementById('mobileGoodsFinal').textContent = formatMoney(Math.max(result.goodsFinal, 0));
+            document.getElementById('mobileShippingFinal').textContent = formatMoney(Math.max(result.shippingFinal, 0));
+            document.getElementById('mobileFinalPrice').textContent = formatMoney(Math.max(result.totalFinal, 0));
+            document.getElementById('mobilePriceError').style.display = result.valid ? 'none' : 'block';
+            document.getElementById('mobileFinalPrice').style.color = result.valid ? '#ff6b35' : '#ff4d4f';
+        }
+
+        function submitMobilePriceChange() {
+            const reason = document.getElementById('mobilePriceChangeReason').value;
+            if (!reason.trim()) {
+                showToast('请填写调价原因');
+                return;
+            }
+            const goodsAmount = parseFloat(document.getElementById('mobileGoodsAdjustAmount').value) || 0;
+            const shippingAmount = parseFloat(document.getElementById('mobileShippingAdjustAmount').value) || 0;
+            if (!calculateAdjustedValues(mobileGoodsPriceType, goodsAmount, mobileShippingPriceType, shippingAmount).valid) {
+                showToast('请调整商品或邮费金额，确保订单最终仍需客户支付');
+                return;
+            }
+            showToast('改价成功，付款链接已复制');
+            hideMobilePriceChange();
+        }
+
+        // 删除确认
+        function openDeleteConfirm() {
+            document.getElementById('deleteConfirmModal').classList.add('show');
+        }
+
+        function closeDeleteConfirm() {
+            document.getElementById('deleteConfirmModal').classList.remove('show');
+        }
+
+        function confirmDelete() {
+            showToast('订单已删除');
+            closeDeleteConfirm();
+        }
+
+        // 调价日志
+        function openPriceChangeLog() {
+            document.getElementById('priceChangeLogModal').classList.add('show');
+        }
+
+        function closePriceChangeLog() {
+            document.getElementById('priceChangeLogModal').classList.remove('show');
+        }
+
+        // Toast提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 客户端tab切换
+        function showClientTab(tab) {
+            document.getElementById('clientPending').style.display = tab === 'pending' ? 'block' : 'none';
+            document.getElementById('clientPaid').style.display = tab === 'paid' ? 'block' : 'none';
+
+            // 更新tab样式
+            document.querySelectorAll('#client-order-detail .demo-tabs .demo-tab').forEach((t, i) => {
+                t.classList.toggle('active', (tab === 'pending' && i === 0) || (tab === 'paid' && i === 1));
+            });
+        }
+
+        // 点击改价按钮打开弹窗
+        document.querySelector('.action-btn.price-change').addEventListener('click', openPriceChangeModal);
+        document.getElementById('openDocOverview').addEventListener('click', openDocOverview);
+        document.getElementById('closeDocOverview').addEventListener('click', closeDocOverview);
+        document.getElementById('docOverviewModal').addEventListener('click', function(event) {
+            if (event.target === this) closeDocOverview();
+        });
+    </script>
+</body>
+</html>

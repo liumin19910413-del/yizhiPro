@@ -1,0 +1,2458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>订单确认</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/themes/corporate-clean.css">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --success: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text-1: #111827;
+      --text-2: #6b7280;
+      --text-3: #9ca3af;
+      --border: #e5e7eb;
+      --bg: #f3f4f6;
+      --surface: #ffffff;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* Header */
+    .header {
+      background: var(--surface);
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-back {
+      position: absolute;
+      left: 12px;
+      font-size: 16px;
+      color: var(--text-1);
+      cursor: pointer;
+    }
+    .header-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+    .header-menu {
+      position: absolute;
+      right: 12px;
+      font-size: 18px;
+      color: var(--text-2);
+      cursor: pointer;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      margin: 10px;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-body {
+      padding: 14px;
+    }
+
+    /* Address */
+    .address-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .address-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .address-info {
+      flex: 1;
+    }
+    .address-name {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .address-detail {
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .address-arrow {
+      color: var(--text-3);
+      font-size: 14px;
+    }
+
+    /* Product */
+    .shop-name {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .product-item {
+      display: flex;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .product-item:last-child { border-bottom: none; }
+    .product-img {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .product-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .product-name {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+    .product-tag.vip {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .product-tag.gift {
+      background: #fce7f3;
+      color: #be185d;
+    }
+    .product-desc {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-bottom: 4px;
+    }
+    .product-price {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .product-price-main {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+    .product-price-original {
+      font-size: 12px;
+      color: var(--text-3);
+      text-decoration: line-through;
+      margin-left: 6px;
+    }
+    .product-qty {
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .order-note {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 0;
+      font-size: 13px;
+      color: var(--text-2);
+      cursor: pointer;
+      border-top: 1px solid #f3f4f6;
+      margin-top: 10px;
+    }
+    .order-note:hover { color: var(--primary); }
+
+    /* Optimization Notice */
+    .opt-notice {
+      margin: 10px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      cursor: pointer;
+    }
+    .opt-notice-row1 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .opt-notice-title {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .opt-notice-title .tip-icon {
+      width: 16px;
+      height: 16px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+    .opt-notice-arrow {
+      font-size: 13px;
+      opacity: 0.8;
+    }
+    .opt-notice-desc {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+    .opt-notice-save {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 6px;
+    }
+
+    /* Member Card Section */
+    .member-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+    }
+    .member-card-info {
+      flex: 1;
+    }
+    .member-card-name {
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .member-card-badge {
+      font-size: 10px;
+      padding: 1px 6px;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #fff;
+      border-radius: 4px;
+    }
+    .member-card-balance {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 2px;
+    }
+    .member-card-switch {
+      font-size: 13px;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Toggle */
+    .toggle-item {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .toggle-item:last-child { margin-bottom: 0; }
+    .toggle-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .toggle-sub {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 2px;
+    }
+    .toggle {
+      width: 44px;
+      height: 26px;
+      background: #d1d5db;
+      border-radius: 13px;
+      position: relative;
+      cursor: pointer;
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+    .toggle.on { background: var(--primary); }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle.on .toggle-thumb { left: 21px; }
+    .toggle.off .toggle-thumb { left: 3px; }
+    .toggle.warn-tip {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #92400e;
+    }
+    .toggle.warn-tip .product-list {
+      margin-top: 4px;
+      padding-left: 12px;
+    }
+    .toggle.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* Supplementary Payment */
+    .supplement-options {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .supplement-option {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .supplement-option.selected {
+      background: #f0fdf4;
+      border-color: var(--success);
+    }
+    .supplement-radio {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .supplement-option.selected .supplement-radio {
+      border-color: var(--success);
+    }
+    .supplement-option.selected .supplement-radio::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    .supplement-icon { font-size: 16px; }
+    .supplement-name { flex: 1; }
+    .supplement-amount { font-weight: 500; color: var(--text-1); }
+
+    /* Coupon */
+    .coupon-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .coupon-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .coupon-icon {
+      font-size: 16px;
+    }
+    .coupon-text {
+      font-size: 14px;
+      color: var(--text-1);
+    }
+    .coupon-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .coupon-selected {
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .coupon-arrow {
+      color: var(--text-3);
+      font-size: 12px;
+    }
+    .coupon-list {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #f3f4f6;
+    }
+    .coupon-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+    .coupon-item.checked {
+      color: var(--success);
+    }
+    .coupon-item .check-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+    .coupon-item.checked .check-icon {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+    .coupon-discount {
+      margin-left: auto;
+      font-weight: 500;
+    }
+
+    /* Points */
+    .points-info {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 8px;
+    }
+    .points-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .points-use {
+      font-size: 14px;
+    }
+    .points-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .points-toggle .toggle {
+      width: 40px;
+      height: 24px;
+    }
+    .points-toggle .toggle-thumb {
+      width: 18px;
+      height: 18px;
+    }
+    .points-toggle .toggle.on .toggle-thumb { left: 19px; }
+    .points-disabled {
+      font-size: 12px;
+      color: var(--text-3);
+      background: #f3f4f6;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+
+    /* Cost Detail */
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+    .cost-row .label { color: var(--text-2); }
+    .cost-row .value { font-weight: 500; }
+    .cost-row.discount .value { color: var(--success); }
+    .cost-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 0;
+    }
+    .cost-total {
+      font-size: 15px;
+      font-weight: 600;
+      padding: 8px 0 4px;
+    }
+    .cost-split {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 2px;
+    }
+
+    /* Cost Row Interactive */
+    .cost-row.clickable {
+      cursor: pointer;
+      padding: 12px 0;
+    }
+    .cost-row.clickable:hover {
+      background: #f9fafb;
+      margin: 0 -14px;
+      padding: 12px 14px;
+    }
+    .cost-row-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cost-arrow {
+      color: var(--text-3);
+      font-size: 14px;
+    }
+    .cost-row .discount {
+      color: var(--success);
+    }
+    .total-amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Mini Toggle */
+    .mini-toggle {
+      width: 40px;
+      height: 24px;
+      background: #d1d5db;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .mini-toggle.on { background: var(--primary); }
+    .mini-toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .mini-toggle.on .mini-toggle-thumb { left: 18px; }
+
+    /* Cost Detail Items */
+    .cost-detail-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .cost-detail-item.clickable {
+      cursor: pointer;
+    }
+    .cost-detail-item.clickable:active {
+      background: #f9fafb;
+    }
+    .cost-detail-item:last-of-type { border-bottom: none; }
+    .cost-detail-item.disabled-state {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .cost-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cost-detail-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-1);
+    }
+    .label-with-tip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .label-tip {
+      position: relative;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #eef2ff;
+      color: var(--primary);
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+      flex-shrink: 0;
+    }
+    .label-tip-popup {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 10px);
+      transform: translateX(-50%);
+      min-width: 260px;
+      max-width: 300px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(17, 24, 39, 0.95);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1.6;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+      display: none;
+      z-index: 20;
+      text-align: left;
+      font-weight: 400;
+    }
+    .label-tip-popup::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: rgba(17, 24, 39, 0.95);
+    }
+    .label-tip:hover .label-tip-popup {
+      display: block;
+    }
+    .cost-detail-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cost-detail-discount {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--success);
+    }
+    .cost-arrow {
+      color: var(--text-3);
+      font-size: 14px;
+    }
+    .cost-detail-sub {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 4px;
+    }
+    .cost-detail-selected {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .selected-tag {
+      font-size: 12px;
+      background: #e0e7ff;
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .selected-tip {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+    .cost-detail-coupons {
+      margin-top: 6px;
+      padding-left: 4px;
+    }
+    .coupon-used {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-2);
+      padding: 3px 0;
+    }
+    .coupon-name {
+      flex: 1;
+    }
+    .coupon-amount {
+      color: var(--success);
+      font-weight: 500;
+    }
+    .promo-detail-note {
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #9a3412;
+      line-height: 1.6;
+    }
+    .promo-lock-tip {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--danger);
+    }
+
+    /* Need Pay */
+    .need-pay {
+      padding: 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .need-pay .label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-1);
+    }
+    .need-pay-amount {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Pay Choices */
+    .pay-choices {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .pay-choice {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .pay-choice.selected {
+      background: #f0fdf4;
+      border-color: var(--success);
+    }
+    .pay-choice-icon {
+      font-size: 24px;
+    }
+    .pay-choice-info {
+      flex: 1;
+    }
+    .pay-choice-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-1);
+    }
+    .pay-choice-amount {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-top: 2px;
+    }
+    .pay-choice-sub {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+    .pay-choice-radio {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pay-choice.selected .pay-choice-radio {
+      border-color: var(--success);
+    }
+    .pay-choice.selected .pay-choice-radio::after {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* Bottom Bar */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 430px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      z-index: 100;
+    }
+    .bottom-summary {
+      flex: 1;
+    }
+    .bottom-total {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1.2;
+    }
+    .bottom-save {
+      font-size: 12px;
+      color: var(--success);
+      margin-top: 4px;
+    }
+    .bottom-btn {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 22px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .bottom-btn:active { opacity: 0.9; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--surface);
+      width: 100%;
+      max-width: 430px;
+      border-radius: 16px 16px 0 0;
+      max-height: 80vh;
+      overflow: hidden;
+      transform: translateY(100%);
+      transition: transform .3s;
+    }
+    .modal-overlay.show .modal { transform: translateY(0); }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .modal-close {
+      font-size: 20px;
+      color: var(--text-3);
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .modal-close:hover {
+      color: var(--text-1);
+    }
+    .modal-body {
+      max-height: 60vh;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    /* Coupon Modal Styles */
+    .coupon-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      padding: 14px 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .coupon-summary-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .coupon-summary-tag {
+      font-size: 11px;
+      background: rgba(255,255,255,0.2);
+      padding: 3px 8px;
+      border-radius: 10px;
+    }
+    .coupon-summary-text {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    .coupon-summary-discount {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .coupon-no-use {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-2);
+    }
+    .coupon-no-use.selected {
+      background: #f3f4f6;
+      border-color: var(--text-3);
+    }
+    .coupon-no-use-radio {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+    }
+    .coupon-no-use.selected .coupon-no-use-radio {
+      border-color: var(--text-3);
+    }
+
+    .coupon-section {
+      margin-bottom: 16px;
+    }
+    .coupon-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+    }
+    .coupon-section-tip {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-3);
+    }
+
+    .coupon-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .coupon-card.available {
+      border-color: var(--border);
+    }
+    .coupon-card.available:active {
+      background: #f0fdf4;
+    }
+    .coupon-card.checked {
+      background: #f0fdf4;
+      border-color: var(--success);
+    }
+    .coupon-card.unavailable {
+      background: #f9fafb;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .coupon-card-check {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .coupon-card.checked .coupon-card-check {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    .coupon-check-icon {
+      color: #fff;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .coupon-card-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .coupon-card-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-1);
+      margin-bottom: 4px;
+    }
+    .coupon-card-info {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-bottom: 4px;
+    }
+    .coupon-card-tags {
+      display: flex;
+      gap: 6px;
+    }
+    .coupon-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: #f3f4f6;
+      color: var(--text-3);
+      border-radius: 4px;
+    }
+    .coupon-tag.warn {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .coupon-card-status {
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    .coupon-card-status.success {
+      color: var(--success);
+    }
+    .coupon-card-reason {
+      font-size: 11px;
+      color: var(--danger);
+      margin-top: 4px;
+    }
+    .coupon-card-amount {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--success);
+      flex-shrink: 0;
+    }
+    .coupon-card.unavailable .coupon-card-amount {
+      color: var(--text-3);
+    }
+
+    .coupon-footer {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .coupon-footer-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .coupon-footer-label {
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .coupon-footer-amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--success);
+    }
+    .coupon-footer-tip {
+      font-size: 11px;
+      color: var(--text-3);
+      text-align: center;
+    }
+
+    .coupon-confirm-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      border: none;
+      border-radius: 22px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .coupon-confirm-btn:active {
+      opacity: 0.9;
+    }
+
+    .promo-summary {
+      background: linear-gradient(135deg, #f97316, #ec4899);
+    }
+    .promo-summary-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .promo-restore-btn {
+      border: none;
+      background: transparent;
+      padding: 0;
+      font-size: 12px;
+      color: rgba(255,255,255,0.9);
+      cursor: pointer;
+    }
+    .promo-restore-btn:active {
+      opacity: 0.8;
+    }
+    .promo-restore-btn.hidden {
+      display: none;
+    }
+    .promo-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .promo-card.selected {
+      background: #fff7ed;
+      border-color: #fb923c;
+    }
+    .promo-card-radio {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      margin-top: 2px;
+      position: relative;
+    }
+    .promo-card.selected .promo-card-radio {
+      border-color: #f97316;
+    }
+    .promo-card.selected .promo-card-radio::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #f97316;
+    }
+    .promo-card-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .promo-card-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+    .promo-card-info,
+    .promo-card-meta,
+    .promo-card-conflict {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--text-2);
+      margin-top: 4px;
+    }
+    .promo-card-conflict {
+      color: #c2410c;
+    }
+    .promo-card-amount {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ea580c;
+      flex-shrink: 0;
+    }
+
+    /* Card Modal Styles */
+    .card-modal-tip {
+      font-size: 12px;
+      color: var(--warn);
+      background: #fef3c7;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .card-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .card-option:active {
+      background: #f0fdf4;
+    }
+    .card-option.selected {
+      background: #f0fdf4;
+      border-color: var(--success);
+    }
+    .card-option-radio {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .card-option.selected .card-option-radio {
+      border-color: var(--success);
+    }
+    .card-option.selected .card-option-radio::after {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    .card-option-content {
+      flex: 1;
+    }
+    .card-option-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-1);
+      margin-bottom: 4px;
+    }
+    .card-option-tag {
+      font-size: 10px;
+      color: var(--primary);
+      background: #dbeafe;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+    .card-option-info {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-bottom: 4px;
+    }
+    .card-option-result {
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .card-option-result.success {
+      color: var(--success);
+      font-weight: 500;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 300;
+      display: none;
+    }
+    .toast.show { display: block; }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .fade-in { animation: fadeIn .2s ease; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-back" onclick="history.back()">‹</div>
+  <div class="header-title">订单确认</div>
+  <div class="header-menu">···</div>
+</div>
+
+<!-- A: Address -->
+<div class="card">
+  <div class="card-header">📍 自提点</div>
+  <div class="card-body">
+    <div class="address-row" onclick="showModal('addressModal')">
+      <div class="address-icon">📍</div>
+      <div class="address-info">
+        <div class="address-name">恒奕美源 · 通州旗舰店</div>
+        <div class="address-detail">北京市通州区XX路XX号 · 张三 166****2658</div>
+      </div>
+      <div class="address-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- B: Products -->
+<div class="card">
+  <div class="card-header">🛒 商品清单</div>
+  <div class="card-body">
+    <div class="shop-name">🏪 恒奕美源平台</div>
+
+    <div class="product-item">
+      <div class="product-img">💧</div>
+      <div class="product-info">
+        <div class="product-name">水漾布量大管饱/面部润肌护理</div>
+        <div class="product-tag">王炸特惠</div>
+        <div class="product-price">
+          <div>
+            <span class="product-price-main">¥168</span>
+            <span class="product-price-original">¥210</span>
+          </div>
+          <span class="product-qty">× 2</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-item">
+      <div class="product-img">💦</div>
+      <div class="product-info">
+        <div class="product-name">水博士·沁润补水</div>
+        <div class="product-tag vip">会员专享</div>
+        <div class="product-price">
+          <div>
+            <span class="product-price-main">¥98</span>
+          </div>
+          <span class="product-qty">× 1</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-item">
+      <div class="product-img">🧴</div>
+      <div class="product-info">
+        <div class="product-name">颈部胶原焕润护理 40分钟</div>
+        <div class="product-tag vip">会员专享</div>
+        <div class="product-price">
+          <div>
+            <span class="product-price-main">¥238</span>
+          </div>
+          <span class="product-qty">× 1</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-item">
+      <div class="product-img">👁️</div>
+      <div class="product-info">
+        <div class="product-name">眼周胶原焕润护理 40分钟</div>
+        <div class="product-tag vip">会员专享</div>
+        <div class="product-price">
+          <div>
+            <span class="product-price-main">¥198</span>
+          </div>
+          <span class="product-qty">× 1</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="promotionGiftList"></div>
+
+    <div class="order-note">
+      <span>📝</span>
+      <span>订单备注</span>
+      <span style="flex:1;color:var(--text-3);">点击填写，与商家协商</span>
+      <span style="color:var(--text-3);">›</span>
+    </div>
+  </div>
+</div>
+
+<!-- G: Cost Detail + Selection -->
+<div class="card">
+  <div class="card-header">💰 费用明细</div>
+  <div class="card-body">
+    <!-- 商品总额 -->
+    <div class="cost-row">
+      <span class="label">商品总额</span>
+      <span class="value">¥870.00</span>
+    </div>
+
+    <!-- 运费 -->
+    <div class="cost-row">
+      <span class="label">运费</span>
+      <span class="value">¥0.00</span>
+    </div>
+
+    <!-- 会员卡优惠 - 可点击选择 -->
+    <div class="cost-detail-item clickable" onclick="showModal('cardModal')">
+      <div class="cost-detail-header">
+        <span class="cost-detail-label">会员卡优惠</span>
+        <div class="cost-detail-right">
+          <span class="cost-detail-discount" id="cardDiscount">-¥137.20</span>
+          <span class="cost-arrow">›</span>
+        </div>
+      </div>
+      <div class="cost-detail-selected" id="cardSelectedInfo">
+        <span class="selected-tag" id="cardSelectedTag">金卡 8折</span>
+        <span class="selected-tip" id="cardSelectedTip">系统已选最优方案</span>
+      </div>
+    </div>
+
+    <!-- 预定金抵扣 - 可开关 -->
+    <div class="cost-detail-item" id="depositItem" style="display:none;">
+      <div class="cost-detail-header">
+        <span class="cost-detail-label">预定金抵扣</span>
+        <div class="cost-detail-right">
+          <span class="cost-detail-discount" id="depositDiscount">-¥0.00</span>
+          <div class="mini-toggle on" onclick="toggleDeposit(event)" id="depositToggle">
+            <div class="mini-toggle-thumb"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cost-detail-sub" id="depositSub">系统已按最优方案使用预定金</div>
+    </div>
+
+    <div class="cost-detail-item clickable" id="promotionItem" onclick="showModal('promotionModal')">
+      <div class="cost-detail-header">
+        <span class="cost-detail-label">满减满赠活动</span>
+        <div class="cost-detail-right">
+          <span class="cost-detail-discount" id="promotionDiscount">-¥0.00</span>
+          <span class="cost-arrow">›</span>
+        </div>
+      </div>
+      <div class="cost-detail-selected" id="promotionSelectedInfo">
+        <span class="selected-tag" id="promotionSelectedTag">未使用活动</span>
+        <span class="selected-tip" id="promotionSelectedTip">支持切换活动</span>
+      </div>
+      <div class="promo-detail-note" id="promotionDetailNote" style="display:none;"></div>
+    </div>
+
+    <!-- 优惠券 - 可点击选择 -->
+    <div class="cost-detail-item clickable" id="couponItem" onclick="openCouponModal()">
+      <div class="cost-detail-header">
+        <span class="cost-detail-label label-with-tip">
+          <span>优惠券</span>
+          <span class="label-tip" onclick="event.stopPropagation()">?
+            <span class="label-tip-popup" id="couponThresholdTipText">各券按各自可用品项验门槛</span>
+          </span>
+        </span>
+        <div class="cost-detail-right">
+          <span class="cost-detail-discount" id="costDetailCouponDiscount">-¥278.00</span>
+          <span class="cost-arrow">›</span>
+        </div>
+      </div>
+      <div class="cost-detail-coupons" id="costDetailCoupons">
+        <div class="coupon-used">
+          <span class="coupon-name">颈部胶原焕润护理专属券</span>
+          <span class="coupon-amount">-¥238.00</span>
+        </div>
+        <div class="coupon-used">
+          <span class="coupon-name">满100减40 现金券</span>
+          <span class="coupon-amount">-¥40.00</span>
+        </div>
+      </div>
+      <div class="promo-lock-tip" id="couponLockTip" style="display:none;"></div>
+    </div>
+
+    <!-- 积分抵扣 - 可开关 -->
+    <div class="cost-detail-item" id="pointsItem">
+      <div class="cost-detail-header">
+        <span class="cost-detail-label">积分抵扣</span>
+        <div class="cost-detail-right">
+          <span class="cost-detail-discount">-¥12.00</span>
+          <div class="mini-toggle on" onclick="togglePoints(event)" id="pointsToggle">
+            <div class="mini-toggle-thumb"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cost-detail-sub">1200积分抵扣 ¥12.00</div>
+      <div class="promo-lock-tip" id="pointsLockTip" style="display:none;"></div>
+    </div>
+
+    <!-- 赠送金抵扣 - 可开关 -->
+    <div class="cost-detail-item" id="giftItem">
+      <div class="cost-detail-header">
+        <span class="cost-detail-label">赠送金抵扣</span>
+        <div class="cost-detail-right">
+          <span class="cost-detail-discount">-¥30.00</span>
+          <div class="mini-toggle on" onclick="toggleGift(event)" id="giftToggle">
+            <div class="mini-toggle-thumb"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cost-detail-sub">金卡余额 ¥30.00</div>
+      <div class="promo-lock-tip" id="giftLockTip" style="display:none;"></div>
+    </div>
+
+    <!-- 卡金抵扣 - 可开关 -->
+    <div class="cost-detail-item" id="cardItem">
+      <div class="cost-detail-header">
+        <span class="cost-detail-label">卡金抵扣</span>
+        <div class="cost-detail-right">
+          <span class="cost-detail-discount">-¥50.00</span>
+          <div class="mini-toggle on" onclick="toggleCard(event)" id="cardToggle">
+            <div class="mini-toggle-thumb"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cost-detail-sub">金卡余额 ¥50.00</div>
+    </div>
+
+    <div class="cost-divider"></div>
+
+    <!-- 还需支付 -->
+    <div class="cost-row need-pay">
+      <span class="label">还需支付</span>
+      <span class="need-pay-amount">¥362.80</span>
+    </div>
+
+    <!-- 支付方式 -->
+    <div class="pay-choices">
+      <div class="pay-choice selected" onclick="selectPayChoice('wechat', this)">
+        <div class="pay-choice-icon">💚</div>
+        <div class="pay-choice-info">
+          <div class="pay-choice-name">微信支付</div>
+          <div class="pay-choice-amount">¥362.80</div>
+        </div>
+        <div class="pay-choice-radio"></div>
+      </div>
+      <div class="pay-choice" onclick="selectPayChoice('agent', this)">
+        <div class="pay-choice-icon">👥</div>
+        <div class="pay-choice-info">
+          <div class="pay-choice-name">找人代付</div>
+          <div class="pay-choice-sub">生成代付链接</div>
+        </div>
+        <div class="pay-choice-radio"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar">
+  <div class="bottom-summary">
+    <div class="bottom-total" id="bottomNeedPay">还需支付 ¥362.80</div>
+    <div class="bottom-save">共5件 · 已省 ¥507.20</div>
+  </div>
+  <button class="bottom-btn" onclick="submitOrder()">提交订单</button>
+</div>
+
+<!-- Address Modal -->
+<div class="modal-overlay" id="addressModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">选择自提点</div>
+      <div class="modal-close" onclick="hideModal('addressModal')">×</div>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:12px;">
+        <input type="text" placeholder="搜索门店名称" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;">
+      </div>
+      <div class="payment-item selected" onclick="selectAddress(this)">
+        <div class="payment-radio"></div>
+        <div class="payment-info">
+          <div class="payment-name">恒奕美源 · 通州旗舰店 <span style="font-size:11px;color:var(--primary);background:#dbeafe;padding:1px 6px;border-radius:4px;">当前</span></div>
+          <div class="payment-sub">北京市通州区XX路XX号 · 距您 2.1km · 营业 09:00-21:00</div>
+        </div>
+      </div>
+      <div class="payment-item" onclick="selectAddress(this)">
+        <div class="payment-radio"></div>
+        <div class="payment-info">
+          <div class="payment-name">恒奕美源 · 朝阳店</div>
+          <div class="payment-sub">北京市朝阳区XX路XX号 · 距您 5.6km · 营业 10:00-20:00</div>
+        </div>
+      </div>
+      <div class="payment-item" onclick="selectAddress(this)">
+        <div class="payment-radio"></div>
+        <div class="payment-info">
+          <div class="payment-name">恒奕美源 · 海淀店</div>
+          <div class="payment-sub">北京市海淀区XX路XX号 · 距您 8.2km · 营业 09:00-21:00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Compare Modal -->
+<div class="modal-overlay" id="compareModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">为什么这样帮您选？</div>
+      <div class="modal-close" onclick="hideModal('compareModal')">×</div>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:14px;">系统会把满减满赠与原有会员卡、优惠券、赠送金方案一起比较：</div>
+
+      <div style="background:#f9fafb;border-radius:10px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">路径① 保持原有券方案</div>
+        <div style="font-size:12px;color:var(--text-2);line-height:1.8;">
+          · 会员卡折扣后继续验券门槛<br>
+          · 项目抵用券 + 现金券按原逻辑核销<br>
+          · 赠送金、卡金继续参与结算<br>
+          · <strong>适合券叠加更划算的场景</strong>
+        </div>
+      </div>
+
+      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">路径② 使用满减满赠活动 ⭐推荐</div>
+        <div style="font-size:12px;color:var(--text-2);line-height:1.8;">
+          · 会员卡折扣 / 预定金后先命中满减活动<br>
+          · 若活动配置互斥，系统自动禁用券或赠送金<br>
+          · 满减满赠赠品会直接加入订单，赠券在支付后发放<br>
+          · 当前示例为自提单，实物赠品同步转为门店自提<br>
+          · <strong>系统按最终实付金额选择最优路径</strong>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:10px 0;">
+        <span style="display:inline-block;background:var(--success);color:#fff;font-size:13px;padding:8px 20px;border-radius:20px;">✅ 系统已按当前订单选择更省钱的组合</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card Modal -->
+<div class="modal-overlay" id="cardModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">选择会员卡</div>
+      <div class="modal-close" onclick="hideModal('cardModal')">×</div>
+    </div>
+    <div class="modal-body" style="padding-bottom:20px;">
+      <div class="card-modal-tip">
+        ⚠️ 同一订单只能使用一张卡的资产
+      </div>
+
+      <div class="card-option selected" onclick="selectCard(this)">
+        <div class="card-option-radio"></div>
+        <div class="card-option-content">
+          <div class="card-option-name">
+            💳 金卡
+            <span class="card-option-tag">系统推荐</span>
+          </div>
+          <div class="card-option-info">卡金余额：¥50 · 折扣：8折 · 赠送金：¥30</div>
+          <div class="card-option-result success">预计实付：¥362.80</div>
+        </div>
+      </div>
+
+      <div class="card-option" onclick="selectCard(this)">
+        <div class="card-option-radio"></div>
+        <div class="card-option-content">
+          <div class="card-option-name">💳 银卡</div>
+          <div class="card-option-info">卡金余额：¥200 · 折扣：9折 · 赠送金：¥0</div>
+          <div class="card-option-result">预计实付：¥212</div>
+        </div>
+      </div>
+
+      <div class="card-option" onclick="selectCard(this)">
+        <div class="card-option-radio"></div>
+        <div class="card-option-content">
+          <div class="card-option-name">不使用会员卡</div>
+          <div class="card-option-info">预计实付现金：¥870</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Coupon Modal -->
+<div class="modal-overlay" id="couponModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">选择优惠券</div>
+      <div class="modal-close" onclick="hideModal('couponModal')">×</div>
+    </div>
+    <div class="modal-body" style="padding-bottom:20px;">
+      <!-- 优惠汇总 -->
+      <div class="coupon-summary">
+        <div class="coupon-summary-left">
+          <span class="coupon-summary-tag" id="couponSelectedCount">系统推荐</span>
+          <span class="coupon-summary-text">已选 <span id="couponCountNum">2</span> 张</span>
+        </div>
+        <div class="coupon-summary-discount" id="couponTotalDiscount">-¥278.00</div>
+      </div>
+
+      <!-- 不使用优惠券选项 -->
+      <div class="coupon-no-use" id="couponNoUse" onclick="toggleNoCoupon()">
+        <div class="coupon-no-use-radio" id="noCouponRadio"></div>
+        <span>不使用优惠券</span>
+      </div>
+
+      <!-- 项目抵用券 -->
+      <div class="coupon-section">
+        <div class="coupon-section-header">
+          <span>项目抵用券</span>
+          <span class="coupon-section-tip">可多选</span>
+        </div>
+
+        <div class="coupon-card available checked" onclick="toggleCoupon(this, 'item1')" data-coupon="item1" data-type="item" data-value="238">
+          <div class="coupon-card-check">
+            <div class="coupon-check-icon">✓</div>
+          </div>
+          <div class="coupon-card-content">
+            <div class="coupon-card-name">颈部胶原焕润护理专属券</div>
+            <div class="coupon-card-info">价值 ¥238 · 仅限颈部护理项目</div>
+            <div class="coupon-card-tags">
+              <span class="coupon-tag warn">⏰ 即将过期</span>
+            </div>
+          </div>
+          <div class="coupon-card-amount">-¥238.00</div>
+        </div>
+
+        <div class="coupon-card available" onclick="toggleCoupon(this, 'item2')" data-coupon="item2" data-type="item" data-value="168">
+          <div class="coupon-card-check">
+            <div class="coupon-check-icon">✓</div>
+          </div>
+          <div class="coupon-card-content">
+            <div class="coupon-card-name">水漾护理项目专属券</div>
+            <div class="coupon-card-info">价值 ¥168 · 仅限水漾系列</div>
+            <div class="coupon-card-tags">
+              <span class="coupon-tag">有效期至 2026-06-30</span>
+            </div>
+          </div>
+          <div class="coupon-card-amount">-¥168.00</div>
+        </div>
+      </div>
+
+      <!-- 现金券 -->
+      <div class="coupon-section">
+        <div class="coupon-section-header">
+          <span>现金券</span>
+          <span class="coupon-section-tip">最多选 1 张</span>
+        </div>
+
+        <div class="coupon-card available checked" onclick="toggleCoupon(this, 'cash1')" data-coupon="cash1" data-type="cash" data-value="40">
+          <div class="coupon-card-check">
+            <div class="coupon-check-icon">✓</div>
+          </div>
+          <div class="coupon-card-content">
+            <div class="coupon-card-name">满100减40</div>
+            <div class="coupon-card-info" id="cash1Info">门槛：适用品快照 ≥ ¥100</div>
+            <div class="coupon-card-status success">✅ 已满足</div>
+          </div>
+          <div class="coupon-card-amount">-¥40.00</div>
+        </div>
+
+        <div class="coupon-card available" onclick="toggleCoupon(this, 'cash2')" data-coupon="cash2" data-type="cash" data-value="80">
+          <div class="coupon-card-check">
+            <div class="coupon-check-icon">✓</div>
+          </div>
+          <div class="coupon-card-content">
+            <div class="coupon-card-name">满260减80</div>
+            <div class="coupon-card-info" id="cash2Info">门槛：适用品快照 ≥ ¥260</div>
+            <div class="coupon-card-status success">✅ 已满足</div>
+          </div>
+          <div class="coupon-card-amount">-¥80.00</div>
+        </div>
+      </div>
+
+      <!-- 折扣券 -->
+      <div class="coupon-section">
+        <div class="coupon-section-header">
+          <span>折扣券</span>
+          <span class="coupon-section-tip">最多选 1 张</span>
+        </div>
+
+        <div class="coupon-card available" onclick="toggleCoupon(this, 'discount1')" data-coupon="discount1" data-type="discount" data-value="50">
+          <div class="coupon-card-check">
+            <div class="coupon-check-icon" style="visibility:hidden;">✓</div>
+          </div>
+          <div class="coupon-card-content">
+            <div class="coupon-card-name">全场9折券</div>
+            <div class="coupon-card-info" id="discount1Info">门槛：适用品快照 ≥ ¥300</div>
+            <div class="coupon-card-status success">✅ 已满足</div>
+          </div>
+          <div class="coupon-card-amount">约-¥50</div>
+        </div>
+      </div>
+
+      <!-- 预计优惠 -->
+      <div class="coupon-footer">
+        <div class="coupon-footer-info">
+          <span class="coupon-footer-label">当前组合预计优惠：</span>
+          <span class="coupon-footer-amount" id="couponFooterDiscount">-¥278.00</span>
+        </div>
+        <div class="coupon-footer-tip">系统已为您选择最优组合</div>
+      </div>
+
+      <button class="coupon-confirm-btn" onclick="confirmCouponSelection()">确认选择</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="promotionModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">选择满减满赠活动</div>
+      <div class="modal-close" onclick="hideModal('promotionModal')">×</div>
+    </div>
+    <div class="modal-body" style="padding-bottom:20px;">
+      <div class="coupon-summary promo-summary">
+        <div class="coupon-summary-left">
+          <span class="coupon-summary-tag" id="promotionSummaryTag">系统推荐</span>
+          <span class="coupon-summary-text" id="promotionSummaryText">当前活动预计优惠 -¥0.00</span>
+        </div>
+        <div class="promo-summary-right">
+          <button class="promo-restore-btn hidden" id="promotionRestoreBtn" type="button" onclick="restorePromotionAuto()">恢复系统推荐</button>
+          <div class="coupon-summary-discount" id="promotionSummaryDiscount">-¥0.00</div>
+        </div>
+      </div>
+
+      <div class="promo-card" data-promo="none" onclick="selectPromotionCard(this)">
+        <div class="promo-card-radio"></div>
+        <div class="promo-card-content">
+          <div class="promo-card-name">不使用满减满赠活动</div>
+          <div class="promo-card-info">保留当前会员卡、优惠券、积分、赠送金等原有玩法</div>
+        </div>
+      </div>
+
+      <div class="promo-card" data-promo="promoA" onclick="selectPromotionCard(this)">
+        <div class="promo-card-radio"></div>
+        <div class="promo-card-content">
+          <div class="promo-card-name">春日焕肤礼</div>
+          <div class="promo-card-info">满 ¥300 减 ¥50，赠修护面膜 1 盒</div>
+          <div class="promo-card-meta">支付成功后再赠「满100减10」现金券 1 张</div>
+          <div class="promo-card-conflict">与优惠券、赠送金不可共用</div>
+        </div>
+        <div class="promo-card-amount">-¥50</div>
+      </div>
+
+      <div class="promo-card" data-promo="promoB" onclick="selectPromotionCard(this)">
+        <div class="promo-card-radio"></div>
+        <div class="promo-card-content">
+          <div class="promo-card-name">周年叠加礼</div>
+          <div class="promo-card-info">满 ¥500 减 ¥30，可继续叠加优惠券、积分与赠送金</div>
+          <div class="promo-card-meta">支付成功后赠「护理 95 折券」1 张</div>
+        </div>
+        <div class="promo-card-amount">-¥30</div>
+      </div>
+
+      <button class="coupon-confirm-btn" onclick="confirmPromotionSelection()">确认选择</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const products = [
+    { id: 'hydra', name: '水漾布量大管饱/面部润肌护理', total: 336, qty: 2 },
+    { id: 'doctor', name: '水博士·沁润补水', total: 98, qty: 1 },
+    { id: 'neck', name: '颈部胶原焕润护理 40分钟', total: 238, qty: 1 },
+    { id: 'eye', name: '眼周胶原焕润护理 40分钟', total: 198, qty: 1 }
+  ];
+
+  const couponDefs = {
+    item1: { type: 'item', name: '颈部胶原焕润护理专属券', amount: 238, applicableIds: ['neck'], targetId: 'neck' },
+    item2: { type: 'item', name: '水漾护理项目专属券', amount: 168, applicableIds: ['hydra'], targetId: 'hydra' },
+    cash1: { type: 'cash', name: '满100减40 现金券', amount: 40, threshold: 100, applicableIds: ['hydra', 'doctor', 'eye'] },
+    cash2: { type: 'cash', name: '满260减80 现金券', amount: 80, threshold: 260, applicableIds: ['hydra', 'doctor'] },
+    discount1: { type: 'discount', name: '全场9折券', rate: 0.1, threshold: 300, applicableIds: ['hydra', 'doctor', 'eye'] }
+  };
+
+  const cardProfiles = {
+    gold: { label: '金卡', rate: 0.8, giftBalance: 30, cardBalance: 50 },
+    silver: { label: '银卡', rate: 0.9, giftBalance: 0, cardBalance: 200 },
+    none: { label: '未使用会员卡', rate: 1, giftBalance: 0, cardBalance: 0 }
+  };
+
+  const promotionDefs = {
+    promoA: {
+      id: 'promoA',
+      name: '春日焕肤礼',
+      threshold: 300,
+      discount: 50,
+      giftProduct: { name: '修护面膜礼盒', icon: '🎁', qty: 1, deliveryText: '自提订单赠品，需到门店自提' },
+      giftCouponText: '支付成功后发放满100减10现金券 1 张',
+      excludes: { coupons: true, points: false, gift: true }
+    },
+    promoB: {
+      id: 'promoB',
+      name: '周年叠加礼',
+      threshold: 500,
+      discount: 30,
+      giftProduct: null,
+      giftCouponText: '支付成功后发放护理95折券 1 张',
+      excludes: { coupons: false, points: false, gift: false }
+    }
+  };
+
+  const orderState = {
+    depositAvailable: 120,
+    depositChoice: 'auto',
+    currentCardType: 'gold',
+    promotionChoice: 'auto',
+    pointsOn: true,
+    giftOn: true,
+    cardOn: true
+  };
+
+  let selectedCoupons = {
+    item1: true,
+    item2: false,
+    cash1: true,
+    cash2: false,
+    discount1: false
+  };
+
+  function round2(value) {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+  }
+
+  function getProfile() {
+    return cardProfiles[orderState.currentCardType] || cardProfiles.none;
+  }
+
+  function allocate(lines, ids, total, field) {
+    const targets = lines.filter(line => ids.includes(line.id) && line.current > 0);
+    const base = targets.reduce((sum, line) => sum + line.current, 0);
+    if (!targets.length || base <= 0 || total <= 0) return 0;
+    let allocated = 0;
+    targets.forEach((line, index) => {
+      const share = index === targets.length - 1 ? round2(total - allocated) : round2(total * line.current / base);
+      line.current = round2(Math.max(0, line.current - share));
+      line[field] = round2((line[field] || 0) + share);
+      allocated = round2(allocated + share);
+    });
+    return allocated;
+  }
+
+  function listPromotionCandidates() {
+    if (orderState.promotionChoice === 'auto') return ['none', ...Object.keys(promotionDefs)];
+    return [orderState.promotionChoice];
+  }
+
+  function computeScenario(useDeposit, promotionKey) {
+    const profile = getProfile();
+    const lines = products.map(item => {
+      const afterCard = round2(item.total * profile.rate);
+      return { ...item, current: afterCard, afterCard, deposit: 0, promotion: 0, itemCoupon: 0, cashCoupon: 0, discountCoupon: 0 };
+    });
+    const productTotal = round2(products.reduce((sum, item) => sum + item.total, 0));
+    const cardDiscountAmount = round2(productTotal - lines.reduce((sum, line) => sum + line.afterCard, 0));
+
+    const afterCardTotal = round2(lines.reduce((sum, line) => sum + line.current, 0));
+    const depositAmount = useDeposit ? round2(Math.min(orderState.depositAvailable, afterCardTotal)) : 0;
+    allocate(lines, lines.map(line => line.id), depositAmount, 'deposit');
+
+    const promotionDef = promotionKey && promotionKey !== 'none' ? promotionDefs[promotionKey] : null;
+    const promotionBase = round2(lines.reduce((sum, line) => sum + line.current, 0));
+    const promotionApplied = promotionDef && promotionBase >= promotionDef.threshold ? promotionDef : null;
+    const promotionAmount = promotionApplied ? round2(Math.min(promotionApplied.discount, promotionBase)) : 0;
+    if (promotionAmount > 0) allocate(lines, lines.map(line => line.id), promotionAmount, 'promotion');
+
+    const excludes = promotionApplied ? promotionApplied.excludes : { coupons: false, points: false, gift: false };
+
+    const snapshots = {
+      cash1: round2(lines.filter(line => couponDefs.cash1.applicableIds.includes(line.id)).reduce((sum, line) => sum + line.current, 0)),
+      cash2: round2(lines.filter(line => couponDefs.cash2.applicableIds.includes(line.id)).reduce((sum, line) => sum + line.current, 0)),
+      discount1: round2(lines.filter(line => couponDefs.discount1.applicableIds.includes(line.id)).reduce((sum, line) => sum + line.current, 0))
+    };
+
+    let cashKey = '';
+    let cashAmount = 0;
+    if (!excludes.coupons) {
+      ['item1', 'item2'].forEach(key => {
+        if (!selectedCoupons[key]) return;
+        const coupon = couponDefs[key];
+        const target = lines.find(line => line.id === coupon.targetId);
+        if (!target) return;
+        const amount = round2(Math.min(coupon.amount, target.current));
+        target.current = round2(target.current - amount);
+        target.itemCoupon = round2(target.itemCoupon + amount);
+      });
+
+      if (selectedCoupons.cash2 && snapshots.cash2 >= couponDefs.cash2.threshold) {
+        cashKey = 'cash2';
+        cashAmount = couponDefs.cash2.amount;
+      } else if (selectedCoupons.cash1 && snapshots.cash1 >= couponDefs.cash1.threshold) {
+        cashKey = 'cash1';
+        cashAmount = couponDefs.cash1.amount;
+      }
+    }
+    if (cashKey) {
+      const applicableTotal = round2(lines.filter(line => couponDefs[cashKey].applicableIds.includes(line.id)).reduce((sum, line) => sum + line.current, 0));
+      cashAmount = round2(Math.min(cashAmount, applicableTotal));
+      allocate(lines, couponDefs[cashKey].applicableIds, cashAmount, 'cashCoupon');
+    }
+
+    let discountAmount = 0;
+    if (!excludes.coupons && selectedCoupons.discount1 && !cashKey && snapshots.discount1 >= couponDefs.discount1.threshold) {
+      const applicableTotal = round2(lines.filter(line => couponDefs.discount1.applicableIds.includes(line.id)).reduce((sum, line) => sum + line.current, 0));
+      discountAmount = round2(applicableTotal * couponDefs.discount1.rate);
+      allocate(lines, couponDefs.discount1.applicableIds, discountAmount, 'discountCoupon');
+    }
+
+    const afterCoupons = round2(lines.reduce((sum, line) => sum + line.current, 0));
+    const pointsAmount = orderState.pointsOn && !excludes.points ? round2(Math.min(12, afterCoupons)) : 0;
+    allocate(lines, lines.map(line => line.id), pointsAmount, 'points');
+
+    const afterPoints = round2(lines.reduce((sum, line) => sum + line.current, 0));
+    const giftAmount = orderState.giftOn && !excludes.gift ? round2(Math.min(profile.giftBalance, afterPoints)) : 0;
+    allocate(lines, lines.map(line => line.id), giftAmount, 'gift');
+
+    const afterGift = round2(lines.reduce((sum, line) => sum + line.current, 0));
+    const cardPayAmount = orderState.cardOn ? round2(Math.min(profile.cardBalance, afterGift)) : 0;
+    allocate(lines, lines.map(line => line.id), cardPayAmount, 'cardPay');
+
+    const finalPay = round2(lines.reduce((sum, line) => sum + line.current, 0));
+    return {
+      profile,
+      lines,
+      productTotal,
+      cardDiscountAmount,
+      depositAmount,
+      promotionApplied,
+      promotionAmount,
+      excludes,
+      snapshots,
+      itemCouponAmount: round2(lines.reduce((sum, line) => sum + line.itemCoupon, 0)),
+      cashKey,
+      cashAmount,
+      discountAmount,
+      pointsAmount,
+      giftAmount,
+      cardPayAmount,
+      finalPay,
+      totalSaved: round2(productTotal - finalPay)
+    };
+  }
+
+  function computePricingScenario() {
+    const depositCandidates = orderState.depositAvailable > 0 && orderState.depositChoice === 'auto' ? [false, true] : [orderState.depositChoice === 'on'];
+    const promotionCandidates = listPromotionCandidates();
+    let best = null;
+
+    depositCandidates.forEach(useDeposit => {
+      promotionCandidates.forEach(promotionKey => {
+        const scenario = computeScenario(useDeposit, promotionKey);
+        scenario.promotionKey = promotionKey;
+        if (!best || scenario.finalPay < best.finalPay || (scenario.finalPay === best.finalPay && scenario.totalSaved > best.totalSaved)) {
+          best = scenario;
+        }
+      });
+    });
+
+    best.recommendation = orderState.depositAvailable <= 0
+      ? 'unavailable'
+      : orderState.depositChoice === 'auto'
+        ? (best.depositAmount > 0 ? 'auto_use' : 'auto_skip')
+        : orderState.depositChoice === 'on'
+          ? 'manual_use'
+          : 'manual_skip';
+    best.promotionRecommendation = orderState.promotionChoice === 'auto'
+      ? (best.promotionApplied ? 'auto_use' : 'auto_skip')
+      : 'manual';
+    return best;
+  }
+
+  function getPromotionLabel(result) {
+    if (!result.promotionApplied) return orderState.promotionChoice === 'auto' ? '系统未选活动' : '未使用活动';
+    return result.promotionApplied.name;
+  }
+
+  function buildGiftProductHtml(giftProduct) {
+    if (!giftProduct) return '';
+    return `
+      <div class="product-item">
+        <div class="product-img">${giftProduct.icon}</div>
+        <div class="product-info">
+          <div class="product-name">${giftProduct.name}</div>
+          <div class="product-tag gift">满减满赠赠品</div>
+          <div class="product-desc">满赠活动赠送 · ${giftProduct.deliveryText || '实物赠品'}</div>
+          <div class="product-price">
+            <div><span class="product-price-main">¥0.00</span></div>
+            <span class="product-qty">× ${giftProduct.qty}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function applyPromotionLocks(result) {
+    const couponItem = document.getElementById('couponItem');
+    const pointsItem = document.getElementById('pointsItem');
+    const giftItem = document.getElementById('giftItem');
+    const couponTip = document.getElementById('couponLockTip');
+    const pointsTip = document.getElementById('pointsLockTip');
+    const giftTip = document.getElementById('giftLockTip');
+    const promotionName = result.promotionApplied ? result.promotionApplied.name : '当前活动';
+
+    const couponLocked = !!result.excludes.coupons;
+    couponItem.classList.toggle('disabled-state', couponLocked);
+    couponItem.classList.toggle('clickable', !couponLocked);
+    couponTip.style.display = couponLocked ? 'block' : 'none';
+    couponTip.textContent = couponLocked ? `${promotionName}与优惠券不可共用，已按活动方案结算` : '';
+
+    const pointsLocked = !!result.excludes.points;
+    pointsItem.classList.toggle('disabled-state', pointsLocked);
+    pointsTip.style.display = pointsLocked ? 'block' : 'none';
+    pointsTip.textContent = pointsLocked ? `${promotionName}与积分不可共用` : '';
+
+    const giftLocked = !!result.excludes.gift;
+    giftItem.classList.toggle('disabled-state', giftLocked);
+    giftTip.style.display = giftLocked ? 'block' : 'none';
+    giftTip.textContent = giftLocked ? `${promotionName}与赠送金不可共用` : '';
+  }
+
+  function updateOrderSummary() {
+    const result = computePricingScenario();
+    const profile = result.profile;
+    const snapshotText = `现金券1 ¥${result.snapshots.cash1.toFixed(2)} / 现金券2 ¥${result.snapshots.cash2.toFixed(2)} / 折扣券 ¥${result.snapshots.discount1.toFixed(2)}`;
+
+    document.getElementById('cardDiscount').textContent = `-¥${result.cardDiscountAmount.toFixed(2)}`;
+    document.getElementById('cardSelectedTag').textContent = orderState.currentCardType === 'none' ? '未使用会员卡' : `${profile.label} ${(profile.rate * 10).toFixed(0)}折`;
+    document.getElementById('cardSelectedTip').textContent = orderState.currentCardType === 'none' ? '当前按原价计算' : '系统已选最优方案';
+
+    const showDeposit = orderState.depositAvailable > 0;
+    document.getElementById('depositItem').style.display = showDeposit ? 'block' : 'none';
+    if (showDeposit) {
+      document.getElementById('depositToggle').classList.toggle('on', result.depositAmount > 0);
+      document.getElementById('depositDiscount').textContent = `-¥${result.depositAmount.toFixed(2)}`;
+      document.getElementById('depositSub').innerHTML =
+        result.recommendation === 'auto_use' ? `系统已按最优方案使用预定金 ¥${result.depositAmount.toFixed(2)}` :
+        result.recommendation === 'manual_use' ? `您已手动选择使用预定金 <span style="color:var(--primary);cursor:pointer;" onclick="event.stopPropagation();restoreDepositAuto()">恢复自动推荐</span>` :
+        result.recommendation === 'manual_skip' ? `您已手动关闭预定金抵扣 <span style="color:var(--primary);cursor:pointer;" onclick="event.stopPropagation();restoreDepositAuto()">恢复自动推荐</span>` :
+        '系统自动判断当前不使用预定金更优';
+    }
+    document.getElementById('couponThresholdTipText').textContent = `各券按各自可用品项验门槛：${snapshotText}`;
+
+    document.getElementById('promotionGiftList').innerHTML = buildGiftProductHtml(result.promotionApplied && result.promotionApplied.giftProduct);
+    document.getElementById('promotionDiscount').textContent = `-¥${result.promotionAmount.toFixed(2)}`;
+    document.getElementById('promotionSelectedTag').textContent = getPromotionLabel(result);
+    document.getElementById('promotionSelectedTip').textContent =
+      orderState.promotionChoice === 'auto'
+        ? (result.promotionApplied ? '系统已自动匹配活动' : '系统判断当前不使用活动更划算')
+        : '您已手动选择活动，可切换活动';
+    const promotionNotes = [];
+    if (result.promotionApplied && result.promotionApplied.giftProduct) {
+      promotionNotes.push('实物赠品已添加商品列表，随单发出');
+    }
+    if (result.promotionApplied && result.promotionApplied.giftCouponText) {
+      promotionNotes.push('优惠券支付成功后送至账户');
+    }
+    const promotionDetailNote = document.getElementById('promotionDetailNote');
+    if (promotionNotes.length) {
+      promotionDetailNote.style.display = 'block';
+      promotionDetailNote.textContent = promotionNotes.join('；');
+    } else {
+      promotionDetailNote.style.display = 'none';
+      promotionDetailNote.textContent = '';
+    }
+    const couponLines = [];
+    if (selectedCoupons.item1) couponLines.push(`<div class="coupon-used"><span class="coupon-name">${couponDefs.item1.name}</span><span class="coupon-amount">-¥${result.lines.find(line => line.id === 'neck').itemCoupon.toFixed(2)}</span></div>`);
+    if (selectedCoupons.item2) couponLines.push(`<div class="coupon-used"><span class="coupon-name">${couponDefs.item2.name}</span><span class="coupon-amount">-¥${result.lines.find(line => line.id === 'hydra').itemCoupon.toFixed(2)}</span></div>`);
+    if (result.cashKey) couponLines.push(`<div class="coupon-used"><span class="coupon-name">${couponDefs[result.cashKey].name}</span><span class="coupon-amount">-¥${result.cashAmount.toFixed(2)}</span></div>`);
+    if (result.discountAmount > 0) couponLines.push(`<div class="coupon-used"><span class="coupon-name">${couponDefs.discount1.name}</span><span class="coupon-amount">-¥${result.discountAmount.toFixed(2)}</span></div>`);
+    document.getElementById('costDetailCoupons').innerHTML = result.excludes.coupons
+      ? '<div style="font-size:12px;color:var(--text-3);">当前活动与优惠券不可共用</div>'
+      : (couponLines.length ? couponLines.join('') : '<div style="font-size:12px;color:var(--text-3);">未使用优惠券</div>');
+    document.getElementById('costDetailCouponDiscount').textContent = `-¥${round2(result.itemCouponAmount + result.cashAmount + result.discountAmount).toFixed(2)}`;
+
+    document.querySelector('#pointsItem .cost-detail-discount').textContent = `-¥${result.pointsAmount.toFixed(2)}`;
+    document.querySelector('#pointsItem .cost-detail-sub').textContent = result.excludes.points ? '当前活动已锁定积分抵扣' : (orderState.pointsOn ? `1200积分抵扣 ¥${result.pointsAmount.toFixed(2)}` : '已关闭');
+    document.getElementById('pointsToggle').classList.toggle('on', orderState.pointsOn);
+
+    document.getElementById('giftItem').style.display = orderState.currentCardType === 'none' ? 'none' : 'block';
+    document.querySelector('#giftItem .cost-detail-discount').textContent = `-¥${result.giftAmount.toFixed(2)}`;
+    document.querySelector('#giftItem .cost-detail-sub').textContent = result.excludes.gift ? '当前活动已锁定赠送金' : (orderState.giftOn ? `${profile.label}赠送金余额 ¥${profile.giftBalance.toFixed(2)}` : '已关闭');
+    document.getElementById('giftToggle').classList.toggle('on', orderState.giftOn);
+
+    document.getElementById('cardItem').style.display = orderState.currentCardType === 'none' ? 'none' : 'block';
+    document.querySelector('#cardItem .cost-detail-discount').textContent = `-¥${result.cardPayAmount.toFixed(2)}`;
+    document.querySelector('#cardItem .cost-detail-sub').textContent = orderState.cardOn ? `${profile.label}卡金余额 ¥${profile.cardBalance.toFixed(2)}` : '已关闭';
+    document.getElementById('cardToggle').classList.toggle('on', orderState.cardOn);
+
+    document.querySelector('.need-pay-amount').textContent = `¥${result.finalPay.toFixed(2)}`;
+    document.getElementById('bottomNeedPay').textContent = `还需支付 ¥${result.finalPay.toFixed(2)}`;
+    const itemCount = products.reduce((sum, item) => sum + item.qty, 0) + (result.promotionApplied && result.promotionApplied.giftProduct ? result.promotionApplied.giftProduct.qty : 0);
+    document.querySelector('.bottom-save').textContent = `共${itemCount}件 · 已省 ¥${result.totalSaved.toFixed(2)}`;
+    document.querySelectorAll('.pay-choice-amount').forEach(el => {
+      el.textContent = `¥${result.finalPay.toFixed(2)}`;
+    });
+
+    document.getElementById('cash1Info').textContent = `门槛：适用品快照 ≥ ¥100（当前¥${result.snapshots.cash1.toFixed(2)}）`;
+    document.getElementById('cash2Info').textContent = `门槛：适用品快照 ≥ ¥260（当前¥${result.snapshots.cash2.toFixed(2)}）`;
+    document.getElementById('discount1Info').textContent = `门槛：适用品快照 ≥ ¥300（当前¥${result.snapshots.discount1.toFixed(2)}）`;
+
+    applyPromotionLocks(result);
+    updatePromotionModal(result);
+  }
+
+  function togglePoints(e) {
+    if (e) e.stopPropagation();
+    if (computePricingScenario().excludes.points) return showToast('当前满减活动与积分不可共用');
+    orderState.pointsOn = !orderState.pointsOn;
+    updateOrderSummary();
+    showToast('已重新计算积分抵扣');
+  }
+
+  function toggleGift(e) {
+    if (e) e.stopPropagation();
+    if (computePricingScenario().excludes.gift) return showToast('当前满减活动与赠送金不可共用');
+    orderState.giftOn = !orderState.giftOn;
+    updateOrderSummary();
+    showToast('已重新计算赠送金');
+  }
+
+  function toggleCard(e) {
+    if (e) e.stopPropagation();
+    orderState.cardOn = !orderState.cardOn;
+    updateOrderSummary();
+    showToast('已重新计算卡金支付');
+  }
+
+  function toggleDeposit(e) {
+    if (e) e.stopPropagation();
+    const result = computePricingScenario();
+    orderState.depositChoice = result.depositAmount > 0 ? 'off' : 'on';
+    updateOrderSummary();
+    showToast(orderState.depositChoice === 'off' ? '已关闭预定金抵扣' : '已使用预定金抵扣');
+  }
+
+  function restoreDepositAuto() {
+    orderState.depositChoice = 'auto';
+    updateOrderSummary();
+    showToast('已恢复系统自动推荐');
+  }
+
+  function selectPayChoice(type, el) {
+    document.querySelectorAll('.pay-choice').forEach(item => item.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function showModal(id) {
+    document.getElementById(id).classList.add('show');
+    document.body.style.overflow = 'hidden';
+    if (id === 'couponModal') updateCouponSummary();
+    if (id === 'promotionModal') updatePromotionModal(computePricingScenario());
+  }
+
+  function hideModal(id) {
+    document.getElementById(id).classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function selectAddress(el) {
+    document.querySelectorAll('#addressModal .payment-item').forEach(item => item.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectCard(el) {
+    document.querySelectorAll('#cardModal .card-option').forEach(item => item.classList.remove('selected'));
+    el.classList.add('selected');
+    const name = el.querySelector('.card-option-name').textContent;
+    orderState.currentCardType = name.includes('金卡') ? 'gold' : name.includes('银卡') ? 'silver' : 'none';
+    updateOrderSummary();
+    setTimeout(() => hideModal('cardModal'), 200);
+  }
+
+  function openCouponModal() {
+    if (computePricingScenario().excludes.coupons) {
+      showToast('当前满减活动与优惠券不可共用');
+      return;
+    }
+    showModal('couponModal');
+  }
+
+  function updateCouponCardLocks() {
+    const result = computePricingScenario();
+    ['item1', 'item2'].forEach(key => {
+      const el = document.querySelector(`.coupon-card[data-coupon="${key}"]`);
+      el.classList.toggle('checked', !!selectedCoupons[key] && !result.excludes.coupons);
+      el.classList.remove('unavailable');
+    });
+    if (result.excludes.coupons) {
+      ['item1', 'item2', 'cash1', 'cash2', 'discount1'].forEach(key => {
+        const el = document.querySelector(`.coupon-card[data-coupon="${key}"]`);
+        el.classList.add('unavailable');
+        el.classList.remove('checked');
+      });
+      return;
+    }
+    const cash1Unavailable = result.snapshots.cash1 < couponDefs.cash1.threshold;
+    const cash2Unavailable = result.snapshots.cash2 < couponDefs.cash2.threshold || selectedCoupons.cash1;
+    const discountUnavailable = result.snapshots.discount1 < couponDefs.discount1.threshold || selectedCoupons.cash1 || selectedCoupons.cash2;
+    const mapping = [
+      ['cash1', cash1Unavailable],
+      ['cash2', cash2Unavailable],
+      ['discount1', discountUnavailable]
+    ];
+    mapping.forEach(([key, locked]) => {
+      const el = document.querySelector(`.coupon-card[data-coupon="${key}"]`);
+      el.classList.toggle('unavailable', locked);
+      if (locked) selectedCoupons[key] = false;
+      el.classList.toggle('checked', !!selectedCoupons[key]);
+    });
+  }
+
+  function toggleCoupon(el, key) {
+    if (el.classList.contains('unavailable')) return;
+    if (couponDefs[key].type === 'cash') {
+      const next = !selectedCoupons[key];
+      selectedCoupons.cash1 = false;
+      selectedCoupons.cash2 = false;
+      selectedCoupons[key] = next;
+      if (next) selectedCoupons.discount1 = false;
+    } else if (couponDefs[key].type === 'discount') {
+      if (selectedCoupons.cash1 || selectedCoupons.cash2) return;
+      selectedCoupons.discount1 = !selectedCoupons.discount1;
+    } else {
+      selectedCoupons[key] = !selectedCoupons[key];
+    }
+    document.getElementById('couponNoUse').classList.remove('selected');
+    updateCouponCardLocks();
+    updateCouponSummary();
+  }
+
+  function toggleNoCoupon() {
+    const selected = !document.getElementById('couponNoUse').classList.contains('selected');
+    document.getElementById('couponNoUse').classList.toggle('selected', selected);
+    if (selected) {
+      selectedCoupons = { item1: false, item2: false, cash1: false, cash2: false, discount1: false };
+    }
+    updateCouponCardLocks();
+    updateCouponSummary();
+  }
+
+  function updateCouponSummary() {
+    const result = computePricingScenario();
+    const count = result.excludes.coupons ? 0 : Object.values(selectedCoupons).filter(Boolean).length;
+    const total = result.excludes.coupons ? 0 : round2(result.itemCouponAmount + result.cashAmount + result.discountAmount);
+    const noCoupon = count === 0;
+    document.getElementById('couponCountNum').textContent = String(count);
+    document.getElementById('couponSelectedCount').textContent = result.excludes.coupons ? '已禁用' : (noCoupon ? '不使用' : '已选');
+    document.getElementById('couponTotalDiscount').textContent = `-¥${total.toFixed(2)}`;
+    document.getElementById('couponFooterDiscount').textContent = `-¥${total.toFixed(2)}`;
+  }
+
+  function updatePromotionModal(result) {
+    const summaryText = result.promotionApplied
+      ? `${result.promotionApplied.name}预计优惠 -¥${result.promotionAmount.toFixed(2)}`
+      : '当前不使用满减满赠活动';
+    document.getElementById('promotionSummaryTag').textContent = orderState.promotionChoice === 'auto' ? '系统推荐' : '当前选择';
+    document.getElementById('promotionSummaryText').textContent = summaryText;
+    document.getElementById('promotionSummaryDiscount').textContent = `-¥${result.promotionAmount.toFixed(2)}`;
+    document.getElementById('promotionRestoreBtn').classList.toggle('hidden', orderState.promotionChoice === 'auto');
+
+    const selectedKey = orderState.promotionChoice;
+    document.querySelectorAll('#promotionModal .promo-card').forEach(card => {
+      card.classList.toggle('selected', selectedKey !== 'auto' && card.dataset.promo === selectedKey);
+    });
+  }
+
+  function selectPromotionCard(el) {
+    document.querySelectorAll('#promotionModal .promo-card').forEach(card => card.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function confirmPromotionSelection() {
+    const selected = document.querySelector('#promotionModal .promo-card.selected');
+    if (selected) orderState.promotionChoice = selected.dataset.promo;
+    hideModal('promotionModal');
+    updateCouponCardLocks();
+    updateCouponSummary();
+    updateOrderSummary();
+    if (selected) showToast('已更新满减满赠活动');
+  }
+
+  function restorePromotionAuto() {
+    orderState.promotionChoice = 'auto';
+    updateCouponCardLocks();
+    updateCouponSummary();
+    updateOrderSummary();
+    updatePromotionModal(computePricingScenario());
+    showToast('已恢复系统推荐活动');
+  }
+
+  function confirmCouponSelection() {
+    hideModal('couponModal');
+    updateOrderSummary();
+    showToast('已更新优惠券');
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1500);
+  }
+
+  function submitOrder() {
+    showToast('订单提交成功！');
+    setTimeout(() => alert('订单已提交，跳转至订单详情页'), 500);
+  }
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('show');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    updateCouponCardLocks();
+    updateCouponSummary();
+    updateOrderSummary();
+  });
+</script>
+
+</body>
+</html>

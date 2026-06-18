@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目导航主页</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            line-height: 1.6;
+            background: #f8f9fa;
+        }
+        h1 {
+            font-size: 18px;
+            color: #1a1a2e;
+            border-left: 4px solid #4a90e2;
+            padding-left: 12px;
+            margin: 30px 0 15px;
+        }
+        .category {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .category li {
+            margin: 0;
+            padding: 12px 15px;
+            border: 1px solid #e8ecf0;
+            border-radius: 8px;
+            background: #fff;
+            transition: all 0.2s;
+            list-style: none;
+        }
+        .category li:hover {
+            border-color: #4a90e2;
+            box-shadow: 0 2px 8px rgba(74,144,226,0.15);
+            transform: translateY(-1px);
+        }
+        .category a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .category a::before {
+            content: "📄";
+            font-size: 12px;
+        }
+        .category a:hover {
+            color: #4a90e2;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            color: #4a90e2;
+            margin-bottom: 12px;
+        }
+        .section-header span { font-size: 20px; }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        @media (max-width: 768px) {
+            .grid-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="border-left-color: #ff6b6b;">📦 供应链需求</h1>
+    <div class="category">
+        <li><a href="scm-ruzhu/index.html">供应链-入驻流程-需求demo</a></li>
+        <li><a href="scm-xiadan/index.html">供应链-下单流程-需求demo</a></li>
+        <li><a href="https://pm.yzops.net/#path=%2Fapi%2Faxure%2FSaaS%2F%25E5%2588%2598%25E6%2595%258F%2F%25E4%25BE%259B%25E5%25BA%2594%25E9%2593%25BE%25E9%25A1%25B9%25E7%259B%25AE%2Fstart.html%23id%3Dlpi8i7%26p%3D%25E5%2590%2588%25E4%25BC%2599%25E4%25BA%25BA%25E5%2588%2586%25E9%2594%2580">供应链-分销合伙人流程-需求demo</a></li>
+        <li><a href="https://yizhitech.feishu.cn/docx/NkIfd1bqBoT0Rgxif0RcaGcZnZb">店商供应链下单业务规则说明文档</a></li>
+    </div>
+
+    <div class="grid-container">
+        <div class="section">
+            <div class="section-header"><span>🎁</span> 线上商城-多优惠叠加</div>
+            <div class="category">
+                <li><a href="线上商城-多优惠叠加/商城确认订单页_交互演示.html">商城多优惠模式-商城设置交互demo</a></li>
+                <li><a href="线上商城-多优惠叠加/确认订单页面交互-带测试用例.html">商城多优惠模式-确认订单页交互demo</a></li>
+                <li><a href="线上商城-多优惠叠加/订单详情页_交互演示.html">商城多优惠模式-订单详情页面demo</a></li>
+                <li><a href="线上商城-多优惠叠加/多优惠计价业务逻辑梳理.md">商城多优惠模式-需求md</a></li>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header"><span>🎯</span> 线上商城-满减满赠活动</div>
+            <div class="category">
+                <li><a href="线上商城-满减满赠活动/商城设置_交互演示.html">满减满赠-商城设置交互demo</a></li>
+                <li><a href="线上商城-满减满赠活动/商城确认订单页_交互演示.html">满减满赠-确认订单页交互demo</a></li>
+                <li><a href="线上商城-满减满赠活动/订单详情页_交互演示.html">满减满赠-订单详情页面demo</a></li>
+                <li><a href="线上商城-满减满赠活动/满减满赠活动列表_交互演示.html">满减满赠-活动列表交互demo</a></li>
+                <li><a href="线上商城-满减满赠活动/满减+多优惠叠加计价逻辑.md">满减满赠-需求md</a></li>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header"><span>🛒</span> 代客下单需求</div>
+            <div class="category">
+                <li><a href="代客户下单+改价/代客户下单交互Demo.html">代客下单的交互demo</a></li>
+                <li><a href="代客户下单+改价/代客户下单的业务逻辑说明.md">代客下单需求md</a></li>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header"><span>✏️</span> 改价需求</div>
+            <div class="category">
+                <li><a href="代客户下单+改价/改价功能交互Demo.html">改价功能的交互demo</a></li>
+                <li><a href="代客户下单+改价/改价的业务逻辑说明.md">改价需求md</a></li>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header"><span>🤝</span> 超级合伙人-渠道奖</div>
+            <div class="category">
+                <li><a href="超级合伙人-渠道奖/渠道奖_交互演示.html">超级合伙人渠道奖-原型demo</a></li>
+                <li><a href="超级合伙人-渠道奖/渠道奖-AI-Native-PRD.md">超级合伙人渠道奖-需求md</a></li>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header"><span>⭐</span> 供应链 - AI写评价</div>
+            <div class="category">
+                <li><a href="供应链- AI写评价/评论管理_交互演示.html">供应链-AI写评价-交互demo</a></li>
+                <li><a href="供应链- AI写评价/供应链商品AI评论生成需求梳理.md">供应链-AI写评价-需求md</a></li>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header"><span>🔁</span> 商家自营订单售后</div>
+            <div class="category">
+                <li><a href="Order_Sales/aftersale_v5.html">商家自营订单售后流程-demo</a></li>
+                <li><a href="Order_Sales/商家自营订单-BC联动的售后业务流程_AI_Native_PRD_v2.md">商家自营订单BC联动售后-需求md</a></li>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header"><span>🏢</span> 官网需求</div>
+            <div class="category">
+                <li><a href="官网/index.html">官网首页-原型demo</a></li>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>渠道奖功能交互演示</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
+      --line: #e5eaf3;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --blue: #2f6df6;
+      --blue-soft: #edf3ff;
+      --green: #14b87a;
+      --green-soft: #e8fbf4;
+      --orange: #f59e0b;
+      --shadow: 0 12px 28px rgba(26, 51, 102, 0.08);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #f6f8fc 0%, #eef3fb 100%);
+      color: var(--text);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: #fff;
+      border-right: 1px solid var(--line);
+      padding: 18px 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px 24px;
+      font-size: 30px;
+      font-weight: 700;
+      color: #2160eb;
+    }
+
+    .brand small {
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .nav-group {
+      margin-bottom: 18px;
+    }
+
+    .nav-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 12px;
+      color: #30384b;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-left: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .nav-item {
+      padding: 14px 18px;
+      border-radius: 14px;
+      color: #4b5563;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, #2f6df6 0%, #4b86ff 100%);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(47, 109, 246, 0.22);
+    }
+
+    .content {
+      padding: 18px;
+    }
+
+    .pill-btn,
+    .ghost-btn,
+    .primary-btn,
+    .outline-btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .pill-btn {
+      background: #fff;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .pill-btn.active {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .outline-btn {
+      background: #fff;
+      border: 1px solid #cdd8ee;
+      color: #40506a;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #2f6df6 0%, #4b86ff 100%);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(47, 109, 246, 0.2);
+    }
+
+    .ghost-btn {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .badge {
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .badge.green {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .badge.blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 22px 0;
+    }
+
+    .panel-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .panel-subtitle {
+      color: #8a94a6;
+      font-size: 12px;
+      margin-top: 6px;
+      line-height: 1.7;
+    }
+
+    .panel-body {
+      padding: 20px 22px 22px;
+    }
+
+    .kv-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    input,
+    select {
+      width: 100%;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid #d9e2f0;
+      padding: 0 14px;
+      background: #fff;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .switch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0 4px;
+      gap: 14px;
+    }
+
+    .toggle {
+      width: 58px;
+      height: 32px;
+      border-radius: 999px;
+      background: #d8deea;
+      position: relative;
+      cursor: pointer;
+      transition: 0.2s ease;
+      flex: 0 0 auto;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+      transition: 0.2s ease;
+    }
+
+    .toggle.on {
+      background: var(--blue);
+    }
+
+    .toggle.on::after {
+      transform: translateX(26px);
+    }
+
+    .tips-list,
+    .algo-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #98a2b3;
+      line-height: 1.8;
+      font-size: 12px;
+    }
+
+    .ratio-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    .ratio-table th,
+    .ratio-table td {
+      text-align: left;
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    .ratio-table th {
+      color: #8a94a6;
+      font-weight: 700;
+      background: #fafbfd;
+    }
+
+    .level-tag {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .config-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 180px 180px minmax(220px, 1fr) auto auto auto;
+      gap: 12px;
+      align-items: end;
+      margin-top: 16px;
+    }
+
+    .soft-note {
+      margin-top: 10px;
+      color: #98a2b3;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    table.data-table {
+      width: 100%;
+      min-width: 1180px;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 14px;
+      text-align: left;
+      line-height: 1.7;
+    }
+
+    .data-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f7faff;
+      color: #5b6880;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .name-cell {
+      font-weight: 700;
+      color: #1f2f46;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .money {
+      font-weight: 800;
+      color: #0f3d91;
+    }
+
+    .market-title {
+      font-weight: 700;
+      color: #243247;
+    }
+
+    .small-note {
+      color: #98a2b3;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .single-rate-box {
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fbfcff;
+    }
+
+    .single-rate-row {
+      display: grid;
+      grid-template-columns: 180px 220px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .settings-config-area.hidden {
+      display: none;
+    }
+
+    .empty-state {
+      margin-top: 18px;
+      padding: 28px 20px;
+      border: 1px dashed #d7dfed;
+      border-radius: 16px;
+      background: #fafcff;
+      color: #8f9bb0;
+      font-size: 13px;
+      line-height: 1.9;
+      text-align: center;
+    }
+
+    .rank {
+      display: inline-flex;
+      min-width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      background: #f1f6ff;
+      color: var(--blue);
+      font-weight: 800;
+      margin-right: 8px;
+    }
+
+    .footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: rgba(16, 24, 40, 0.92);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1180px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filters {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .content {
+        padding: 12px;
+      }
+
+      .kv-grid,
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .single-rate-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">⬈ <small>热浪连锁</small></div>
+
+      <div class="nav-group">
+        <div class="nav-title">决策大脑</div>
+        <ul class="nav-list">
+          <li class="nav-item">数据总览</li>
+          <li class="nav-item">合伙人数据</li>
+          <li class="nav-item">分红结算</li>
+          <li class="nav-item active" data-target="stats-page">渠道奖统计</li>
+          <li class="nav-item">订单分佣</li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-title">奖励设置</div>
+        <ul class="nav-list">
+          <li class="nav-item">见单奖设置</li>
+          <li class="nav-item">帮扶奖设置</li>
+          <li class="nav-item">分红奖设置</li>
+          <li class="nav-item">育才奖设置</li>
+          <li class="nav-item" data-target="settings-page">渠道奖设置</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section class="page active" id="stats-page">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">渠道奖统计</div>
+              <div class="panel-subtitle">按月归属，按 T+1 更新。总部可按门店查看，分店仅查看本店数据。</div>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+              <div class="badge green">T+1 统计中：今日展示截止 2026-05-22 23:59</div>
+              <div class="badge blue" id="orgBadge">当前组织：连锁总部</div>
+              <button class="outline-btn" id="toggleOrgBtn">切换为分店视角</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="soft-note" id="orgHint">默认按佣金金额从高到低展示。总部视角支持门店筛选，分店视角仅展示本店数据。</div>
+
+            <div class="filters">
+              <div class="field">
+                <label for="monthFilter">月份</label>
+                <select id="monthFilter">
+                  <option value="2026-05">2026年05月</option>
+                  <option value="2026-04">2026年04月</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="storeFilter">门店</label>
+                <select id="storeFilter">
+                  <option value="all">全部门店</option>
+                  <option value="总部直营店">总部直营店</option>
+                  <option value="静安店">静安店</option>
+                  <option value="浦东店">浦东店</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="keywordFilter">合伙人姓名/手机号</label>
+                <input id="keywordFilter" type="text" placeholder="请输入合伙人姓名或手机号" />
+              </div>
+              <button class="primary-btn" id="searchBtn">查询</button>
+              <button class="outline-btn" id="resetBtn">重置</button>
+              <button class="outline-btn" id="exportBtn">导出</button>
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>排名</th>
+                    <th>门店</th>
+                    <th>合伙人信息</th>
+                    <th>第一大市场信息</th>
+                    <th>第一大市场业绩</th>
+                    <th>第二大市场信息</th>
+                    <th>第二大市场业绩</th>
+                    <th>当前佣金基数</th>
+                    <th>佣金比例</th>
+                    <th>佣金金额</th>
+                  </tr>
+                </thead>
+                <tbody id="statsBody"></tbody>
+              </table>
+            </div>
+
+            <div class="footer-bar">
+              <div id="tableSummary">共 0 条</div>
+              <div>15 条/页</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="settings-page">
+        <div class="panel">
+          <div class="panel-body">
+            <div class="switch-row">
+              <div>
+                <div style="font-weight:700;">开启渠道奖机制</div>
+                <div class="small-note" style="margin-top:6px;">关闭后不展示下方设置内容，且不会启用每日渠道奖统计计算。</div>
+              </div>
+              <div class="toggle on" id="rewardToggle"></div>
+            </div>
+
+            <div id="settingsConfigArea" class="settings-config-area">
+              <div class="single-rate-box">
+                <div class="single-rate-row">
+                  <div class="field">
+                    <label>佣金比例</label>
+                    <div class="small-note">统一应用</div>
+                  </div>
+                  <div class="field">
+                    <input id="uniformRateInput" value="8" />
+                  </div>
+                  <div class="small-note">输入百分比，例如 8 表示 8%。</div>
+                </div>
+              </div>
+
+              <div style="margin-top:18px;" class="small-note">
+                渠道奖用于激励合伙人平衡发展两条核心市场。系统按 T+1 更新，今天早上看到的是截止昨天的最新累计结果。
+              </div>
+              <div style="margin-top:10px;" class="small-note">
+                规则：若大市场 ÷ 小市场 &gt; 2，则佣金基数 = 小市场业绩；若大市场 ÷ 小市场 ≤ 2，则佣金基数 = 大市场业绩 ÷ 2。
+              </div>
+              <div style="margin-top:10px;" class="small-note">
+                示例：18000 vs 10000，佣金基数 = 9000；18000 vs 3000，佣金基数 = 3000。
+              </div>
+
+              <div class="config-actions">
+                <button class="outline-btn" id="copyBtn">复制给分店</button>
+                <button class="primary-btn" id="saveBtn">保存设置</button>
+              </div>
+            </div>
+
+            <div id="settingsOffState" class="empty-state" style="display:none;">
+              当前未开启渠道奖机制。<br />
+              未开启时不展示下方设置项，系统也不会执行每日渠道奖统计计算。
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const statsData = [
+      {
+        month: "2026-05",
+        store: "总部直营店",
+        partnerName: "王敏",
+        partnerMobile: "138****8888",
+        level: "钻石合伙人",
+        market1: { name: "张三", mobile: "136****1122", level: "金牌", gmv: 228000 },
+        market2: { name: "李四", mobile: "139****4545", level: "银牌", gmv: 132000 },
+        base: 114000,
+        rate: "10%",
+        commission: 11400
+      },
+      {
+        month: "2026-05",
+        store: "静安店",
+        partnerName: "陈刚",
+        partnerMobile: "139****6666",
+        level: "金牌合伙人",
+        market1: { name: "赵磊", mobile: "138****2223", level: "金牌", gmv: 168000 },
+        market2: { name: "孙丽", mobile: "137****8912", level: "银牌", gmv: 52500 },
+        base: 52500,
+        rate: "8%",
+        commission: 4200
+      },
+      {
+        month: "2026-05",
+        store: "浦东店",
+        partnerName: "刘芳",
+        partnerMobile: "137****5555",
+        level: "金牌合伙人",
+        market1: { name: "周强", mobile: "186****9923", level: "银牌", gmv: 135000 },
+        market2: { name: "吴梅", mobile: "182****5668", level: "银牌", gmv: 112000 },
+        base: 67500,
+        rate: "8%",
+        commission: 5400
+      },
+      {
+        month: "2026-05",
+        store: "静安店",
+        partnerName: "王毅",
+        partnerMobile: "186****3531",
+        level: "银牌合伙人",
+        market1: { name: "小蔡", mobile: "158****3147", level: "铜牌", gmv: 82000 },
+        market2: { name: "cc12", mobile: "180****5625", level: "铜牌", gmv: 42000 },
+        base: 42000,
+        rate: "6%",
+        commission: 2520
+      },
+      {
+        month: "2026-04",
+        store: "总部直营店",
+        partnerName: "赵敏",
+        partnerMobile: "135****1113",
+        level: "钻石合伙人",
+        market1: { name: "sdf", mobile: "150****3321", level: "金牌", gmv: 180000 },
+        market2: { name: "jiji", mobile: "158****5293", level: "银牌", gmv: 100000 },
+        base: 90000,
+        rate: "10%",
+        commission: 9000
+      }
+    ];
+
+    let currentOrg = "hq";
+
+    const statsBody = document.getElementById("statsBody");
+    const monthFilter = document.getElementById("monthFilter");
+    const storeFilter = document.getElementById("storeFilter");
+    const keywordFilter = document.getElementById("keywordFilter");
+    const tableSummary = document.getElementById("tableSummary");
+    const orgBadge = document.getElementById("orgBadge");
+    const orgHint = document.getElementById("orgHint");
+    const toggleOrgBtn = document.getElementById("toggleOrgBtn");
+    const rewardToggle = document.getElementById("rewardToggle");
+    const settingsConfigArea = document.getElementById("settingsConfigArea");
+    const settingsOffState = document.getElementById("settingsOffState");
+    const toast = document.getElementById("toast");
+    let rewardEnabled = true;
+
+    function formatMoney(value) {
+      return "¥" + value.toLocaleString("zh-CN");
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function renderStats() {
+      const month = monthFilter.value;
+      const keyword = keywordFilter.value.trim();
+      const store = storeFilter.value;
+      if (!rewardEnabled) {
+        statsBody.innerHTML = "";
+        tableSummary.textContent = "共 0 条";
+        return;
+      }
+      const filtered = statsData
+        .filter(item => item.month === month)
+        .filter(item => currentOrg === "hq" ? (store === "all" || item.store === store) : item.store === "静安店")
+        .filter(item => {
+          if (!keyword) return true;
+          return (
+            item.partnerName.includes(keyword) ||
+            item.partnerMobile.includes(keyword)
+          );
+        })
+        .sort((a, b) => b.commission - a.commission);
+
+      statsBody.innerHTML = filtered.map((item, index) => `
+        <tr>
+          <td><span class="rank">${index + 1}</span></td>
+          <td>${item.store}</td>
+          <td>
+            <div class="name-cell">${item.partnerName}</div>
+            <div class="muted">${item.partnerMobile}</div>
+            <div class="muted">${item.level}</div>
+          </td>
+          <td>
+            <div class="market-title">${item.market1.name}</div>
+            <div class="muted">${item.market1.mobile}</div>
+            <div class="muted">${item.market1.level}</div>
+          </td>
+          <td class="money">${formatMoney(item.market1.gmv)}</td>
+          <td>
+            <div class="market-title">${item.market2.name}</div>
+            <div class="muted">${item.market2.mobile}</div>
+            <div class="muted">${item.market2.level}</div>
+          </td>
+          <td class="money">${formatMoney(item.market2.gmv)}</td>
+          <td class="money">${formatMoney(item.base)}</td>
+          <td>${item.rate}</td>
+          <td class="money">${formatMoney(item.commission)}</td>
+        </tr>
+      `).join("");
+
+      tableSummary.textContent = `共 ${filtered.length} 条`;
+    }
+
+    function setOrg(org) {
+      currentOrg = org;
+      const isHq = org === "hq";
+
+      orgBadge.textContent = `当前组织：${isHq ? "连锁总部" : "静安店分店"}`;
+      toggleOrgBtn.textContent = isHq ? "切换为分店视角" : "切换为总部视角";
+      if (!rewardEnabled) {
+        orgHint.textContent = "渠道奖未开启，系统不会进行每日统计计算，当前无统计结果。";
+      } else {
+        orgHint.textContent = isHq
+          ? "默认按佣金金额从高到低展示。总部视角支持门店筛选。"
+          : "默认按佣金金额从高到低展示。分店视角仅展示本店数据。";
+      }
+
+      storeFilter.disabled = !isHq;
+      if (!isHq) {
+        storeFilter.value = "静安店";
+      } else {
+        storeFilter.value = "all";
+      }
+      renderStats();
+    }
+
+    document.querySelectorAll(".nav-item[data-target]").forEach(item => {
+      item.addEventListener("click", () => {
+        const target = item.dataset.target;
+        document.querySelectorAll(".nav-item[data-target]").forEach(node => node.classList.remove("active"));
+        item.classList.add("active");
+        document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+        document.getElementById(target).classList.add("active");
+      });
+    });
+
+    document.getElementById("searchBtn").addEventListener("click", renderStats);
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      monthFilter.value = "2026-05";
+      keywordFilter.value = "";
+      storeFilter.value = currentOrg === "hq" ? "all" : "静安店";
+      renderStats();
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const rows = Array.from(statsBody.querySelectorAll("tr")).map(tr =>
+        Array.from(tr.children).map(td => td.innerText.replace(/\n/g, " ")).join(",")
+      );
+      const header = "排名,门店,合伙人信息,第一大市场信息,第一大市场业绩,第二大市场信息,第二大市场业绩,当前佣金基数,佣金比例,佣金金额";
+      const csv = [header, ...rows].join("\n");
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "渠道奖统计演示.csv";
+      link.click();
+      showToast("已导出演示 CSV");
+    });
+
+    toggleOrgBtn.addEventListener("click", () => {
+      setOrg(currentOrg === "hq" ? "branch" : "hq");
+      showToast(currentOrg === "hq" ? "已切换为总部视角" : "已切换为分店视角");
+    });
+
+    rewardToggle.addEventListener("click", () => {
+      rewardToggle.classList.toggle("on");
+      rewardEnabled = rewardToggle.classList.contains("on");
+      settingsConfigArea.classList.toggle("hidden", !rewardEnabled);
+      settingsOffState.style.display = rewardEnabled ? "none" : "block";
+      setOrg(currentOrg);
+      showToast(rewardEnabled ? "渠道奖机制已开启，已启用每日统计计算" : "渠道奖机制已关闭，已停止每日统计计算");
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      showToast("渠道奖设置已保存");
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", () => {
+      showToast("渠道奖配置已复制给分店");
+    });
+
+    settingsConfigArea.classList.remove("hidden");
+    settingsOffState.style.display = "none";
+    setOrg("hq");
+  </script>
+</body>
+</html>

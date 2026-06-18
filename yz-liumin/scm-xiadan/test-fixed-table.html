@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>固定表头和列测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            color: #1890ff;
+        }
+        
+        /* 清分明细表格 - 固定表头和首列 */
+        .clearing-table-container {
+            position: relative;
+            max-height: 600px;
+            overflow: auto;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+        }
+        
+        .clearing-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0;
+        }
+        
+        .clearing-table thead th {
+            position: sticky;
+            top: 0;
+            background: #fafafa;
+            z-index: 20;
+            border: 1px solid #e8e8e8;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* 固定首列（订单号） */
+        .clearing-table th:nth-child(1),
+        .clearing-table td:nth-child(1) {
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 15;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+        }
+        
+        .clearing-table thead th:nth-child(1) {
+            z-index: 25;
+            background: #fafafa;
+        }
+        
+        /* 固定操作列（最后一列） */
+        .clearing-table th:last-child,
+        .clearing-table td:last-child {
+            position: sticky;
+            right: 0;
+            background: white;
+            z-index: 15;
+            box-shadow: -2px 0 4px rgba(0,0,0,0.05);
+        }
+        
+        .clearing-table thead th:last-child {
+            z-index: 25;
+            background: #fafafa;
+        }
+        
+        /* 表格行悬停效果 */
+        .clearing-table tbody tr:hover td {
+            background: #f5f5f5;
+        }
+        
+        .clearing-table tbody tr:hover td:nth-child(1),
+        .clearing-table tbody tr:hover td:last-child {
+            background: #f5f5f5;
+        }
+        
+        /* 表格单元格基础样式 */
+        .clearing-table th,
+        .clearing-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e8e8e8;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        
+        /* 清分明细列允许换行 */
+        .clearing-table td.clearing-detail-cell {
+            white-space: pre-wrap;
+            max-width: 200px;
+            min-width: 180px;
+        }
+        
+        /* 表尾固定在底部 */
+        .clearing-table tfoot {
+            position: sticky;
+            bottom: 0;
+            background: #fafafa;
+            z-index: 20;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .clearing-table tfoot td {
+            background: #fafafa;
+            font-weight: 600;
+        }
+        
+        .clearing-table tfoot td:nth-child(1),
+        .clearing-table tfoot td:last-child {
+            z-index: 25;
+        }
+        
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            background: #1890ff;
+            color: white;
+        }
+        
+        .btn:hover {
+            background: #40a9ff;
+        }
+        
+        .info {
+            background: #e6f7ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #1890ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 固定表头和列测试</h1>
+        
+        <div class="info">
+            <strong>功能说明：</strong>
+            <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                <li>✅ 表头固定在顶部，向下滚动时始终可见</li>
+                <li>✅ 首列（订单号）固定在左侧，横向滚动时始终可见</li>
+                <li>✅ 操作列固定在右侧，横向滚动时始终可见</li>
+                <li>✅ 表格最大高度600px，超出部分可滚动</li>
+                <li>✅ 鼠标悬停行高亮显示</li>
+            </ul>
+        </div>
+        
+        <div class="clearing-table-container">
+            <table class="clearing-table">
+                <thead>
+                    <tr>
+                        <th rowspan="3">订单号</th>
+                        <th rowspan="3">门店</th>
+                        <th rowspan="3">供应商</th>
+                        <th rowspan="3">SKU</th>
+                        <th rowspan="3">数量</th>
+                        <th rowspan="3">订单金额</th>
+                        <th rowspan="3">记录类型</th>
+                        <th rowspan="3">确认时间</th>
+                        <th colspan="9" style="background: #f0f0f0; text-align: center;">清分明细（资金流向）</th>
+                        <th colspan="2" style="background: #e6f7ff; text-align: center;">清分方式</th>
+                        <th rowspan="3">清分明细</th>
+                        <th rowspan="3">验证</th>
+                        <th rowspan="3">操作</th>
+                    </tr>
+                    <tr>
+                        <th colspan="3" style="background: #fff7e6; text-align: center;">💵 平台代收 70%</th>
+                        <th rowspan="2" style="background: #e6f7ff;">🎯 代运营<br>10%</th>
+                        <th colspan="4" style="background: #f6ffed; text-align: center;">📊 商家毛利 20%</th>
+                        <th rowspan="2" style="background: #fff2f0;">💳 手续费</th>
+                        <th rowspan="2" style="background: #e6f7ff;">空中分账</th>
+                        <th rowspan="2" style="background: #fff7e6;">保证金扣除</th>
+                    </tr>
+                    <tr>
+                        <th style="background: #d4f1d4;">📤 贸易公司<br>80%</th>
+                        <th style="background: #ffe7ba;">└ 供应商<br>成本价</th>
+                        <th style="background: #ffd591;">🏢 经销商<br>20%</th>
+                        <th style="font-size: 11px;">🏛️ 总部</th>
+                        <th style="font-size: 11px;">🏪 门店毛利</th>
+                        <th style="font-size: 11px;">👥 推广员</th>
+                        <th style="font-size: 11px;">✨ 门店净利</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 数据将通过JS生成 -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" style="text-align: right;">合计：</td>
+                        <td style="color: #1890ff; font-weight: 700;">¥12,345.67</td>
+                        <td colspan="2"></td>
+                        <td style="background: #d4f1d4;">¥8,641.97</td>
+                        <td style="background: #ffe7ba;">-</td>
+                        <td style="background: #ffd591;">¥2,160.49</td>
+                        <td style="background: #e6f7ff;">¥1,234.57</td>
+                        <td style="background: #f6ffed;">¥246.91</td>
+                        <td style="background: #f6ffed;">¥2,222.22</td>
+                        <td style="background: #f6ffed;">¥370.37</td>
+                        <td style="background: #f6ffed;">¥1,851.85</td>
+                        <td style="background: #fff2f0;">¥46.91</td>
+                        <td style="background: #e6f7ff;">¥10,123.45</td>
+                        <td style="background: #fff7e6;">¥2,222.22</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // 生成测试数据
+        const stores = ['北京旗舰店', '上海旗舰店', '广州旗舰店', '深圳旗舰店'];
+        const suppliers = ['韩国美妆供应商', '日本护肤供应商', '法国香水供应商'];
+        const skus = ['韩国面膜套装', '日本精华液', '法国香水小样', '韩国气垫BB霜'];
+        
+        const tbody = document.getElementById('tableBody');
+        
+        // 生成30行测试数据
+        for (let i = 1; i <= 30; i++) {
+            const isRefund = i % 7 === 0; // 每7行一个退款记录
+            const store = stores[i % stores.length];
+            const supplier = suppliers[i % suppliers.length];
+            const sku = skus[i % skus.length];
+            const amount = (Math.random() * 200 + 50).toFixed(2);
+            const multiplier = isRefund ? -1 : 1;
+            
+            const row = document.createElement('tr');
+            if (isRefund) {
+                row.style.background = '#fff1f0';
+            }
+            
+            row.innerHTML = `
+                <td style="font-size: 11px;">202601${String(i).padStart(6, '0')}...</td>
+                <td style="font-size: 12px;">${store}</td>
+                <td style="font-size: 11px; color: #666;">${supplier}</td>
+                <td style="font-size: 12px;">${sku}</td>
+                <td>${Math.floor(Math.random() * 3) + 1}</td>
+                <td style="font-weight: 700; ${isRefund ? 'color: #ff4d4f;' : 'color: #1890ff;'}">¥${(amount * multiplier).toFixed(2)}</td>
+                <td style="font-size: 11px; ${isRefund ? 'color: #ff4d4f;' : 'color: #52c41a;'} font-weight: 600;">
+                    ${isRefund ? '🔙 退款' : '✅ 正常'}
+                </td>
+                <td style="font-size: 10px; color: #666;">2026-01-${String(i).padStart(2, '0')} 10:30</td>
+                <td style="background: #d4f1d4; font-weight: 600; ${isRefund ? 'color: #ff4d4f;' : ''}">¥${(amount * 0.7 * 0.8 * multiplier).toFixed(2)}</td>
+                <td style="background: #ffe7ba; font-size: 11px; color: #999;">¥${(amount * 0.7 * 0.64 * multiplier).toFixed(2)}</td>
+                <td style="background: #ffd591; font-weight: 600; ${isRefund ? 'color: #ff4d4f;' : ''}">¥${(amount * 0.7 * 0.2 * multiplier).toFixed(2)}</td>
+                <td style="background: #e6f7ff; ${isRefund ? 'color: #ff4d4f;' : ''}">¥${(amount * 0.1 * multiplier).toFixed(2)}</td>
+                <td style="background: #f6ffed; font-size: 11px; ${isRefund ? 'color: #ff4d4f;' : ''}">¥${(amount * 0.02 * multiplier).toFixed(2)}</td>
+                <td style="background: #f6ffed; font-size: 11px; ${isRefund ? 'color: #ff4d4f;' : ''}">¥${(amount * 0.18 * multiplier).toFixed(2)}</td>
+                <td style="background: #f6ffed; font-size: 11px; ${isRefund ? 'color: #ff4d4f;' : ''}">¥${(amount * 0.03 * multiplier).toFixed(2)}</td>
+                <td style="background: #f6ffed; font-size: 11px; ${isRefund ? 'color: #ff4d4f;' : ''}">¥${(amount * 0.15 * multiplier).toFixed(2)}</td>
+                <td style="background: #fff2f0; font-size: 11px; ${isRefund ? 'color: #ff4d4f;' : ''}">¥${(amount * 0.0038 * multiplier).toFixed(2)}</td>
+                <td style="background: #e6f7ff; color: #1890ff; font-weight: 600; ${isRefund ? 'color: #ff4d4f;' : ''}">
+                    ¥${(amount * 0.82 * multiplier).toFixed(2)}
+                    <div style="font-size: 9px; color: #999;">已到账</div>
+                </td>
+                <td style="background: #fff7e6; color: #fa8c16; font-weight: 600; ${isRefund ? 'color: #ff4d4f;' : ''}">
+                    ¥${(amount * 0.18 * multiplier).toFixed(2)}
+                    <div style="font-size: 9px; color: #999;">待补付</div>
+                </td>
+                <td class="clearing-detail-cell" style="font-size: 10px; line-height: 1.6;">
+                    💳 空中${isRefund ? '回退' : '分配'}: 总部¥${(amount * 0.02 * multiplier).toFixed(2)}, 代运营¥${(amount * 0.1 * multiplier).toFixed(2)}
+🔒 保证金${isRefund ? '回退' : '分配'}: 平台¥${(amount * 0.7 * multiplier).toFixed(2)}
+                </td>
+                <td style="text-align: center;">
+                    <span style="color: #52c41a; font-size: 16px;">✓</span>
+                </td>
+                <td>
+                    <button class="btn">详情</button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        }
+    </script>
+</body>
+</html>

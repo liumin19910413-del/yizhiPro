@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>财务结算模块调试</title>
+</head>
+<body>
+    <h1>财务结算模块调试</h1>
+    <div id="output"></div>
+    
+    <script src="../shared/data.js"></script>
+    <script src="../shared/settlement-calculator.js"></script>
+    <script src="../shared/payment-status-calculator.js"></script>
+    <script src="../shared/amount-formatter.js"></script>
+    <script src="../financial-settlement-v2/order-detail.js"></script>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        // 测试1: 检查getClearingRecords函数是否存在
+        output.innerHTML += '<h2>测试1: 检查getClearingRecords函数</h2>';
+        if (typeof getClearingRecords === 'function') {
+            output.innerHTML += '<p style="color: green;">✓ getClearingRecords函数存在</p>';
+            
+            try {
+                const records = getClearingRecords();
+                output.innerHTML += `<p style="color: green;">✓ getClearingRecords()执行成功，返回${records.length}条记录</p>`;
+                
+                if (records.length > 0) {
+                    output.innerHTML += '<h3>第一条记录示例:</h3>';
+                    output.innerHTML += '<pre>' + JSON.stringify(records[0], null, 2) + '</pre>';
+                }
+            } catch (error) {
+                output.innerHTML += `<p style="color: red;">✗ getClearingRecords()执行失败: ${error.message}</p>`;
+                output.innerHTML += '<pre>' + error.stack + '</pre>';
+            }
+        } else {
+            output.innerHTML += '<p style="color: red;">✗ getClearingRecords函数不存在</p>';
+        }
+        
+        // 测试2: 检查renderOrderDetail函数是否存在
+        output.innerHTML += '<h2>测试2: 检查renderOrderDetail函数</h2>';
+        if (typeof renderOrderDetail === 'function') {
+            output.innerHTML += '<p style="color: green;">✓ renderOrderDetail函数存在</p>';
+        } else {
+            output.innerHTML += '<p style="color: red;">✗ renderOrderDetail函数不存在</p>';
+        }
+        
+        // 测试3: 检查DB对象
+        output.innerHTML += '<h2>测试3: 检查DB对象</h2>';
+        if (typeof DB !== 'undefined') {
+            output.innerHTML += '<p style="color: green;">✓ DB对象存在</p>';
+            output.innerHTML += `<p>订单数: ${DB.orders ? DB.orders.length : 0}</p>`;
+            output.innerHTML += `<p>子订单数: ${DB.subOrders ? DB.subOrders.length : 0}</p>`;
+        } else {
+            output.innerHTML += '<p style="color: red;">✗ DB对象不存在</p>';
+        }
+    </script>
+</body>
+</html>
