@@ -387,6 +387,27 @@ body{font-family:-apple-system,'PingFang SC',sans-serif;}
 .source-desc{font-size:23px;line-height:1.45;font-weight:650;}
 .manual-proof-list{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;}
 .manual-proof-thumb{width:104px;height:104px;border-radius:14px;background:#F2F4F7;border:1px solid #E5E7EB;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#667085;}
+.req-doc-btn{width:42px;height:42px;border:1px solid #F4B64A;border-radius:14px;background:#FFF7E6;color:#7A4B00;font-size:24px;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 18px rgba(180,117,20,.16);flex:0 0 auto;}
+.req-doc-btn:hover{background:#FFEFC2;border-color:#E89A16;}
+.demo-header>.req-doc-btn{height:38px;width:44px;border-radius:18px;font-size:20px;}
+.navbar .req-doc-btn{margin-left:12px;}
+.logistics-sheet-head .req-doc-btn,.sheet-title .req-doc-btn{margin-left:12px;}
+.confirm-dialog{position:relative;}
+.confirm-dialog .req-doc-btn{position:absolute;right:18px;top:16px;z-index:2;}
+.sheet-title{display:flex;align-items:center;justify-content:center;gap:10px;}
+.req-doc-overlay{position:fixed;inset:0;z-index:10000;background:rgba(20,20,20,.26);display:none;}
+.req-doc-overlay.show{display:block;}
+.req-doc-panel{position:fixed;left:50%;top:16px;width:min(840px,calc(100vw - 40px));height:calc(100vh - 32px);min-height:520px;transform:translateX(-50%);background:#fff;border:1px solid #F0D7A2;border-radius:22px;box-shadow:0 24px 70px rgba(20,20,20,.24);overflow:hidden;display:flex;flex-direction:column;}
+.req-doc-header{height:64px;padding:0 18px 0 22px;background:linear-gradient(180deg,#FFF9ED 0%,#FFF3D8 100%);border-bottom:1px solid #F2D99E;display:flex;align-items:center;gap:10px;cursor:move;user-select:none;}
+.req-doc-title{flex:1;min-width:0;color:#171717;font-size:18px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.req-doc-close{width:38px;height:38px;border:none;border-radius:12px;background:#fff;color:#8A5A00;font-size:24px;cursor:pointer;}
+.req-doc-body{padding:20px 24px 24px;overflow:auto;background:#FFFAF0;}
+.req-doc-section{background:#fff;border:1px solid #F4E3BC;border-radius:14px;padding:16px 18px;}
+.req-doc-section+.req-doc-section{margin-top:16px;}
+.req-doc-section h4{font-size:17px;color:#171717;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #F3EAD7;}
+.req-doc-section ul{margin:0;padding-left:22px;color:#444;font-size:15px;line-height:1.85;}
+.req-doc-section li+li{margin-top:10px;}
+.req-doc-line{display:block;max-width:74ch;}
 </style>
 
 <div class="wrap">
@@ -470,7 +491,6 @@ const AFTERSALE_LIST=[
   {state:'售后完成',subState:'退款成功',group:'done',type:'仅退款',detailType:'refund',scene:'refund_success_full',time:'2026.06.10 11:08',no:'RF2606101108121623688807',amountLabel:'实际退款',amount:'¥385.00',postageAmount:'¥8.00',desc:'商家审核时协商调价，仅退款已完成',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:3,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:2,color:'#2e2218',tc:'#c9a97a',label:'保温杯'},{title:'精致礼品袋（标准款）',spec:'标准款',qty:1,color:'#1a1a2e',tc:'#8888cc',label:'礼品袋'}],actions:[{text:'查看详情',style:'primary'}]},
   {state:'售后完成',subState:'退款成功',group:'done',type:'仅退款',detailType:'refund',scene:'refund_success_adjusted',time:'2026.06.10 11:18',no:'RF2606101118421623688808',amountLabel:'实际退款',amount:'¥165.00',postageAmount:'¥8.00',desc:'商家协商调整退款金额后，仅退款已完成',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:1,color:'#2e2218',tc:'#c9a97a',label:'保温杯'}],actions:[{text:'查看详情',style:'primary'}]},
   {state:'待商家退款',group:'processing',type:'仅退款',detailType:'refund',scene:'refund_processing_failed',time:'2026.06.10 11:20',no:'RF2606101120001623688809',amountLabel:'申请退款',amount:'¥167.00',desc:'退款已发起，等待支付渠道返回结果',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:1,color:'#2e2218',tc:'#c9a97a',label:'保温杯'}],actions:[{text:'查看详情',style:'primary'}]},
-  {state:'待补寄发货',subState:'待创建补寄',group:'processing',type:'补寄',detailType:'reship',scene:'reship_create',time:'2026.06.10 10:24',no:'RP26061010240001',amountLabel:'补寄数量',amount:'x1',desc:'商家已同意补寄，等待创建补寄单',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
   {state:'待补寄发货',subState:'待发货',group:'processing',type:'补寄',detailType:'reship',scene:'reship_ship',time:'2026.06.10 10:38',no:'RP26061010380002',amountLabel:'补寄数量',amount:'x2',desc:'补寄商品已安排，请等待发货',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:2,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
   {state:'待客户收货',group:'mine',type:'补寄',detailType:'reship',scene:'reship_receive',time:'2026.06.10 14:20',no:'RP26061014201203',amountLabel:'补寄数量',amount:'x1',desc:'补寄商品已发货，请确认收货',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看物流',style:'ghost',sheet:'reshipTrack'},{text:'确认收货',style:'primary',sheet:'reshipReceiveConfirm'}]},
   {state:'售后完成',subState:'补寄完成',group:'done',type:'补寄',detailType:'reship',scene:'reship_done',time:'2026.06.12 16:08',no:'RP26061216083004',amountLabel:'补寄数量',amount:'x1',desc:'补寄商品已确认收货，售后完成',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
@@ -644,9 +664,7 @@ function shouldRenderServiceCompare(){
   if(detailType==='refund'){
     return ['refund_pending_refund','refund_processing_failed','refund_success_full','refund_success_adjusted'].includes(detailScene);
   }
-  if(detailType==='reship'){
-    return ['reship_create','reship_ship','reship_receive','reship_done'].includes(detailScene);
-  }
+  if(detailType==='reship')return false;
   return [
     'pending_return',
     'pending_return_self_only',
@@ -755,7 +773,6 @@ function renderScenarioPanel(){
       {key:'refund_rejected_by_finance',name:'拒绝退款关闭'}
     ].map(renderDetailSceneTab).join('');
     const reshipScenes=[
-      {key:'reship_create',name:'待创建补寄'},
       {key:'reship_ship',name:'待补寄发货'},
       {key:'reship_receive',name:'待客户收货'},
       {key:'reship_done',name:'补寄完成'},
@@ -1212,7 +1229,7 @@ function getApproveAuditCopy(options={}){
   const approveAdjustReason=options.approveAdjustReason||'与您沟通后，扣减已使用权益金额 ¥4.00。';
   return {
     descHtml:hasApproveAdjustment
-      ?`商家已同意退货退款。<span class="process-money-change"><span class="process-money-pill">客户申请 ${refundAmount}</span><span class="process-money-pill strong">审批调为 ${approveRefundAmount}</span></span><span class="process-desc-line">调价原因：${approveAdjustReason}</span>${renderApproveProofThumb()}<span class="process-desc-line">审核说明：请按退货地址寄回商品。</span>`
+      ?`商家已同意退货退款。<span class="process-money-change"><span class="process-money-pill">客户申请 ${refundAmount}</span><span class="process-money-pill strong">协商后 ${approveRefundAmount}</span></span><span class="process-desc-line">调价原因：${approveAdjustReason}</span>${renderApproveProofThumb()}<span class="process-desc-line">审核说明：请按退货地址寄回商品。</span>`
       :`商家已同意退货退款，确认退款金额为 ${approveRefundAmount}。<span class="process-desc-line">审核说明：请按退货地址寄回商品。</span>`,
     tags:[]
   };
@@ -1447,7 +1464,6 @@ function renderWarehouseAdjustedProcessTimeline(model,adjustedModel,deductAmount
   const orderNo='2605301303111623659047';
   const applyAmount=money(model.refundDetail.finalRefundTotal);
   const actualAmount=money(adjustedModel.refundDetail.finalRefundTotal);
-  const deductText=money(deductAmount);
   const steps=[
     {
       status:'done',
@@ -1460,7 +1476,7 @@ function renderWarehouseAdjustedProcessTimeline(model,adjustedModel,deductAmount
       status:'done',
       name:'处理退款',
       time:'06.10 12:08',
-      descHtml:`仓库签收验收异常，本次退款金额已协商调整。<span class="process-money-change"><span class="process-money-pill">申请 ${applyAmount}</span><span class="process-money-pill strong">扣减 ${deductText}</span><span class="process-money-pill strong">实退 ${actualAmount}</span></span><span class="process-desc-line">调额原因：退回商品外包装破损，影响二次销售。</span><span class="process-desc-line">剩余金额已按原支付方式和资产账户分别退回。</span>`,
+      descHtml:`仓库签收验收异常，本次退款金额已协商调整。<span class="process-money-change"><span class="process-money-pill">申请 ${applyAmount}</span><span class="process-money-pill strong">实退 ${actualAmount}</span></span><span class="process-desc-line">调额原因：退回商品外包装破损，影响二次销售。</span><span class="process-desc-line">剩余金额已按原支付方式和资产账户分别退回。</span>`,
       tags:['调额退款']
     },
     {
@@ -1647,7 +1663,7 @@ function renderRefundOnlyProcessCard(stage,model,options={}){
     ?{
       name:'商家审核',
       time:'06.10 10:36',
-      descHtml:`商家已同意仅退款。<span class="process-money-change"><span class="process-money-pill">客户申请 ${requestAmount}</span><span class="process-money-pill strong">审批调为 ${amount}</span></span><span class="process-desc-line">调价原因：与客户协商后，按商品实付金额、资产抵扣和不退原单运费规则确认退款金额。</span>${renderApproveProofThumb()}<span class="process-desc-line">审核说明：本次无需退货寄回，直接进入退款处理。</span>`,
+      descHtml:`商家已同意仅退款。<span class="process-money-change"><span class="process-money-pill">客户申请 ${requestAmount}</span><span class="process-money-pill strong">协商后 ${amount}</span></span><span class="process-desc-line">调价原因：与客户协商后，按商品实付金额、资产抵扣和不退原单运费规则确认退款金额。</span>${renderApproveProofThumb()}<span class="process-desc-line">审核说明：本次无需退货寄回，直接进入退款处理。</span>`,
       tags:['同意仅退款','协商调额','无需寄回商品']
     }
     :{
@@ -1703,7 +1719,7 @@ function renderRefundOnlyProcessCard(stage,model,options={}){
     success_adjusted:[
       {name:'退款成功',time:'06.10 11:18',desc:`商家按协商后金额完成退款，实际退回 ${options.actualAmount||amount}。`,tags:['退款成功','金额已调整']},
       {name:'处理退款',time:'06.10 11:18',desc:`商家按审核确认金额 ${options.actualAmount||amount} 发起退款，资金和资产按原支付方式及资产账户分别退回。`,tags:['按审核金额退款']},
-      {name:'商家审核',time:'06.10 10:36',descHtml:`商家同意仅退款，并在审核阶段与客户协商调整退款金额。<span class="process-money-change"><span class="process-money-pill">客户申请 ${amount}</span><span class="process-money-pill strong">扣减 ${options.deductAmount||'¥10.00'}</span><span class="process-money-pill strong">审批调为 ${options.actualAmount||amount}</span></span><span class="process-desc-line">调额原因：与客户协商后扣减部分商品金额。</span>${renderApproveProofThumb()}<span class="process-desc-line">审核说明：本次无需退货寄回，按协商后金额进入退款处理。</span>`,tags:['同意仅退款','协商调额','无需寄回商品'],tagClass:'warn'},
+      {name:'商家审核',time:'06.10 10:36',descHtml:`商家同意仅退款，并在审核阶段与客户协商调整退款金额。<span class="process-money-change"><span class="process-money-pill">客户申请 ${amount}</span><span class="process-money-pill strong">协商后 ${options.actualAmount||amount}</span></span><span class="process-desc-line">调额原因：与客户协商后扣减部分商品金额。</span>${renderApproveProofThumb()}<span class="process-desc-line">审核说明：本次无需退货寄回，按协商后金额进入退款处理。</span>`,tags:['同意仅退款','协商调额','无需寄回商品'],tagClass:'warn'},
       applyStep
     ]
   };
@@ -1726,10 +1742,6 @@ function renderReshipProcessCard(stage){
     </div>`
   };
   const maps={
-    reship_create:[
-      {status:'active',name:'等待创建补寄单',time:'当前',desc:'商家已同意补寄处理，正在创建补寄单；创建完成后会进入待补寄发货。',tags:['当前节点','待创建补寄'],tagClass:'primary'},
-      applyStep
-    ],
     reship_ship:[
       {status:'active',name:'等待商家发货',time:'当前',desc:'补寄单已创建，等待商家/仓库发出补寄商品；发货后会展示物流信息。',tags:['当前节点','待补寄发货'],tagClass:'primary'},
       applyStep
@@ -2304,18 +2316,6 @@ function renderReshipDetail(){
   const model=getReshipModel();
   const steps=['安排补寄','商家发货','客户收货','处理完成'];
   const configs={
-    reship_create:{
-      title:'待创建补寄单',
-      desc:'商家已同意补寄，请等待创建补寄单',
-      activeIndex:0,
-      message:'商家已同意补寄处理。',
-      sub:'补寄单创建完成后，会进入待补寄发货状态。',
-      todo:renderTodoCard('等待创建补寄单','商家已同意补寄，当前等待后台创建补寄单。',[
-        '创建补寄单后会展示补寄商品和后续发货进度。',
-        '本次补寄不涉及退款金额。',
-        '如长时间未更新，可联系商家确认。'
-      ])
-    },
     reship_ship:{
       title:'待补寄发货',
       desc:'补寄商品已安排，请等待发货',
@@ -2789,7 +2789,7 @@ function renderAdjustedProcessCard(stage){
     {
       key:'approve',
       name:'商家审核',
-      descHtml:`商家已同意退货退款。<span class="process-money-change"><span class="process-money-pill">客户申请 ¥39.00</span><span class="process-money-pill strong">审批调为 ¥35.00</span></span><span class="process-desc-line">调价原因：与您沟通后，扣减已使用权益金额 ¥4.00。</span>${renderApproveProofThumb()}<span class="process-desc-line">审核说明：请按退货地址寄回商品。</span>`,
+      descHtml:`商家已同意退货退款。<span class="process-money-change"><span class="process-money-pill">客户申请 ¥39.00</span><span class="process-money-pill strong">协商后 ¥35.00</span></span><span class="process-desc-line">调价原因：与您沟通后，扣减已使用权益金额 ¥4.00。</span>${renderApproveProofThumb()}<span class="process-desc-line">审核说明：请按退货地址寄回商品。</span>`,
       tags:[],
       done:true,
       warn:true
@@ -2941,7 +2941,7 @@ function renderSuccessPreviewProcessCard(mode){
       {name:'退款处理',desc:'已按申请金额完成退款，实际退款 ¥39.00。',tags:['退款成功'],warn:false}
     ]
     :[
-      {name:'商家审核',descHtml:`商家已同意退货退款。<span class="process-money-change"><span class="process-money-pill">客户申请 ¥39.00</span><span class="process-money-pill strong">审批调为 ¥35.00</span></span><span class="process-desc-line">调价原因：与您沟通后，扣减已使用权益金额 ¥4.00。</span>${renderApproveProofThumb()}<span class="process-desc-line">审核说明：请按退货地址寄回商品。</span>`,tags:[],warn:true},
+      {name:'商家审核',descHtml:`商家已同意退货退款。<span class="process-money-change"><span class="process-money-pill">客户申请 ¥39.00</span><span class="process-money-pill strong">协商后 ¥35.00</span></span><span class="process-desc-line">调价原因：与您沟通后，扣减已使用权益金额 ¥4.00。</span>${renderApproveProofThumb()}<span class="process-desc-line">审核说明：请按退货地址寄回商品。</span>`,tags:[],warn:true},
       {name:'客户寄回',desc:'您已填写寄回物流，退回商品已寄达商家。',tags:['韵达快递 421412988001'],warn:false},
       {name:'商家验收',desc:'退回商品验收无异常，未产生二次调额依据。',tags:['验收无异常'],warn:false},
       {name:'退款处理',desc:'已按审批确认金额完成退款，实际退款 ¥35.00。',tags:['退款成功'],warn:false}
@@ -3893,6 +3893,449 @@ function render(){
   document.getElementById('phone').innerHTML=h;
 }
 
+const requirementDocs={
+  list:{
+    title:'C端售后列表页需求说明',
+    business:[
+      '用于消费者统一查看自己发起、客服代客发起、商家处理中的售后单；覆盖仅退款、退款退货、补寄三类售后。',
+      '核心状态链路：申请中/待商家审批 -> 商家同意后进入待客户寄回或待商家退款；客户寄回后进入待商家收货；商家收货后进入待商家退款；退款成功或补寄确认收货后进入售后完成。',
+      '关闭分支必须独立表达：客户撤销、客服关闭、商家拒绝、客户超时未寄回、退款失败后关闭，都属于终止态；终止后不能继续推进原售后流程。',
+      '列表承担跨端同步结果展示：B端审核、质检、退款、补寄发货、关闭等动作完成后，C端列表状态、数量角标和卡片动作必须同步变化。'
+    ],
+    interaction:[
+      '顶部状态标签用于筛选全部、处理中、待客户操作、已完成、已关闭等范围；切换标签只改变列表范围，不改变售后单状态。',
+      '点击售后卡片或查看详情进入售后详情页；点击卡片内动作按钮不能触发整卡跳转，应优先执行当前动作。',
+      '列表动作按状态展示：待审批可撤销申请；待客户寄回可填写物流或预约取件；已寄回可查看寄回物流；补寄待客户收货可确认收货；关闭和完成态只保留查看类动作。',
+      '客服代客创建的售后需要显示来源提示，消费者仍可在允许状态内查看详情、填写寄回信息或确认补寄收货。'
+    ],
+    fields:[
+      '售后状态：主状态说明当前处于谁处理；子状态说明下一步等待什么，例如等待商家审核、等待客户寄回、等待商家退款、退款完成、售后关闭。',
+      '售后类型：仅退款以退款金额为主；退款退货同时展示退款金额和退回商品；补寄以补寄商品和补寄数量为主，不用退款金额作为主视觉。',
+      '售后单号、申请时间、商品标题、SKU规格、数量、金额来自售后单和原订单快照；售后创建后即使原订单商品信息变化，售后卡片应以创建时快照为准。',
+      '金额展示分申请退款、商家审批金额、实际退款金额；列表优先展示当前业务阶段最重要的金额，完成态展示实际退款结果。'
+    ],
+    edge:[
+      '空列表要保留状态标签和空状态，不展示无意义操作按钮。',
+      '同一订单多个售后单时要按售后创建时间或处理优先级排序，避免开发误把订单维度当成售后维度。',
+      '已关闭记录需要展示明确关闭原因；不允许继续填写物流、预约取件、确认收货或重复撤销。',
+      '退款失败、财务拒绝、商家拒绝属于不同异常：退款失败可重试或转人工处理，商家拒绝/关闭则直接进入终止态；具体重试入口是否开放为待产品确认。'
+    ],
+    testing:[
+      '按售后类型和状态造数：仅退款待审核、仅退款退款中、退款退货待寄回、待收货、待退款、补寄待收货、完成、各类关闭。',
+      '回归标签筛选、角标数量、卡片点击、按钮阻止冒泡、客服代客创建标识、B端操作后C端列表同步。',
+      '重点检查金额口径：申请金额、审批金额、实际退款金额在列表和详情之间一致。',
+      '验证关闭态没有可推进业务的按钮，完成态只展示结果和查看类信息。'
+    ]
+  },
+  apply:{
+    title:'C端售后申请页需求说明',
+    business:[
+      '用于消费者从订单发起售后申请；前置条件是订单内至少存在可售后的商品，且该商品没有被未完结售后完全占用。',
+      '订单待发货时默认只允许仅退款：提交后进入待商家审批，商家同意后取消发货并进入退款；不需要客户寄回。',
+      '订单已发货或已收货时，可根据规则选择退款退货、仅退款；补寄由商家/客服核实后在后台创建，C端不提供主动申请入口。',
+      '申请页不是最终退款结果承诺页；它记录消费者诉求，后续B端审核、质检和财务退款会决定最终金额和状态。'
+    ],
+    interaction:[
+      '先选择售后类型，再选择需要售后的商品/SKU、调整数量、选择原因、填写说明、上传凭证，满足必填条件后才能提交。',
+      '售后类型点击打开选择面板；原因点击打开原因面板；商品勾选后才允许调整数量和参与金额计算。',
+      '提交前校验：至少选中一个商品；每个选中SKU数量大于0且不超过可售后数量；申请原因必填；说明按当前规则必填；图片凭证为选填。',
+      '提交成功后新建售后单并进入对应初始状态：仅退款/退款退货先进入待商家审批；提交失败时保留用户已填内容并提示失败原因。'
+    ],
+    fields:[
+      '原订单信息包含订单号、下单时间、订单状态、门店、支付组成和商品快照，供消费者确认自己正在申请哪个订单。',
+      '可售后数量=原购买数量-已成功售后数量-正在处理售后占用数量；数量步进器不能超过该上限，不能小于0。',
+      '申请退款金额按商品实付、运费、卡金、赠送金、积分、优惠券等组成计算；消费者端不允许手动改总额，只能通过商品和数量影响计算。',
+      '已发货场景默认不退运费；若商家责任需要退运费，由B端审核或质检调整，C端申请页只展示预计口径。',
+      '原因是必填枚举；说明用于补充业务背景；凭证用于上传商品异常、物流问题、协商截图等，上传后随售后单进入B端审核。'
+    ],
+    edge:[
+      '如果SKU已经被另一个进行中的售后单占满，本页应展示不可选或可退数量为0，不能重复提交。',
+      '组合支付、优惠券、积分、卡金拆分存在四舍五入时，最终退款以B端和支付系统结果为准；页面需要展示明细避免测试误判。',
+      '部分退货且订单仍保留优惠券适用品时，优惠券一般不退回；整单售后或最后一个适用商品退回时优惠券退回规则待产品确认。',
+      '用户切换售后类型后，需要重新校验原因、商品选择和金额明细，避免退款退货的字段残留到仅退款。'
+    ],
+    testing:[
+      '覆盖待发货仅退款、已发货仅退款、已发货退款退货三条C端申请入口链路；补寄只在列表和详情承接后台创建后的查看与确认收货。',
+      '验证SKU勾选、数量上下限、全选/取消、金额联动、提交按钮禁用、原因/说明必填、凭证上传展示。',
+      '检查多支付方式退款明细、运费默认不退、优惠券提示、重复售后占用数量。',
+      '模拟提交成功和提交失败：成功后列表和详情出现新售后；失败后表单数据不丢失。'
+    ]
+  },
+  detail:{
+    title:'C端售后详情页需求说明',
+    business:[
+      '用于消费者跟踪单个售后的完整处理过程，回答三个问题：现在到哪一步、下一步谁处理、最终金额/商品结果是什么。',
+      '退款退货链路：待商家审批 -> 待客户寄回 -> 待商家收货/质检 -> 待商家退款 -> 退款成功/售后完成；商家拒绝、客户撤销、超时未寄回会进入关闭。',
+      '仅退款链路：待商家审批 -> 待商家退款 -> 退款成功/售后完成；商家拒绝、客户撤销、客服关闭会进入关闭。',
+      '补寄链路：商家/客服创建补寄单 -> 商家补寄发货 -> 待客户收货 -> 售后完成；客服关闭会进入关闭。',
+      '详情页所有状态说明必须面向消费者，既展示结果，也解释当前是否需要消费者行动。'
+    ],
+    interaction:[
+      '顶部返回回到售后列表；状态区展示当前节点和提示；进度区展示已完成、当前、未完成节点。',
+      '动作按钮按状态出现：待审核可撤销申请；待寄回可填写物流或预约取件；待收货可查看物流；补寄待客户收货可确认收货；完成/关闭态无推进动作。',
+      '处理轨迹按时间展示申请、商家审核、客户寄回、商家收货/质检、退款、补寄发货、关闭等记录；内部备注和消费者可见文案要区分。',
+      '点击退款明细、凭证、物流、原订单等入口打开查看面板或弹窗，不应改变售后主状态。'
+    ],
+    fields:[
+      '状态标题来源于售后单主状态；副文案说明下一步责任方，例如请寄回商品、等待商家收货、退款处理中、补寄商品运输中。',
+      '退款金额需要区分申请金额、商家同意金额、质检后实际退款金额、支付系统实际到账金额；调额原因应展示给消费者可理解的说明。',
+      '商品区域展示售后商品快照、规格、申请数量、通过数量、拒绝数量；退款退货和补寄都需要展示数量差异。',
+      '寄回信息包括寄回方式、退货地址、快递公司、运单号、预约取件时间；补寄信息包括补寄商品、快递公司、运单号和收货地址。',
+      '处理轨迹中的时间、操作人类型、操作结果、说明来自售后操作日志；客服内部备注如果不对C端可见不能展示。'
+    ],
+    edge:[
+      '仅退款详情不展示退货地址、寄回物流、商家收货节点；补寄详情不展示退款金额为主流程。',
+      '商家调低退款金额或质检少退时，必须展示调整原因和调整后的金额，避免消费者只看到金额变化。',
+      '财务退款失败时应展示失败结果和后续处理提示；是否允许消费者重试或联系商家为待产品确认。',
+      '关闭态必须展示关闭原因、关闭时间和是否可重新申请；如果超过售后有效期，不展示重新申请入口。'
+    ],
+    testing:[
+      '逐个 detailType/detailScene 验证状态标题、进度节点、按钮、金额、物流、处理轨迹是否与 mock 数据一致。',
+      '重点回归：商家拒绝、客户撤销、客服关闭、超时关闭、质检调额、财务拒绝退款、补寄确认收货。',
+      '检查列表进入详情后状态和金额一致；B端操作后刷新C端详情，节点、按钮和轨迹同步变化。',
+      '验证消费者可见文案不泄露内部审核备注、财务备注或测试标记。'
+    ]
+  },
+  sheet:{
+    title:'C端底部面板/选择器需求说明',
+    business:[
+      '底部面板承接轻量信息选择和补充，包括售后类型、申请原因、寄回物流、预约取件、地址、时间、退款明细、凭证和物流轨迹。',
+      '选择类面板只回填主页面字段，不直接提交售后；提交类面板如填写物流、确认预约，成功后才推进业务状态。',
+      '面板用于缩短主页面操作路径，但不能让开发把关键规则藏在弹层里；弹层字段和主页面状态必须联动。'
+    ],
+    interaction:[
+      '点击遮罩或关闭按钮关闭面板；选择类型/原因后回填并关闭；返回上一级时保持已选内容。',
+      '填写寄回物流需要选择或输入快递公司、运单号，可通过扫码/识别入口辅助录入；提交成功后进入待商家收货。',
+      '预约取件需要选择寄件地址、取件时间、取件商品，确认后生成预约记录，并在详情页展示取件信息。',
+      '查看物流、退款明细、凭证预览是只读面板，关闭后不改变任何售后状态。'
+    ],
+    fields:[
+      '售后类型项包含名称、说明和适用条件；不适用的类型应隐藏或禁用并说明原因。',
+      '原因项为枚举，提交时保存原因编码和展示文案；后续B端审核和测试断言应使用编码，C端展示使用文案。',
+      '寄回物流字段包含快递公司、运单号、寄回方式、提交时间；运单号需要做空值和基本格式校验。',
+      '预约取件字段包含联系人、手机号、地址、取件时间段、服务商、预计费用；地址新增或编辑后应回填当前预约。',
+      '退款明细字段展示商品实付、运费、卡金、赠送金、积分、优惠券等分摊结果，和申请页/详情页金额保持一致。'
+    ],
+    edge:[
+      '自行寄回和上门取件互斥；用户已预约取件后再填写自行寄回应先取消预约或给出确认提示。',
+      '已约满、过期或不可服务的取件时间不可选；地址不在服务范围内时不能提交预约。',
+      '物流单号重复、为空或格式明显异常时不能提交；提交失败时保留已填信息。',
+      '面板切换过程中不能丢失上一个面板的重要选择，例如新建地址返回预约面板后仍应选中该地址。'
+    ],
+    testing:[
+      '测试类型/原因选择、选择后回填、遮罩关闭、关闭按钮、返回上一级、重复打开时状态保留。',
+      '测试填写物流成功推进到待商家收货，物流查看只读不推进状态。',
+      '测试预约取件、取消预约、地址新增/编辑、时间不可选、服务范围外和提交失败。',
+      '检查 sheetMode 切换后📖说明匹配当前面板，弹窗关闭不影响主页面数据。'
+    ]
+  },
+  confirm:{
+    title:'C端确认弹窗需求说明',
+    business:[
+      '确认弹窗用于执行有不可逆或明显业务后果的动作前二次确认，包括撤销售后、取消取件预约、确认收到补寄商品。',
+      '确认后会改变售后状态或预约状态；取消、遮罩关闭、关闭按钮都不应提交业务动作。',
+      '确认弹窗要用消费者能理解的话说明后果，不能只写技术状态名。'
+    ],
+    interaction:[
+      '左侧按钮为取消/再想想，关闭弹窗并保持原状态；右侧按钮为确认动作，提交后根据动作刷新列表和详情。',
+      '撤销申请确认后进入售后关闭，写入关闭原因为客户主动撤销，并隐藏后续审批/寄回/退款按钮。',
+      '取消取件预约确认后删除或作废预约记录，详情页回到可重新预约或填写物流的状态。',
+      '确认收到补寄商品后，补寄售后进入售后完成，并在处理轨迹记录客户确认收货。'
+    ],
+    fields:[
+      '标题说明动作名称，描述说明确认后的状态变化，按钮文案必须明确区分取消和确认。',
+      '撤销确认需要带售后单号和当前状态用于服务端校验，防止过期状态重复撤销。',
+      '取消预约需要带预约单号、售后单号和取消来源；确认补寄收货需要带补寄物流或售后单号。',
+      '处理轨迹记录操作人类型为客户，记录操作时间、动作结果和消费者可见说明。'
+    ],
+    edge:[
+      '售后已被商家处理、已关闭或已完成时，撤销确认不能成功，应提示状态已变化并刷新详情。',
+      '取件已进入上门中或已揽收时是否还能取消为待产品确认；如果不能取消，需要隐藏按钮或提交时提示。',
+      '确认收货只适用于补寄待客户收货状态；仅退款、退款退货和已完成补寄不展示该确认。',
+      '重复点击确认按钮要防重复提交，提交中按钮置灰，失败后允许重试。'
+    ],
+    testing:[
+      '测试取消、遮罩关闭、Esc关闭、确认提交四种行为差异。',
+      '测试撤销申请、取消取件、确认补寄收货成功后的列表状态、详情状态、按钮和处理轨迹。',
+      '测试状态已变化、重复提交、接口失败时的提示和数据刷新。',
+      '检查确认弹窗文案是否清楚说明业务后果，避免测试人员无法判断预期状态。'
+    ]
+  },
+  fallback:{title:'需求说明待补充',business:['当前页面或弹窗已经有需求说明入口，但还没有匹配到精确说明。'],interaction:['后续修改该页面或弹窗时，必须补齐业务逻辑、交互、字段、异常和测试关注点。'],fields:['请根据当前实际展示字段补充字段含义、来源、必填/只读和计算规则。'],edge:['如果这是新增状态或新增弹窗，不能只补 UI，需要同步补充需求说明。'],testing:['验收时不应长期保留此兜底说明。']}
+};
+
+const detailRequirementDocs={
+  return:{
+    pending_review:{
+      title:'C端售后详情页需求说明｜退货退款·待商家审核',
+      status:'当前是退货退款申请刚提交后的审核节点；消费者已经说明退货原因、商品和申请金额，但还不能寄回商品。',
+      next:'商家同意后进入待客户寄回，并展示退货地址、退回方式和寄回截止时间；商家拒绝后进入售后关闭；审核前消费者可撤销申请。',
+      actions:'页面只展示撤销申请，不展示填写物流、退货地址、商家收货或退款处理入口。',
+      fields:'重点字段是申请商品、申请退款金额、预计退回明细和处理轨迹；金额仍是申请口径，不是最终退款承诺。',
+      edge:'撤销只允许发生在商家审核前；商家已经同意或拒绝后，再点撤销应提示状态已变化并刷新详情。',
+      test:'验证审核前可撤销、审核通过后才出现寄回信息、拒绝后关闭且不再出现寄回/退款按钮。'
+    },
+    pending_return:{
+      title:'C端售后详情页需求说明｜退货退款·待客户寄回',
+      status:'当前是商家已同意退货退款后的客户处理节点；消费者需要选择上门取件或自行寄回，并在截止时间前完成退回。',
+      next:'填写物流或预约取件成功后进入待商家收货；超时未寄回进入售后关闭；消费者撤销后也进入售后关闭。',
+      actions:'页面展示退回方式、退货地址、寄回商品清单、填写物流/预约取件/取消预约等动作；不能展示退款处理中或退款成功结果。',
+      fields:'退货地址来自商家审核结果；寄回截止时间来自审核通过时间加规则天数；寄回商品数量必须和本售后单通过审核的数量一致。',
+      edge:'上门取件和自行寄回互斥；已预约取件后切换自行寄回应先取消预约或明确覆盖；超时后所有寄回动作不可用。',
+      test:'验证取件预约、取消预约、自行填写物流、寄回数量提示、超时关闭和处理轨迹顺序。'
+    },
+    pending_return_self_only:{
+      title:'C端售后详情页需求说明｜退货退款·自行寄回',
+      status:'当前仍是待客户寄回，但业务重点是消费者自行联系快递并录入物流信息。',
+      next:'提交快递公司和运单号后进入待商家收货；取消或关闭面板不改变主状态。',
+      actions:'页面应突出填写物流入口，不展示预约取件确认结果；查看退货地址和寄回清单仍然可用。',
+      fields:'快递公司、运单号为提交物流必填；寄回时间由提交成功时记录；退货地址只读，不允许消费者编辑。',
+      edge:'物流单号为空、重复或格式明显异常不能提交；接口失败时保留已填写内容。',
+      test:'验证物流表单校验、提交后状态推进、提交失败保留数据、关闭面板不推进状态。'
+    },
+    adjusted_pending_return:{
+      title:'C端售后详情页需求说明｜退货退款·审核调额后待寄回',
+      status:'当前是商家同意退货退款但调整了退款金额后的寄回节点；消费者需要先理解协商后金额，再寄回商品。',
+      next:'消费者寄回后进入待商家收货；仓库验收后可能按协商金额退款，也可能因验收异常再次调整。',
+      actions:'页面展示寄回动作，同时必须展示调额原因、调额凭证或审核说明；不能只展示新的金额。',
+      fields:'申请金额、协商后退款金额、扣减原因、凭证、寄回商品清单都要展示；金额明细用协商后金额估算退回资产。',
+      edge:'如果消费者未认可调额仍继续寄回的业务规则待产品确认；页面至少要保留调额说明，避免误认为金额计算错误。',
+      test:'验证申请金额和协商金额同时出现，处理轨迹有调额说明，寄回动作仍可正常推进。'
+    },
+    pending_receive:{
+      title:'C端售后详情页需求说明｜退货退款·待商家收货',
+      status:'当前是消费者已寄回商品后的商家处理节点；消费者主要查看寄回物流和等待商家签收/质检。',
+      next:'商家签收并验收通过后进入待商家退款；验收异常可进入调额退款；商家确认拒收或异常关闭的规则待产品确认。',
+      actions:'页面展示查看寄回物流，不再展示填写物流；消费者通常无推进动作。',
+      fields:'寄回快递、运单号、寄回时间、轨迹、退回商品清单和申请金额是重点字段；退货地址可折叠展示。',
+      edge:'物流长时间未更新时只展示物流状态，不应自动关闭售后；是否提醒消费者联系商家待产品确认。',
+      test:'验证已填写物流后的详情不再出现填写物流按钮，物流弹窗只读，处理轨迹包含客户寄回记录。'
+    },
+    adjusted_pending_receive:{
+      title:'C端售后详情页需求说明｜退货退款·调额后待商家收货',
+      status:'当前是调额退货退款已经寄回后的商家收货节点；消费者要同时看到寄回物流和已协商金额。',
+      next:'商家收货验收后进入退款处理；若验收结果再次影响金额，必须在处理轨迹和金额区说明。',
+      actions:'仅保留查看物流、查看调额凭证、原订单等只读入口。',
+      fields:'协商后退款金额作为当前预计口径；寄回物流和调额原因必须同屏可追溯。',
+      edge:'二次调额必须写清楚是审核阶段调额还是质检阶段调额，避免测试把两个金额变化混为一类。',
+      test:'验证物流、调额金额、调额原因和后续退款金额在列表/详情一致。'
+    },
+    pending_refund:{
+      title:'C端售后详情页需求说明｜退货退款·待商家退款',
+      status:'当前是商家已收货/验收完成后的退款处理节点；消费者无需再寄回或补充物流。',
+      next:'商家退款成功后进入售后完成；退款执行失败或财务拒绝时进入异常处理或关闭，具体重试入口待产品确认。',
+      actions:'页面只展示等待退款、查看验收/寄回/退款明细等只读信息，不展示撤销或填写物流。',
+      fields:'验收结果、申请金额、审批金额、实际待退金额、资产退回预计明细是重点字段。',
+      edge:'如果验收异常导致少退，必须展示验收说明、异常凭证和扣减金额；不能只改最终金额。',
+      test:'验证待退款状态没有消费者推进按钮，金额口径从申请/审批切到待退款口径。'
+    },
+    adjusted_pending_refund:{
+      title:'C端售后详情页需求说明｜退货退款·调额后待退款',
+      status:'当前是退回商品验收或审核后产生调额，等待商家按调整后金额退款。',
+      next:'退款成功后进入售后完成，并展示实际退回明细；退款失败时展示失败原因和后续处理提示。',
+      actions:'消费者只读查看调额原因、验收凭证、退款明细，不允许再修改寄回信息。',
+      fields:'申请金额、扣减金额、实际退款金额、验收异常件数、凭证、资产退回明细都要展示。',
+      edge:'调额原因缺失时应标记待产品确认或待商家补充，不能让金额变化无解释。',
+      test:'验证调额金额计算、异常凭证展示、实际退款明细和处理轨迹一致。'
+    },
+    refund_success:{
+      title:'C端售后详情页需求说明｜退货退款·退款成功',
+      status:'当前是退货退款终态；消费者查看实际退款金额、退回资产、验收结果和完整处理轨迹。',
+      next:'流程已结束，不再推进状态；是否支持再次申请取决于商品剩余可售后数量和售后有效期。',
+      actions:'只保留查看类入口，例如退款明细、寄回物流、原订单详情；不展示撤销、填写物流、确认收货。',
+      fields:'实际退款金额优先于申请金额；退回到支付渠道、卡金、赠送金、积分、优惠券等明细必须和支付结果一致。',
+      edge:'全额退、单品调额、多品调额、仓库验收调额都属于完成态，但说明要讲清楚金额变化来源。',
+      test:'验证完成态无推进按钮，列表金额等于详情实际退款金额，轨迹最后一条为退款成功。'
+    },
+    closed:{
+      title:'C端售后详情页需求说明｜退货退款·售后关闭',
+      status:'当前是退货退款终止态；关闭原因可能是客户撤销、客服撤销、超时未寄回、商家拒绝或财务拒绝。',
+      next:'原售后流程不会继续；是否允许重新申请要看关闭原因、商品剩余可售后数量和售后有效期。',
+      actions:'只展示关闭原因、关闭时间、申请快照和联系/重新申请类入口；不展示寄回、退款、确认收货。',
+      fields:'关闭原因必须用消费者可理解文案展示；商家拒绝要展示拒绝原因，超时关闭要展示原寄回截止时间。',
+      edge:'客户撤销只应发生在待审核阶段；超时关闭只应发生在待客户寄回阶段；财务拒绝不能混同商家拒绝。',
+      test:'按每种关闭原因验证标题、副文案、轨迹和按钮差异，避免统一展示成一套关闭说明。'
+    }
+  },
+  refund:{
+    pending_review:{
+      title:'C端售后详情页需求说明｜仅退款·待商家审核',
+      status:'当前是仅退款申请提交后的审核节点；本流程不需要退货寄回，重点是商家是否同意退款以及确认退款金额。',
+      next:'商家同意后进入待商家退款；商家拒绝进入售后关闭；审核前消费者可撤销申请。',
+      actions:'页面只展示撤销申请；不展示退货地址、填写物流、商家收货或补寄确认。',
+      fields:'待发货全额退款可包含原单运费；待发货部分退款和已发货未收货退款默认不退原单运费，需要在金额说明里讲清楚。',
+      edge:'仅退款详情不得复用退货退款的寄回节点；客户撤销仅允许在待审批状态。',
+      test:'分别验证待发货全额、待发货部分、已发货未收货三种申请金额和运费口径。'
+    },
+    pending_refund:{
+      title:'C端售后详情页需求说明｜仅退款·待商家退款',
+      status:'当前是商家已同意仅退款后的退款处理节点；消费者无需寄回商品，只等待退款到账。',
+      next:'退款成功后进入售后完成；支付渠道处理中保持当前等待状态；失败后由商家重试或转人工，入口待产品确认。',
+      actions:'只展示联系商家、查看预计退回明细等入口，不展示撤销或物流相关动作。',
+      fields:'审批金额、预计退到支付渠道金额、资产退回金额、优惠券/积分退回规则是重点字段。',
+      edge:'商家审核阶段调额后，待退款页面要展示协商后金额和调额原因，不要只显示新金额。',
+      test:'验证同意后进度节点停在处理退款，处理轨迹包含商家审核记录，金额与列表一致。'
+    },
+    processing:{
+      title:'C端售后详情页需求说明｜仅退款·退款处理中',
+      status:'当前是退款已经发起但支付渠道还没有返回最终结果；消费者只需要等待。',
+      next:'渠道成功后进入退款成功；渠道失败时显示失败原因并等待商家重新处理，是否允许消费者催办待产品确认。',
+      actions:'页面展示退款处理中提示和联系商家入口；不允许消费者重复提交或撤销。',
+      fields:'退款渠道、预计退回明细、售后单号、处理轨迹中的渠道处理中记录要清楚。',
+      edge:'处理中不是失败也不是完成；不能提前展示实际到账金额。',
+      test:'验证处理中状态不出现成功文案，刷新后可切换到成功或失败处理态。'
+    },
+    success:{
+      title:'C端售后详情页需求说明｜仅退款·退款成功',
+      status:'当前是仅退款终态；消费者查看最终退款金额和资产退回结果。',
+      next:'流程结束，不再展示撤销、审核、物流或退款处理动作。',
+      actions:'只保留退款明细、原订单详情、联系商家等查看类入口。',
+      fields:'实际退款金额、申请金额、协商后金额、扣减原因、退回支付渠道和资产明细要分开展示。',
+      edge:'待发货全额退款可能退运费；部分退款和已发货仅退款默认不退运费；协商补退运费需要单独说明。',
+      test:'验证成功态金额从预计口径变成实际口径，资产退回明细与处理轨迹一致。'
+    },
+    closed:{
+      title:'C端售后详情页需求说明｜仅退款·售后关闭',
+      status:'当前是仅退款终止态；常见原因是客户审核前撤销或商家拒绝。',
+      next:'原仅退款流程不再继续；是否可重新申请取决于订单状态、剩余可售后数量和有效期。',
+      actions:'展示关闭原因和历史申请快照；不展示退款处理、寄回物流或补寄相关入口。',
+      fields:'客户撤销要展示撤销时间；商家拒绝要展示拒绝原因；申请金额保持历史快照。',
+      edge:'客户撤销只允许待审批；商家已同意后不应再走客户撤销关闭。',
+      test:'验证客户撤销和商家拒绝两种关闭说明不同，不复用同一段泛化说明。'
+    }
+  },
+  reship:{
+    ship:{
+      title:'C端售后详情页需求说明｜补寄·待补寄发货',
+      status:'当前是补寄单已创建，等待商家或仓库发出补寄商品。',
+      next:'发货回传物流后进入待客户收货；发货前客服撤销进入售后关闭。',
+      actions:'消费者无需操作，可联系商家；未发货前不展示确认收货。',
+      fields:'补寄商品、数量、处理方、创建时间、补寄说明是重点字段；物流公司和运单号未产生时不展示。',
+      edge:'发货前撤销不能展示物流轨迹；补寄不应影响原退款金额。',
+      test:'验证待发货和待客户收货的按钮差异，发货前没有确认收货入口。'
+    },
+    receive:{
+      title:'C端售后详情页需求说明｜补寄·待客户收货',
+      status:'当前是补寄商品已发货后的客户处理节点；消费者可以查看物流并在收到后确认收货。',
+      next:'确认收货后进入补寄完成；超时自动确认规则为7天，是否可配置待产品确认。',
+      actions:'展示查看补寄物流和确认收货；确认前需要二次确认弹窗。',
+      fields:'补寄物流公司、运单号、轨迹、补寄商品和收货地址是重点字段。',
+      edge:'未签收时用户点击确认收货是否拦截待产品确认；重复确认需防重复提交。',
+      test:'验证物流弹窗只读，确认收货后状态变完成，处理轨迹记录客户确认。'
+    },
+    done:{
+      title:'C端售后详情页需求说明｜补寄·补寄完成',
+      status:'当前是补寄终态；消费者已经确认收到补寄商品或系统自动确认。',
+      next:'流程结束；如补寄商品仍有问题，需要联系商家另行处理，是否生成新售后待产品确认。',
+      actions:'只展示补寄结果、物流、原订单详情和联系商家，不展示确认收货。',
+      fields:'完成时间、确认来源、补寄商品、物流签收结果要展示；不展示退款金额作为主信息。',
+      edge:'系统自动确认和客户手动确认需要在轨迹里区分。',
+      test:'验证完成态无确认按钮，列表状态与详情状态同步为售后完成。'
+    },
+    closed:{
+      title:'C端售后详情页需求说明｜补寄·售后关闭',
+      status:'当前是补寄终止态；常见原因是客服在补寄发货前撤销。',
+      next:'补寄不会继续出库或发货；是否重新安排补寄需要联系商家。',
+      actions:'只展示关闭原因和历史补寄商品，不展示物流或确认收货。',
+      fields:'关闭时间、关闭原因、补寄商品快照、客服处理说明是重点字段。',
+      edge:'已发货后的关闭规则待产品确认；如果已经有物流，不应简单按未发货撤销文案展示。',
+      test:'验证补寄关闭态与退款关闭态文案、字段、按钮完全区分。'
+    }
+  }
+};
+
+function cloneRequirementDoc(doc){
+  return {
+    title:doc.title,
+    business:[...doc.business],
+    interaction:[...doc.interaction],
+    fields:[...doc.fields],
+    edge:[...doc.edge],
+    testing:[...doc.testing]
+  };
+}
+
+function getReturnDetailRequirementVariant(scene){
+  if(['pending_return','pending_return_self_only','adjusted_pending_return','pending_receive','adjusted_pending_receive','pending_refund','adjusted_pending_refund'].includes(scene))return scene;
+  if(['refund_success_full','refund_success_warehouse_adjusted','refund_success_adjusted','refund_success_full_preview','refund_success_single_adjusted','refund_success_double_adjusted'].includes(scene))return 'refund_success';
+  if(['canceled_by_customer','canceled_by_service','canceled_timeout','rejected','refund_rejected_by_finance'].includes(scene))return 'closed';
+  return 'pending_review';
+}
+
+function getRefundDetailRequirementVariant(scene){
+  if(['refund_pending_pre_full','refund_pending_pre_partial','refund_pending_shipped'].includes(scene))return 'pending_review';
+  if(scene==='refund_pending_refund'||scene==='manual_refund')return 'pending_refund';
+  if(scene==='refund_processing_failed')return 'processing';
+  if(['refund_success_full','refund_success_adjusted'].includes(scene))return 'success';
+  if(['refund_canceled_by_customer','refund_rejected'].includes(scene))return 'closed';
+  return 'pending_review';
+}
+
+function getReshipDetailRequirementVariant(scene){
+  if(scene==='reship_receive')return 'receive';
+  if(scene==='reship_done')return 'done';
+  if(scene==='reship_canceled_by_service')return 'closed';
+  return 'ship';
+}
+
+function buildDetailRequirementDoc(){
+  const type=detailType;
+  const variant=type==='refund'
+    ?getRefundDetailRequirementVariant(detailScene)
+    :type==='reship'
+      ?getReshipDetailRequirementVariant(detailScene)
+      :getReturnDetailRequirementVariant(detailScene);
+  const sceneDoc=detailRequirementDocs[type]?.[variant]||detailRequirementDocs.return.pending_review;
+  const doc=cloneRequirementDoc(requirementDocs.detail);
+  doc.title=sceneDoc.title;
+  doc.business=[
+    sceneDoc.status,
+    sceneDoc.next,
+    type==='return'
+      ?'本说明只对应当前退货退款状态；不同状态会展示不同字段和动作，不能复用同一套详情说明。'
+      :type==='refund'
+        ?'本说明只对应当前仅退款状态；仅退款不展示寄回地址、寄回物流或商家收货节点。'
+        :'本说明只对应当前补寄状态；补寄以补寄商品和物流进度为主，不把退款金额作为主流程。'
+  ];
+  doc.interaction=[
+    sceneDoc.actions,
+    '顶部返回回到售后列表；状态区、进度条、处理轨迹都要跟当前状态同步。',
+    '点击退款明细、凭证、物流、原订单等入口只打开查看面板或弹窗，不改变售后主状态。'
+  ];
+  doc.fields=[
+    sceneDoc.fields,
+    type==='return'
+      ?'退货退款字段按阶段展示：审核前看申请快照，待寄回看退货地址/寄回方式，待退款和完成态看验收结果与实际退款。'
+      :type==='refund'
+        ?'仅退款字段按阶段展示：审核前看申请金额，待退款看审批金额和预计退回，完成态看实际退回结果。'
+        :'补寄字段按阶段展示：未发货看补寄商品和处理说明，已发货看物流，完成态看签收/确认结果。',
+    '处理轨迹来自售后操作日志；消费者可见说明和内部备注要区分。'
+  ];
+  doc.edge=[
+    sceneDoc.edge,
+    '如果当前状态没有对应操作，页面应明确告诉消费者无需操作，而不是保留上一状态按钮。',
+    '状态已变化时，任何旧按钮提交都应刷新详情并提示最新状态。'
+  ];
+  doc.testing=[
+    sceneDoc.test,
+    `当前测试定位：detailType=${type}，detailScene=${detailScene}，说明内容必须和页面状态、按钮、字段一致。`,
+    '从列表进入同一售后单时，列表状态、金额、类型和详情页必须一致。'
+  ];
+  return doc;
+}
+
+function getCurrentRequirementDocKey(source){if(source?.closest?.('.confirm-dialog'))return 'confirm';if(source?.closest?.('.sheet,.logistics-sheet,.refund-estimate-dialog,.proof-preview-mask'))return 'sheet';if(sheetMode)return ['cancelConfirm','pickupCancelConfirm','reshipReceiveConfirm'].includes(sheetMode)?'confirm':'sheet';if(activePage==='apply')return 'apply';if(activePage==='detail')return 'detail:auto';return 'list';}
+function getRequirementDocByKey(key){if(key==='detail:auto')return buildDetailRequirementDoc();return requirementDocs[key]||requirementDocs.fallback;}
+function renderRequirementDocItem(item){return String(item).replace(/；/g,'；\n').replace(/。/g,'。\n').split('\n').map(line=>line.trim()).filter(Boolean).map(line=>`<span class="req-doc-line">${line}</span>`).join('');}
+function renderRequirementDocSection(title,items){return `<section class="req-doc-section"><h4>${title}</h4><ul>${(items||[]).map(item=>`<li>${renderRequirementDocItem(item)}</li>`).join('')}</ul></section>`;}
+function openRequirementDoc(key,source){const doc=getRequirementDocByKey(key==='auto'?getCurrentRequirementDocKey(source):key);let overlay=document.getElementById('req-doc-overlay');if(!overlay){overlay=document.createElement('div');overlay.id='req-doc-overlay';overlay.className='req-doc-overlay';document.body.appendChild(overlay);}overlay.innerHTML=`<div class="req-doc-panel" role="dialog" aria-modal="true" aria-label="${doc.title}"><div class="req-doc-header" data-req-doc-drag><span aria-hidden="true">📖</span><div class="req-doc-title">${doc.title}</div><button class="req-doc-close" type="button" data-req-doc-close>×</button></div><div class="req-doc-body">${renderRequirementDocSection('业务逻辑',doc.business)}${renderRequirementDocSection('页面交互说明',doc.interaction)}${renderRequirementDocSection('细节字段说明',doc.fields)}${renderRequirementDocSection('异常/边界说明',doc.edge)}${renderRequirementDocSection('开发测试关注点',doc.testing)}</div></div>`;overlay.classList.add('show');bindRequirementDocDrag(overlay.querySelector('.req-doc-panel'));}
+function closeRequirementDoc(){document.getElementById('req-doc-overlay')?.classList.remove('show');}
+function createRequirementDocButton(key='auto'){const button=document.createElement('button');button.className='req-doc-btn';button.type='button';button.dataset.reqDoc=key;button.title='查看需求说明';button.setAttribute('aria-label','查看需求说明');button.textContent='📖';return button;}
+function decorateRequirementDocEntrypoints(){const demoHeader=document.querySelector('.demo-header');if(demoHeader&&!demoHeader.querySelector(':scope > .req-doc-btn'))demoHeader.appendChild(createRequirementDocButton('auto'));document.querySelectorAll('.navbar').forEach(nav=>{if(!nav.querySelector('.req-doc-btn'))nav.appendChild(createRequirementDocButton('auto'));});document.querySelectorAll('.sheet-title').forEach(title=>{if(!title.querySelector('.req-doc-btn'))title.appendChild(createRequirementDocButton('sheet'));});document.querySelectorAll('.logistics-sheet-head').forEach(head=>{if(!head.querySelector('.req-doc-btn')){const close=head.querySelector('.logistics-close');head.insertBefore(createRequirementDocButton('sheet'),close||null);}});document.querySelectorAll('.confirm-dialog,.refund-estimate-dialog,.proof-preview-mask').forEach(dialog=>{if(!dialog.querySelector('.req-doc-btn'))dialog.appendChild(createRequirementDocButton(dialog.classList.contains('confirm-dialog')?'confirm':'sheet'));});}
+function bindRequirementDocDrag(panel){const handle=panel?.querySelector('[data-req-doc-drag]');if(!panel||!handle)return;let dragging=false,offsetX=0,offsetY=0;handle.addEventListener('pointerdown',event=>{if(event.target.closest('[data-req-doc-close]'))return;dragging=true;const rect=panel.getBoundingClientRect();offsetX=event.clientX-rect.left;offsetY=event.clientY-rect.top;panel.style.transform='none';handle.setPointerCapture(event.pointerId);});handle.addEventListener('pointermove',event=>{if(!dragging)return;const maxLeft=window.innerWidth-panel.offsetWidth-12;const maxTop=window.innerHeight-panel.offsetHeight-12;panel.style.left=`${Math.max(12,Math.min(event.clientX-offsetX,maxLeft))}px`;panel.style.top=`${Math.max(12,Math.min(event.clientY-offsetY,maxTop))}px`;});handle.addEventListener('pointerup',event=>{dragging=false;handle.releasePointerCapture(event.pointerId);});}
+function bindRequirementDocEvents(){document.addEventListener('click',event=>{const button=event.target.closest('[data-req-doc]');if(button){event.preventDefault();event.stopPropagation();openRequirementDoc(button.dataset.reqDoc||'auto',button);return;}if(event.target.closest('[data-req-doc-close]')||event.target.id==='req-doc-overlay')closeRequirementDoc();});document.addEventListener('keydown',event=>{if(event.key==='Escape')closeRequirementDoc();});new MutationObserver(()=>decorateRequirementDocEntrypoints()).observe(document.body,{childList:true,subtree:true});}
 applyInitialParams();
+bindRequirementDocEvents();
 renderShell();
+decorateRequirementDocEntrypoints();
 </script>

@@ -4709,6 +4709,132 @@
             font-size: 11px;
             font-weight: 700;
         }
+        .req-doc-btn {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #f4b64a;
+            border-radius: 10px;
+            background: #fff7e6;
+            color: #7a4b00;
+            font-size: 19px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 14px rgba(180, 117, 20, 0.16);
+            flex: 0 0 auto;
+        }
+        .req-doc-btn:hover {
+            background: #ffefc2;
+            border-color: #e89a16;
+        }
+        .req-doc-btn.page-level {
+            margin-left: 12px;
+        }
+        .drawer-title-row .req-doc-btn,
+        .center-modal-header .req-doc-btn {
+            margin-left: auto;
+            margin-right: 8px;
+        }
+        .image-preview-dialog .req-doc-btn {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            z-index: 2;
+        }
+        .req-doc-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(15, 23, 42, 0.24);
+            display: none;
+        }
+        .req-doc-overlay.show {
+            display: block;
+        }
+        .req-doc-panel {
+            position: fixed;
+            left: 50%;
+            top: 16px;
+            width: min(900px, calc(100vw - 56px));
+            height: calc(100vh - 32px);
+            min-height: 520px;
+            transform: translateX(-50%);
+            background: #fff;
+            border: 1px solid #f0d7a2;
+            border-radius: 16px;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .req-doc-header {
+            height: 58px;
+            padding: 0 16px 0 18px;
+            background: linear-gradient(180deg, #fff9ed 0%, #fff3d8 100%);
+            border-bottom: 1px solid #f2d99e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: move;
+            user-select: none;
+        }
+        .req-doc-title {
+            flex: 1;
+            min-width: 0;
+            color: #1f2a37;
+            font-size: 16px;
+            font-weight: 800;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .req-doc-close {
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 10px;
+            background: #fff;
+            color: #8a5a00;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        .req-doc-body {
+            padding: 18px 22px 24px;
+            overflow: auto;
+            background: #fffaf0;
+        }
+        .req-doc-section + .req-doc-section {
+            margin-top: 14px;
+        }
+        .req-doc-section {
+            background: #fff;
+            border: 1px solid #f4e3bc;
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+        .req-doc-section h4 {
+            font-size: 15px;
+            color: #1f2a37;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f3ead7;
+        }
+        .req-doc-section ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #344054;
+            font-size: 14px;
+            line-height: 1.85;
+        }
+        .req-doc-section li + li {
+            margin-top: 10px;
+        }
+        .req-doc-line {
+            display: block;
+            max-width: 76ch;
+        }
     </style>
 </head>
 <body>
@@ -12773,6 +12899,711 @@
             showToast("已创建客服代客售后单");
         }
 
+        const requirementDocs = {
+            list: {
+                title: "B端售后管理工作台需求说明",
+                business: [
+                    "本页是 B 端售后处理总入口，服务商家客服、门店客服、仓库和财务复核协同处理售后。",
+                    "售后主链路分三类：仅退款、退款退货、补寄。仅退款链路为：待商家审批 -> 待商家退款 -> 退款中/退款失败 -> 售后完成/售后关闭；退款退货链路为：待商家审批 -> 待客户寄回 -> 待仓库收货 -> 待商家退款 -> 退款中/退款失败 -> 售后完成/售后关闭；补寄链路为：待补寄发货 -> 待客户收货 -> 售后完成/售后关闭。",
+                    "关闭分支包括客户撤销、客服撤销、超时未寄回、商家审核拒绝、财务/退款复核拒绝；这些关闭来源必须在列表子状态和详情处理轨迹中表达清楚。",
+                    "总部账号看连锁下所有门店售后，可按交易门店筛选；分店账号只看本店售后，不展示门店筛选，状态数量也只能按本店数据计算。"
+                ],
+                interaction: [
+                    "顶部账号切换影响数据权限：总部/分店切换后要同步刷新门店筛选框、状态 tab 数量、列表数据和分页。",
+                    "状态 tab 是处理池入口：待商家审批看审核任务，待客户寄回看催寄回/改仓/延长时效任务，待仓库收货看签收质检任务，待商家退款看退款复核和执行任务，退款失败看重试任务，补寄相关状态看补寄履约任务。",
+                    "筛选功能包括交易门店、订单类型、子类型、关键词搜索。关键词要支持售后单号、订单号、物流单号、手机号，用于客服快速定位。",
+                    "列表操作不是统一按钮：待审批支持同意/拒绝；待仓库收货支持签收质检；待商家退款支持执行退款/拒绝退款；退款失败支持重新退款；补寄状态支持补寄发货或查看物流；关闭/完成状态只支持查看详情。",
+                    "点击售后单号或行操作打开详情抽屉；点击创建售后单进入客服代客创建流程，并在创建成功后插入列表、切换到对应状态、打开新售后详情。"
+                ],
+                fields: [
+                    "售后单号是唯一售后工单标识，同时作为详情入口；订单号、物流单号、手机号用于搜索定位。",
+                    "订单类型展示微商城、拼团、秒杀、积分订单等交易来源；子类型展示商品发货、商品自提、套餐次卡、储值卡、预定金等业务履约形态。",
+                    "商品信息要按业务类型展示：普通商品展示 SKU/数量/价格；预定金订单展示活动名；储值卡和套餐次卡不强行套用物流商品格式。",
+                    "金额摘要按链路展示不同口径：申请退款金额、审批退款金额、验收后建议金额、实际退款金额、补寄货值成本、寄回运费补贴、分账回退状态。",
+                    "状态列展示主状态 + 子状态。关闭态必须展示关闭来源，完成态必须区分退款成功、补寄完成、退款+补寄完成。"
+                ],
+                edge: [
+                    "非物流退款型订单申请后不应停留在待商家审批，应直接进入待商家退款或退款处理节点。",
+                    "仅退款链路不展示寄回、仓库收货、质检字段；补寄链路不以退款金额为主线，不展示退款执行作为主要动作。",
+                    "分店账号不可通过筛选、搜索或分页看到其他门店数据；总部账号筛选某门店后状态数量也要按筛选后结果重算。",
+                    "如果售后已关闭，列表只能保留查看详情，不允许继续审核、收货、退款或补寄。",
+                    "mock 数据要覆盖关键状态但避免同质重复，确保测试能看出不同状态、不同订单类型、不同关闭来源的差异。"
+                ],
+                testing: [
+                    "按状态链路测试：仅退款、退款退货、补寄三条链路分别从申请/审核到完成/关闭的列表状态和详情入口是否正确。",
+                    "测试账号视角切换、总部门店筛选、分店权限隔离、状态数量重算、筛选组合、分页和关键词搜索。",
+                    "逐状态检查操作列：不允许出现跨状态动作，例如关闭态出现退款按钮、补寄态出现质检按钮、仅退款出现寄回按钮。",
+                    "检查预定金、储值卡、套餐次卡等非标准商品信息展示是否走专属规则。",
+                    "测试创建售后成功后，新售后是否进入正确状态池并自动打开详情。"
+                ]
+            },
+            drawer: {
+                title: "B端售后详情抽屉需求说明",
+                business: [
+                    "详情抽屉是单个售后单的业务处理台，不只是查看页面。它要让客服判断当前售后处于哪个节点、下一步由谁处理、当前可执行什么动作。",
+                    "详情顶部进度表达状态流转，详情主体表达该节点的业务依据，底部操作表达当前节点允许的处理动作。三者必须一致。"
+                ],
+                interaction: [
+                    "点击列表进入抽屉；点击右上角关闭或遮罩关闭抽屉。",
+                    "底部按钮根据状态触发审核、质检、退款、补寄、关闭、跟进、延长时效、修改退货仓等操作弹窗。",
+                    "同一个详情抽屉会因售后类型不同而展示不同模块：仅退款看申请和退款，退款退货看申请、审批、寄回、质检和退款，补寄看申请、补寄履约和物流。"
+                ],
+                fields: [
+                    "基础信息包含售后编号、订单信息、用户、门店、申请来源、售后类型和原因。",
+                    "申请明细、审批明细、质检明细、物流信息和财务处理结果按状态分段展示。",
+                    "金额字段需区分客户申请金额、商家审批金额、仓库验收建议金额、实际退款金额、寄回运费补贴和分账回退状态。"
+                ],
+                edge: [
+                    "关闭态需区分客户撤销、客服撤销、超时关闭、商家拒绝和财务拒绝退款。",
+                    "补寄售后不强行展示退款字段；仅退款不展示退货仓、寄回物流和仓库验收。",
+                    "未发生调额时不展示协商后退款金额；发生调额时必须展示调额原因、调额前后金额和凭证。"
+                ],
+                testing: [
+                    "逐状态打开详情，核对进度条、底部按钮、只读/可编辑字段和操作后状态迁移。",
+                    "重点回归退款退货、仅退款、补寄三条链路之间的模块差异。"
+                ]
+            },
+            drawer_audit: {
+                title: "待商家审批详情需求说明",
+                business: [
+                    "当前节点是售后审核入口，商家需要判断客户申请是否成立、售后类型是否正确、金额是否合理、是否需要退货或补寄。",
+                    "退款退货审核通过后进入待客户寄回；仅退款审核通过后进入待商家退款；补寄审核通过后进入补寄履约；审核拒绝则进入售后关闭。",
+                    "客服代客申请也进入同一审核规则，但需要展示申请来源，避免测试误认为一定是客户自主发起。"
+                ],
+                interaction: [
+                    "底部核心动作是同意申请和拒绝申请；同意申请弹窗里可以复核责任方、运费承担、退款金额和下一状态。",
+                    "审批阶段允许按规则下调退款金额，但不能高于客户申请金额；调额必须填写原因并保留沟通凭证。",
+                    "拒绝申请必须填写拒绝原因和消费者可见说明，确认后售后关闭，不再进入寄回或退款。"
+                ],
+                fields: [
+                    "申请信息：售后类型、申请原因、申请说明、申请来源、客户凭证、申请时间。",
+                    "商品和金额：申请 SKU、申请数量、商品实付、运费、客户申请退款金额、资产抵扣和优惠券处理。",
+                    "审核字段：责任方、运费承担方、审批退款金额、审核说明、退货仓/补寄信息、调额原因。"
+                ],
+                edge: [
+                    "仅退款审核通过不展示退货地址；退款退货审核通过必须生成寄回地址和寄回截止时间。",
+                    "非物流退款型订单不应走长审核链路，需直接进入待商家退款或对应财务处理。",
+                    "如果申请商品包含多 SKU，审批金额要按 SKU 和运费拆分，不能只展示一个总额。"
+                ],
+                testing: [
+                    "测试同意仅退款、同意退款退货、转补寄、审批调额、拒绝申请五类结果。",
+                    "检查审批后列表状态、详情进度、金额字段和处理日志是否同步更新。"
+                ]
+            },
+            drawer_sendback: {
+                title: "待客户寄回详情需求说明",
+                business: [
+                    "当前节点说明商家已同意退货退款，责任转到客户寄回商品。B 端重点不是退款，而是保障客户在时效内完成寄回。",
+                    "该节点适用于退款退货链路，不适用于仅退款和纯补寄链路。",
+                    "如果客户超时未寄回，售后可自动关闭或人工关闭；如果客户寄回，状态进入待仓库收货。"
+                ],
+                interaction: [
+                    "可执行跟进寄回、延长寄回时效、修改退货仓信息、关闭售后等动作。",
+                    "客服跟进用于记录电话/微信等沟通结果；延长时效需要填写延长天数和原因；改仓需记录修改原因。",
+                    "该阶段不能执行退款，因为商品尚未寄回或未被仓库确认。"
+                ],
+                fields: [
+                    "审批结果：同意时间、审批金额、审核说明、责任方、运费承担方。",
+                    "寄回信息：退货仓库、收件人、地址、电话、寄回截止时间、剩余时效。",
+                    "跟进信息：跟进方式、跟进结果、跟进备注、操作人和操作时间。"
+                ],
+                edge: [
+                    "客户未寄回时不能出现仓库质检和执行退款按钮。",
+                    "超时关闭后详情应转为关闭态，并保留寄回截止和关闭原因。",
+                    "修改退货仓后，消费者端看到的寄回地址也应同步。"
+                ],
+                testing: [
+                    "测试延长时效、修改退货仓、记录跟进、超时关闭和客户填写物流后的状态变化。",
+                    "检查寄回倒计时、关闭原因和消费者端地址同步。"
+                ]
+            },
+            drawer_returning: {
+                title: "待仓库收货详情需求说明",
+                business: [
+                    "当前节点说明客户已填写寄回物流，等待仓库签收并质检。B 端重点是核对物流和录入验收结果。",
+                    "仓库验收结果会影响退款金额，尤其是商品短缺、破损、使用痕迹、附件缺失等异常。",
+                    "质检完成后进入待商家退款；如果异常严重，后续可能走拒绝退款或低额退款。"
+                ],
+                interaction: [
+                    "可查看寄回物流、签收并录入质检结果、上传质检凭证。",
+                    "质检弹窗中录入实收数量、完好数量、异常数量和异常原因，系统据此计算建议退款金额。",
+                    "确认质检后刷新详情模块，展示验收结论和后续退款复核入口。"
+                ],
+                fields: [
+                    "物流字段：快递公司、退回单号、物流轨迹、客户填写时间。",
+                    "质检字段：申请数量、实收数量、完好数量、异常数量、异常原因、质检备注、质检凭证。",
+                    "金额字段：审批退款金额、质检建议金额、异常扣减金额。"
+                ],
+                edge: [
+                    "未签收不能进入待商家退款；异常数量不能大于实收数量或申请数量。",
+                    "物流单号错误或无轨迹时，应允许客服记录跟进但不能伪造签收。",
+                    "质检异常必须在后续退款或拒绝退款说明中可追溯。"
+                ],
+                testing: [
+                    "测试正常全额验收、部分异常扣减、全量异常、物流查看和质检凭证预览。",
+                    "检查质检后退款金额、详情模块和处理日志是否同步。"
+                ]
+            },
+            drawer_received: {
+                title: "待商家退款详情需求说明",
+                business: [
+                    "当前节点说明售后已满足退款前置条件：仅退款已审核通过，或退款退货已完成仓库验收。",
+                    "商家需要做最终退款复核，确认退款金额、资产退回、寄回运费补贴、分账回退和是否拒绝退款。",
+                    "确认退款后进入退款中；拒绝退款后售后关闭，且这是财务/复核阶段拒绝，不等同于审核阶段拒绝申请。"
+                ],
+                interaction: [
+                    "核心动作包括执行退款和拒绝退款；执行退款可按规则下调退款金额但不能上调。",
+                    "如果仓库验收有异常，页面必须展示异常依据、凭证和建议扣减，方便客服解释。",
+                    "确认退款后刷新为退款中或完成；拒绝退款后展示拒绝退款关闭态。"
+                ],
+                fields: [
+                    "退款字段：当前可退金额、调整后退款金额、退款渠道、退款说明、资产退回明细。",
+                    "财务字段：分账回退状态、回退处理状态、寄回运费补贴、实退金额。",
+                    "复核字段：质检结果、异常凭证、拒绝退款原因。"
+                ],
+                edge: [
+                    "未经过审核或质检的退款退货单不能直接进入待商家退款。",
+                    "执行退款金额不能高于当前审批/质检后的可退金额。",
+                    "拒绝退款关闭后不能继续展示重新退款，除非另有人工重开机制。"
+                ],
+                testing: [
+                    "测试全额退款、下调退款、含运费补贴、拒绝退款和退款金额超限拦截。",
+                    "检查分账回退状态、实际退款金额和消费者端结果说明。"
+                ]
+            },
+            drawer_refunding: {
+                title: "退款中详情需求说明",
+                business: [
+                    "当前节点说明退款请求已提交给支付/资产/分账相关系统，B 端主要用于查看进度和等待结果。",
+                    "退款中不是人工处理节点，一般不提供修改金额或拒绝退款动作。",
+                    "退款成功进入售后完成；渠道失败、分账回退异常或资产退回异常进入退款失败。"
+                ],
+                interaction: [
+                    "页面以只读方式展示退款进度、退款渠道、提交时间、预计到账说明和财务处理摘要。",
+                    "可查看处理日志或退款进度，不允许再次提交退款。",
+                    "如果系统返回失败，状态应转入退款失败并展示重新退款入口。"
+                ],
+                fields: [
+                    "退款单号、退款渠道、提交时间、处理状态、失败前置提示、分账回退状态。",
+                    "实际退款金额、资产退回金额、现金退款金额和寄回运费补贴。",
+                    "日志中需要保留发起退款的操作人和金额。"
+                ],
+                edge: [
+                    "退款中不能编辑退款金额。",
+                    "支付渠道成功但分账回退失败时，需单独展示财务异常，不能简单标记消费者退款失败。",
+                    "重复点击退款按钮不能重复创建退款请求。"
+                ],
+                testing: [
+                    "测试退款中只读状态、按钮隐藏、日志展示和失败后转退款失败。",
+                    "检查金额和渠道信息是否与上一节点执行退款一致。"
+                ]
+            },
+            drawer_refund_failed: {
+                title: "退款失败详情需求说明",
+                business: [
+                    "当前节点说明退款执行失败，需要商家或财务根据失败原因重新发起退款。",
+                    "失败来源可能是支付渠道、账户异常、资产退回、分账回退或系统请求异常。",
+                    "重新退款成功后进入退款中/完成；如果复核后不再退款，需要走拒绝退款关闭。"
+                ],
+                interaction: [
+                    "页面展示失败原因、失败时间、上次退款金额和可重新退款入口。",
+                    "重新退款弹窗允许选择原路重试，并可在不高于当前金额的范围内下调。",
+                    "重新退款后刷新状态，追加操作日志。"
+                ],
+                fields: [
+                    "失败原因、失败渠道、失败时间、上次退款单号、当前可退金额。",
+                    "重试金额、退款渠道、重试说明、分账回退动作。",
+                    "如果失败涉及资产或分账，需要展示具体异常项。"
+                ],
+                edge: [
+                    "重试金额不能高于上一轮确认退款金额。",
+                    "同一失败单不能无限重复提交，需要防重复点击和日志留痕。",
+                    "如果用户账户不可退，需要引导线下或人工处理说明。"
+                ],
+                testing: [
+                    "测试重新退款、超额拦截、失败原因展示、日志追加和状态回到退款中。",
+                    "检查失败状态不应被误展示为售后完成。"
+                ]
+            },
+            drawer_reship: {
+                title: "补寄售后详情需求说明",
+                business: [
+                    "补寄详情用于处理少件、漏发、错发、破损补发等不以退款为核心的售后。",
+                    "主链路为待补寄发货 -> 待客户收货 -> 补寄完成，也可能在发货前被客服撤销关闭。",
+                    "补寄场景要突出补寄商品、补寄数量、出库仓、物流和客户确认收货，不应套用退款退货流程。"
+                ],
+                interaction: [
+                    "待补寄发货时可推送仓库或录入补寄物流；发货后可查看物流；客户确认后进入完成。",
+                    "补寄未发货前可撤销，撤销后关闭并保留撤销原因。",
+                    "如果补寄同时伴随部分退款，需在详情中单独展示结算信息，但不能让退款成为主动作。"
+                ],
+                fields: [
+                    "补寄字段：补寄商品、数量、补寄成本、责任方、运费承担方、出库仓、仓库说明。",
+                    "物流字段：物流公司、补寄单号、发货时间、物流轨迹、客户确认时间。",
+                    "结果字段：补寄完成、客服撤销、云仓回传状态。"
+                ],
+                edge: [
+                    "补寄物流单号为空时不能进入待客户收货。",
+                    "已撤销补寄不能继续推送仓库或录入物流。",
+                    "补寄完成不能展示退款成功作为主结果。"
+                ],
+                testing: [
+                    "测试推送仓库、录入物流、查看物流、客户确认收货、客服撤销补寄。",
+                    "检查补寄详情是否隐藏退货地址、仓库质检和退款执行主按钮。"
+                ]
+            },
+            drawer_completed: {
+                title: "售后完成详情需求说明",
+                business: [
+                    "完成态用于展示售后最终处理结果，页面只读，供客服解释和测试闭环验证。",
+                    "完成结果可能是退款成功、补寄完成、退款+补寄完成，需要根据实际链路展示不同摘要。",
+                    "完成态需要保留金额、物流、质检、审批和财务处理结果，方便售后追溯。"
+                ],
+                interaction: [
+                    "完成态不提供审核、退款、质检、补寄发货等处理按钮，只允许查看详情、查看物流或查看凭证。",
+                    "如有退款，展示实际退款金额和到账/资产退回说明；如有补寄，展示补寄物流和客户收货结果。",
+                    "处理日志按时间展示全链路节点。"
+                ],
+                fields: [
+                    "最终结果、完成时间、实际退款金额、退款渠道、资产退回、分账回退结果。",
+                    "补寄完成时展示补寄商品、补寄物流、确认收货时间。",
+                    "退款退货完成时展示寄回物流、质检结果和退款结算。"
+                ],
+                edge: [
+                    "完成态不允许再次修改退款金额或重新发货。",
+                    "如果存在调额，必须展示调额前后金额和原因。",
+                    "如果是补寄完成，不应展示退款成功文案。"
+                ],
+                testing: [
+                    "测试退款成功、调额退款成功、补寄完成、退款+补寄完成四类完成态。",
+                    "检查完成态按钮、金额、物流和日志均为只读。"
+                ]
+            },
+            drawer_closed: {
+                title: "售后关闭详情需求说明",
+                business: [
+                    "关闭态用于表达售后没有继续履约或退款的最终结果，必须说明关闭来源和关闭原因。",
+                    "关闭来源包括客户撤销、客服撤销、超时未寄回、商家审核拒绝、财务拒绝退款、补寄撤销等。",
+                    "不同关闭来源影响消费者端文案、客服解释口径和是否允许重新申请。"
+                ],
+                interaction: [
+                    "关闭态详情只读，不允许继续审核、寄回、质检、退款或补寄。",
+                    "页面需要展示关闭原因、操作人、关闭时间、消费者可见说明和处理轨迹。",
+                    "如果存在人工重开入口，需要明确展示规则；当前 demo 默认以查看和解释为主。"
+                ],
+                fields: [
+                    "关闭类型、关闭子状态、关闭原因、消费者可见说明、操作人、关闭时间。",
+                    "审核拒绝需展示拒绝原因；超时关闭需展示寄回截止和超时事实；拒绝退款需展示质检/复核依据。",
+                    "客服撤销需要展示申请来源和撤销说明。"
+                ],
+                edge: [
+                    "财务拒绝退款发生在待商家退款之后，不能和审核阶段商家拒绝混淆。",
+                    "客户撤销发生在申请或寄回前，不能展示已退款结果。",
+                    "补寄撤销不能继续展示待出库或待客户收货。"
+                ],
+                testing: [
+                    "逐个关闭来源测试标题、子状态、原因、处理轨迹和按钮是否只读。",
+                    "重点检查消费者端与 B 端关闭口径一致。"
+                ]
+            },
+            manualCreate: {
+                title: "创建售后单弹窗需求说明",
+                business: [
+                    "本页面用于客服在客户通过电话、企微、门店沟通等非自助入口提出诉求时，代客户创建售后单。它不是普通新增表单，而是“先校验原订单是否可售后，再按订单状态和商品范围生成售后”的业务操作页。",
+                    "创建链路为：搜索并选择原订单 -> 校验订单是否允许售后 -> 确认原订单信息和支付构成 -> 选择售后类型与原因 -> 选择 SKU/数量 -> 计算退款或补寄信息 -> 提交创建售后单 -> 新售后进入对应处理状态。",
+                    "支持三类业务：仅退款、退款退货、补寄。仅退款通常进入待商家退款或待审批；退款退货后续进入待客户寄回；补寄后续进入待补寄发货/待客户收货。",
+                    "是否允许创建由订单状态、履约类型、商品可售后数量、历史退款/售后记录、是否非物流订单、是否云仓履约等条件共同决定。不可创建时必须明确展示阻断原因。"
+                ],
+                interaction: [
+                    "第一步先搜索订单：支持订单号、客户手机号或姓名。未搜索或未选订单时不能提交；搜索结果中不可售后订单要置灰并展示不可退原因。",
+                    "选中订单后展示 01 原订单信息。点击“重新选择订单”会清空已选订单、SKU 数量、金额调整和凭证信息，回到搜索态，避免把上一个订单的售后数据带入新订单。",
+                    "02 申请信息用于确定本次售后的业务类型和原因。可选售后类型不是固定三项，而是按原订单状态和履约方式过滤：非物流订单只允许符合规则的仅退款；普通发货订单可按规则选择仅退款、退款退货或补寄；云仓订单补寄可选择云仓自动发货或商家自有仓发货。",
+                    "03 售后商品与退款计算用于选择本次售后的 SKU 和数量。勾选 SKU 后才允许调整数量和金额；数量不能超过“可售后”数量；点击恢复默认会把退款金额恢复为系统按 SKU、数量、运费和支付构成计算出的默认值。",
+                    "提交时系统按当前售后类型创建对应售后单：仅退款/退款退货需要退款金额和说明；退款退货还关注责任方、寄回邮费责任和预支邮费；补寄关注补寄商品、数量、责任方和履约方式。"
+                ],
+                fields: [
+                    "搜索区：订单号、客户手机号、客户姓名用于定位原订单；订单卡片需展示订单金额、原销售金额、运费、支付构成、交易门店和业务标签，帮助客服判断是不是客户要处理的订单。",
+                    "01 原订单信息：订单号可作为原订单详情入口；订单类型展示微商城/拼团等来源；业务标签展示商品发货、商品自提、套餐次卡、储值卡、预定金等子类型；订单状态决定售后类型和后续流向。",
+                    "支付构成：需要展示微信/卡金/积分/优惠券等支付拆分，因为退款不是简单退商品金额，后续要按实际支付方式和资产账户分别退回。",
+                    "02 申请信息：售后类型、售后/补寄原因、申请详细说明为核心字段；退款退货还要维护退货责任方、寄回邮费责任方、是否预支邮费和预支邮费金额；补寄还要维护补寄责任方和补寄履约方式。",
+                    "申请凭证：可上传电话沟通截图、商品异常图片等，非必填，但上传后要跟随售后单进入审核详情，作为商家审核、拒绝或调额依据。",
+                    "03 商品与退款：商品/SKU、单价、购买数量、可售后数量、本次数量、退款金额是核心字段；商品退款总额、原单运费、商品退款小计、申请退款金额和预计退回收款明细需要联动计算。",
+                    "非物流订单全额退款确认：商品、数量和金额由系统默认，不支持客服调整；此类订单创建后通常不进入寄回和仓库收货流程。"
+                ],
+                edge: [
+                    "已全退、无可售后 SKU、售后处理中、超出售后期或业务规则不允许的订单不可创建售后，必须在订单卡片上说明阻断原因。",
+                    "可售后数量要扣除历史已退、正在售后中的数量；同一个 SKU 不允许超数量重复售后。",
+                    "退款金额不能超过所选 SKU 默认可退金额与原单运费可退上限；客服手工下调金额时必须填写调整原因，不能无原因调额。",
+                    "待发货整单仅退款可以默认退运费；已发货订单默认不退原单运费，除非在责任方/邮费规则中明确商家承担。",
+                    "退款退货的预支邮费只是记录商家先垫付寄回邮费，不等同于把这笔钱并入商品退款金额。",
+                    "补寄场景不走退款金额计算主线，重点校验补寄 SKU 和数量；如果选择云仓自动发货，创建成功后要能表达后续会推送云仓。",
+                    "提交成功后新售后单要插入列表、状态 tab 数量刷新，并自动打开新售后详情；新详情中必须标识“客服代客申请”。"
+                ],
+                testing: [
+                    "搜索与选单：测试空搜索、无结果、可售后订单、不可售后订单、重新选择订单后状态是否清空。",
+                    "售后类型：分别测试仅退款、退款退货、补寄、非物流订单只允许仅退款、云仓补寄履约方式切换。",
+                    "SKU 和数量：测试未选 SKU 禁止提交、数量上下限、可售后数量扣减、多个 SKU 同时售后。",
+                    "金额计算：测试默认金额、恢复默认、单 SKU 金额超限、总退款金额超限、手工下调无原因拦截、待发货退运费和已发货不退运费。",
+                    "退款退货：测试责任方、寄回邮费责任、预支邮费开关和预支邮费金额是否只记录不并入商品退款。",
+                    "补寄：测试补寄数量、补寄责任方、云仓/自有仓履约方式和创建后状态。",
+                    "提交成功：检查新售后进入正确状态池、列表数量刷新、详情自动打开，并且详情里展示客服代客申请来源和申请说明。"
+                ]
+            },
+            approve: {
+                title: "同意申请/审核弹窗需求说明",
+                business: [
+                    "本弹窗是待商家审批节点的核心处理入口，用于把客户申请转成商家认可的后续处理方案。",
+                    "入口状态是待商家审批，前置条件是客户或客服已提交售后申请，且该售后单未关闭、未完成、未进入退款或补寄履约。",
+                    "审核通过后的目标状态取决于售后类型：仅退款进入待商家退款，退款退货进入待客户寄回，补寄进入待补寄发货或待云仓推送。",
+                    "如果商家认为不应退款退货但应该补寄，可走转补寄处理；如果申请不成立，应使用拒绝申请而不是同意弹窗。"
+                ],
+                interaction: [
+                    "弹窗中必须复核申请商品、申请数量、申请金额、申请原因、凭证、责任方、运费承担方和后续处理状态。",
+                    "点击确认同意后写入审核结果、审核人、审核时间、审批金额、责任方、运费承担方、审核说明，并把售后推进到目标状态。",
+                    "如果审批金额与客户申请金额不同，必须填写调额原因并保留沟通凭证；未填写原因时不允许提交。",
+                    "确认后要刷新列表状态池数量、当前详情顶部进度、详情主体模块、底部可操作按钮和处理日志。"
+                ],
+                fields: [
+                    "售后类型决定后续链路：仅退款不生成退货地址，退款退货必须生成退货仓和寄回截止时间，补寄必须生成补寄商品和履约方式。",
+                    "审批金额默认等于客户申请金额，可下调不可上调；金额上限来自客户申请金额、所选 SKU 可退金额和可退运费。",
+                    "责任方用于归因，包括商家责任、消费者责任、物流责任、云仓责任等；运费承担方决定原单运费是否退、寄回邮费是否补贴。",
+                    "审核说明分两类：内部处理说明用于客服/仓库/财务看，消费者可见说明用于 C 端详情展示，不能互相混用。",
+                    "退货仓字段包括仓库、收件人、电话、地址和寄回截止时间；补寄字段包括补寄 SKU、数量、出库仓和履约方式。"
+                ],
+                edge: [
+                    "仅退款审核通过后不允许展示寄回物流、仓库质检、退货地址。",
+                    "退款退货审核通过后未生成退货地址或寄回时效时，不允许提交。",
+                    "补寄审核通过后不应进入待商家退款，也不应展示退款执行作为主动作。",
+                    "无调额时不得展示协商后金额；有调额时后续 C 端和 B 端详情都要能看到调额原因。",
+                    "重复点击确认不能重复写审核日志或重复推进状态。"
+                ],
+                testing: [
+                    "测试仅退款同意后进入待商家退款，退款退货同意后进入待客户寄回，补寄/转补寄后进入补寄履约。",
+                    "测试审批金额上限、下调金额必填原因、退货仓必填、运费承担方变化、重复提交拦截。",
+                    "检查 B 端列表状态、详情进度、处理日志、C 端详情文案是否同步。"
+                ]
+            },
+            reject: {
+                title: "拒绝/关闭售后弹窗需求说明",
+                business: [
+                    "本弹窗用于把售后单推进到关闭终态，适用于审核拒绝、客服撤销、客户超时未寄回、补寄撤销等场景。",
+                    "关闭不是简单隐藏订单，而是业务终止：关闭后该售后单不再进入寄回、仓库收货、退款执行或补寄履约。",
+                    "关闭原因必须能支撑客服解释、消费者端展示和后续测试断言。"
+                ],
+                interaction: [
+                    "操作人选择关闭/拒绝类型，填写内部原因和消费者可见说明后确认。",
+                    "确认后写入关闭状态、关闭子状态、关闭原因、操作人、关闭时间、消费者可见说明和处理日志。",
+                    "关闭后详情切换为只读关闭态，底部不再出现同意、退款、质检、补寄发货等推进动作。"
+                ],
+                fields: [
+                    "关闭类型包括商家拒绝、客服撤销、客户撤销、超时关闭、补寄撤销、财务拒绝退款等。",
+                    "内部关闭原因用于 B 端和日志，消费者可见说明用于 C 端详情，二者可以不同。",
+                    "操作人、操作时间、关闭前状态必须留痕，便于判断关闭发生在哪个节点。",
+                    "如存在人工重开规则，需要展示是否允许重开和重开入口；当前 demo 默认只做关闭展示。"
+                ],
+                edge: [
+                    "待客户寄回超时关闭不能展示退款成功或仓库质检结果。",
+                    "审核阶段商家拒绝和待商家退款阶段拒绝退款不是同一业务节点，文案和处理轨迹必须区分。",
+                    "补寄撤销后不能继续展示待出库、物流单号录入或待客户收货。",
+                    "关闭态不能再被普通列表操作推进，除非明确进入人工重开流程。"
+                ],
+                testing: [
+                    "分别测试商家拒绝、客服撤销、超时关闭、补寄撤销、财务拒绝退款的标题、子状态、原因和日志。",
+                    "检查关闭后 B 端详情、C 端详情、列表状态和可操作按钮是否全部转为只读。",
+                    "测试关闭原因为空、消费者可见说明为空、重复提交关闭的拦截。"
+                ]
+            },
+            quality: {
+                title: "仓库质检弹窗需求说明",
+                business: [
+                    "本弹窗用于待仓库收货节点，仓库或客服确认客户寄回商品已签收，并录入商品验收结果。",
+                    "质检结果决定售后能否进入待商家退款，以及退款金额是否需要按异常情况扣减。",
+                    "质检数据会被后续退款执行、拒绝退款、C 端处理轨迹和客服解释复用。"
+                ],
+                interaction: [
+                    "操作人录入每个 SKU 的实收数量、完好数量、异常数量、异常原因、验收备注和质检凭证。",
+                    "系统根据异常数量和异常原因计算建议退款金额，确认后把售后推进到待商家退款。",
+                    "如果全部未收到或异常严重，后续可在待商家退款节点走拒绝退款或低额退款。"
+                ],
+                fields: [
+                    "申请数量来自客户售后申请，实收数量来自仓库签收，完好数量和异常数量来自质检录入。",
+                    "异常原因包括商品短缺、破损、使用痕迹、附件缺失、非原商品等。",
+                    "质检凭证用于证明异常，需要在后续详情和拒绝退款原因中可预览。",
+                    "建议退款金额不能高于审批金额，扣减金额要能追溯到异常 SKU 和异常数量。"
+                ],
+                edge: [
+                    "实收数量不能大于申请数量，异常数量不能大于实收数量，完好数量 + 异常数量不能超过实收数量。",
+                    "未收到商品时不能直接进入正常退款。",
+                    "无异常时建议退款金额应等于审批金额；有异常时必须展示扣减依据。",
+                    "质检提交后不能丢失寄回物流信息和原审批金额。"
+                ],
+                testing: [
+                    "测试全量完好、部分短缺、部分破损、全量异常、未收到、凭证上传和建议金额变化。",
+                    "检查质检后进入待商家退款，详情展示验收结论、异常凭证、建议退款金额和处理日志。",
+                    "测试数量越界、异常原因缺失、重复提交质检的拦截。"
+                ]
+            },
+            refund: {
+                title: "退款处理弹窗需求说明",
+                business: [
+                    "本弹窗用于待商家退款和退款失败节点，商家或财务确认最终退款金额并发起退款、重新退款或拒绝退款。",
+                    "退款不是单一现金退回，需要同时处理原路退款、资产退回、优惠券/积分处理、分账回退和日志。",
+                    "退款成功进入售后完成，退款请求已提交但未回执时进入退款中，渠道失败进入退款失败。"
+                ],
+                interaction: [
+                    "打开弹窗时默认调整后退款金额等于当前可退金额。",
+                    "允许下调，不允许上调；下调需要填写退款说明或调额依据。",
+                    "确认退款后写入退款金额、退款渠道、操作人、操作时间、分账回退动作，并刷新状态。",
+                    "退款失败节点点击重新退款时，沿用上一轮可退金额上限，不允许突破上次确认金额。"
+                ],
+                fields: [
+                    "当前退款金额来自审批金额或质检后建议金额，调整后退款金额为本次实际发起退款金额。",
+                    "退款渠道包括原路退款、资产账户退回、积分/优惠券处理等展示口径。",
+                    "分账回退状态用于说明合伙人/门店/平台分账是否已回退，不能和消费者到账状态混淆。",
+                    "退款说明、失败原因、重试说明用于财务追踪和客服解释。"
+                ],
+                edge: [
+                    "金额为空、负数、非数字或高于当前可退金额时不能提交。",
+                    "分账回退失败不等于消费者退款失败，需要独立展示财务异常。",
+                    "拒绝退款发生在退款复核节点，不等同于审核阶段拒绝申请。",
+                    "重复点击确认退款不能生成多笔退款单。"
+                ],
+                testing: [
+                    "测试全额退款、下调退款、金额超限、退款中、退款成功、退款失败、重新退款、拒绝退款关闭。",
+                    "检查退款后 B 端列表状态、详情金额、C 端结果、分账回退状态和处理日志是否一致。",
+                    "测试重复提交、防超额、失败重试金额上限和异常说明展示。"
+                ]
+            },
+            reship: {
+                title: "补寄处理弹窗需求说明",
+                business: [
+                    "本弹窗用于补寄售后履约，处理少件、漏发、错发、破损补发等不以退款为主线的售后。",
+                    "入口状态通常是待补寄发货或待补寄出库，目标状态是待客户收货；客户确认收货后进入补寄完成。",
+                    "如果是云仓履约，补寄动作还需要表达是否已推送云仓、是否需要再次推送。"
+                ],
+                interaction: [
+                    "操作人确认补寄商品、补寄数量、责任方、运费承担方、出库仓和仓库处理说明。",
+                    "录入物流公司和补寄物流单号后，状态进入待客户收货，并在 C 端展示补寄物流。",
+                    "云仓推送失败时可再次推送；补寄未发货前可撤销申请并进入关闭态。"
+                ],
+                fields: [
+                    "补寄商品和数量来自申请或客服创建记录，不能超过原订单购买数量或业务允许的补寄数量。",
+                    "补寄货值成本用于内部统计，不等于退款金额。",
+                    "出库仓、物流公司、物流单号、发货时间、云仓推送状态用于履约追踪。",
+                    "责任方和运费承担方用于成本归因和售后统计。"
+                ],
+                edge: [
+                    "补寄物流单号为空时不能进入待客户收货。",
+                    "已撤销补寄不能继续推送云仓或录入物流。",
+                    "补寄完成不能展示退款成功作为主结果。",
+                    "如果补寄同时伴随部分退款，退款信息只能作为结算辅助，不应覆盖补寄主链路。"
+                ],
+                testing: [
+                    "测试补寄发货、云仓推送、再次推送、录入物流、待客户收货、客户确认收货、补寄撤销。",
+                    "检查 B 端和 C 端物流同步、补寄完成文案、补寄撤销关闭态和操作按钮隐藏。",
+                    "测试空物流单号、重复发货、撤销后继续操作的拦截。"
+                ]
+            },
+            image: {
+                title: "凭证图片预览需求说明",
+                business: [
+                    "用于查看客户申请凭证、调额沟通凭证、仓库质检凭证等图片证据。",
+                    "凭证图片支撑审核、调额、拒绝、质检和退款复核判断。"
+                ],
+                interaction: [
+                    "点击缩略图打开预览；支持上一张、下一张、关闭预览。",
+                    "预览层不改变售后状态，只提供证据查看能力。"
+                ],
+                fields: [
+                    "图片顺序和计数需与当前凭证列表一致。",
+                    "图片 alt 文案应表达凭证类型，便于测试识别。"
+                ],
+                edge: [
+                    "单张图片时上一张/下一张不可用。",
+                    "关闭预览后回到原详情或弹窗上下文。"
+                ],
+                testing: [
+                    "测试多图切换、单图禁用、遮罩关闭和 Esc 关闭。",
+                    "检查不同凭证入口打开的是对应图片集合。"
+                ]
+            },
+            fallback: {
+                title: "需求说明待补充",
+                business: ["当前页面或弹窗已经有需求说明入口，但还没有匹配到精确说明。"],
+                interaction: ["后续修改该页面或弹窗时，必须补齐业务逻辑、交互、字段、异常和测试关注点。"],
+                fields: ["请根据当前实际展示字段补充字段含义、来源、必填/只读和计算规则。"],
+                edge: ["如果这是新增状态或新增弹窗，不能只补 UI，需要同步补充需求说明。"],
+                testing: ["验收时不应长期保留此兜底说明。"]
+            }
+        };
+
+        function getRequirementDocByKey(key) {
+            return requirementDocs[key] || requirementDocs.fallback;
+        }
+
+        function getDrawerRequirementDocKey() {
+            const record = state.activeRecord;
+            if (!record) return "drawer";
+            if (record.statusKey === "audit") return "drawer_audit";
+            if (record.statusKey === "sendback") return "drawer_sendback";
+            if (record.statusKey === "returning") return "drawer_returning";
+            if (record.statusKey === "received") return "drawer_received";
+            if (record.statusKey === "refunding") return "drawer_refunding";
+            if (record.statusKey === "refund_failed") return "drawer_refund_failed";
+            if (record.statusKey === "reship_pending" || record.statusKey === "buyer_receipt" || record.afterSaleType === "补寄" || record.flowMode === "reship") return "drawer_reship";
+            if (record.statusKey === "completed") return "drawer_completed";
+            if (record.statusKey === "rejected" || record.statusKey === "cancelled") return "drawer_closed";
+            return "drawer";
+        }
+
+        function renderRequirementDocItem(item) {
+            return String(item)
+                .replace(/；/g, "；\n")
+                .replace(/。/g, "。\n")
+                .split("\n")
+                .map(line => line.trim())
+                .filter(Boolean)
+                .map(line => `<span class="req-doc-line">${line}</span>`)
+                .join("");
+        }
+
+        function renderRequirementDocSection(title, items) {
+            return `
+                <section class="req-doc-section">
+                    <h4>${title}</h4>
+                    <ul>${(items || []).map(item => `<li>${renderRequirementDocItem(item)}</li>`).join("")}</ul>
+                </section>
+            `;
+        }
+
+        function openRequirementDoc(key) {
+            const doc = getRequirementDocByKey(key === "drawer" ? getDrawerRequirementDocKey() : key);
+            let overlay = document.getElementById("req-doc-overlay");
+            if (!overlay) {
+                overlay = document.createElement("div");
+                overlay.id = "req-doc-overlay";
+                overlay.className = "req-doc-overlay";
+                document.body.appendChild(overlay);
+            }
+            overlay.innerHTML = `
+                <div class="req-doc-panel" role="dialog" aria-modal="true" aria-label="${doc.title}">
+                    <div class="req-doc-header" data-req-doc-drag>
+                        <span aria-hidden="true">📖</span>
+                        <div class="req-doc-title">${doc.title}</div>
+                        <button class="req-doc-close" type="button" data-req-doc-close>×</button>
+                    </div>
+                    <div class="req-doc-body">
+                        ${renderRequirementDocSection("业务逻辑", doc.business)}
+                        ${renderRequirementDocSection("页面交互说明", doc.interaction)}
+                        ${renderRequirementDocSection("细节字段说明", doc.fields)}
+                        ${renderRequirementDocSection("异常/边界说明", doc.edge)}
+                        ${renderRequirementDocSection("开发测试关注点", doc.testing)}
+                    </div>
+                </div>
+            `;
+            overlay.classList.add("show");
+            bindRequirementDocDrag(overlay.querySelector(".req-doc-panel"));
+        }
+
+        function closeRequirementDoc() {
+            document.getElementById("req-doc-overlay")?.classList.remove("show");
+        }
+
+        function inferRequirementDocKey(container) {
+            if (container?.closest?.("#detail-drawer")) return "drawer";
+            if (container?.closest?.(".image-preview-dialog")) return "image";
+            const title = container?.querySelector?.(".center-modal-title")?.textContent?.trim() || "";
+            if (title.includes("创建售后单")) return "manualCreate";
+            if (title.includes("同意") || title.includes("审核")) return "approve";
+            if (title.includes("拒绝") || title.includes("关闭") || title.includes("撤销")) return "reject";
+            if (title.includes("质检") || title.includes("签收")) return "quality";
+            if (title.includes("退款")) return "refund";
+            if (title.includes("补寄") || title.includes("物流")) return "reship";
+            return "list";
+        }
+
+        function createRequirementDocButton(key, extraClass = "") {
+            const button = document.createElement("button");
+            button.className = `req-doc-btn ${extraClass}`.trim();
+            button.type = "button";
+            button.dataset.reqDoc = key;
+            button.title = "查看需求说明";
+            button.setAttribute("aria-label", "查看需求说明");
+            button.textContent = "📖";
+            return button;
+        }
+
+        function decorateRequirementDocEntrypoints() {
+            const topbar = document.querySelector(".shell-topbar");
+            if (topbar && !topbar.querySelector(":scope > .req-doc-btn")) {
+                topbar.appendChild(createRequirementDocButton("list", "page-level"));
+            }
+            const drawerTitleRow = document.querySelector("#detail-drawer .drawer-title-row");
+            if (drawerTitleRow && !drawerTitleRow.querySelector(".req-doc-btn")) {
+                const closeButton = drawerTitleRow.querySelector(".drawer-close");
+                drawerTitleRow.insertBefore(createRequirementDocButton("drawer"), closeButton || null);
+            }
+            document.querySelectorAll(".center-modal-header").forEach(header => {
+                if (header.querySelector(".req-doc-btn")) return;
+                const closeButton = header.querySelector(".center-modal-close");
+                header.insertBefore(createRequirementDocButton(inferRequirementDocKey(header)), closeButton || null);
+            });
+            const imageDialog = document.querySelector(".image-preview-dialog");
+            if (imageDialog && !imageDialog.querySelector(".req-doc-btn")) {
+                imageDialog.appendChild(createRequirementDocButton("image"));
+            }
+        }
+
+        function bindRequirementDocDrag(panel) {
+            const handle = panel?.querySelector("[data-req-doc-drag]");
+            if (!panel || !handle) return;
+            let dragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+            handle.addEventListener("pointerdown", event => {
+                if (event.target.closest("[data-req-doc-close]")) return;
+                dragging = true;
+                const rect = panel.getBoundingClientRect();
+                offsetX = event.clientX - rect.left;
+                offsetY = event.clientY - rect.top;
+                panel.style.transform = "none";
+                handle.setPointerCapture(event.pointerId);
+            });
+            handle.addEventListener("pointermove", event => {
+                if (!dragging) return;
+                const maxLeft = window.innerWidth - panel.offsetWidth - 12;
+                const maxTop = window.innerHeight - panel.offsetHeight - 12;
+                panel.style.left = `${Math.max(12, Math.min(event.clientX - offsetX, maxLeft))}px`;
+                panel.style.top = `${Math.max(12, Math.min(event.clientY - offsetY, maxTop))}px`;
+            });
+            handle.addEventListener("pointerup", event => {
+                dragging = false;
+                handle.releasePointerCapture(event.pointerId);
+            });
+        }
+
+        function bindRequirementDocEvents() {
+            document.addEventListener("click", event => {
+                const button = event.target.closest("[data-req-doc]");
+                if (button) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openRequirementDoc(button.dataset.reqDoc || inferRequirementDocKey(button));
+                    return;
+                }
+                if (event.target.closest("[data-req-doc-close]") || event.target.id === "req-doc-overlay") {
+                    closeRequirementDoc();
+                }
+            });
+            document.addEventListener("keydown", event => {
+                if (event.key === "Escape") closeRequirementDoc();
+            });
+            new MutationObserver(() => decorateRequirementDocEntrypoints()).observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }
+
         function init() {
             renderStoreFilterOptions();
             renderListFilterOptions();
@@ -12780,6 +13611,8 @@
             renderStatusTabs();
             renderTable();
             bindEvents();
+            bindRequirementDocEvents();
+            decorateRequirementDocEntrypoints();
         }
 
         init();
