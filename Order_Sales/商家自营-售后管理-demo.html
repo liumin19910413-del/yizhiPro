@@ -3399,7 +3399,7 @@
         .shell {
             display: grid;
             grid-template-columns: 76px 136px minmax(1080px, 1fr);
-            grid-template-rows: 56px minmax(0, 1fr);
+            grid-template-rows: 104px minmax(0, 1fr);
             min-height: 100vh;
         }
         .shell-primary-nav {
@@ -3449,16 +3449,22 @@
             grid-column: 2 / 4;
             grid-row: 1;
             display: flex;
-            align-items: center;
-            padding: 0 24px;
+            flex-direction: column;
+            align-items: stretch;
             border-bottom: 1px solid var(--line);
             background: #f5f6f8;
+        }
+        .shell-topbar-main {
+            display: flex;
+            align-items: center;
+            min-height: 56px;
+            padding: 0 24px;
         }
         .shell-topbar-tabs {
             display: flex;
             align-items: center;
             gap: 8px;
-            height: 100%;
+            height: 56px;
         }
         .shell-topbar-tab {
             position: relative;
@@ -3526,6 +3532,92 @@
         .terminal-switch-tab.active {
             background: var(--primary);
             color: #fff;
+        }
+        .business-switch-tabs {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .business-switch-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 48px;
+            padding: 0 24px;
+            border-top: 1px solid var(--line);
+            background: #f8fbff;
+        }
+        .business-switch-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .business-switch-tab {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            min-width: 54px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 0 14px;
+            background: transparent;
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.18s ease;
+        }
+        .business-switch-tab:hover {
+            background: #eef4ff;
+            color: var(--primary);
+        }
+        .business-switch-tab.active {
+            border-color: #cfe1ff;
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+        .business-module {
+            display: none;
+        }
+        .business-module.active {
+            display: block;
+        }
+        .business-placeholder {
+            padding: 18px;
+        }
+        .business-placeholder-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+        .business-placeholder-item {
+            min-height: 118px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            padding: 16px;
+        }
+        .business-placeholder-kicker {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .business-placeholder-main {
+            color: var(--text);
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .business-placeholder-desc {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
         }
         .shell-secondary-nav {
             grid-column: 2;
@@ -4855,25 +4947,38 @@
 
         <!-- 顶栏 -->
         <header class="shell-topbar">
-            <div class="terminal-switch-block">
-                <span class="terminal-switch-label">端切换</span>
-                <div class="terminal-switch-tabs" aria-label="B端C端切换">
-                    <span class="terminal-switch-tab active">B端</span>
-                    <a class="terminal-switch-tab" href="aftersale_v5.html">C端</a>
+            <div class="shell-topbar-main">
+                <div class="terminal-switch-block">
+                    <span class="terminal-switch-label">端切换</span>
+                    <div class="terminal-switch-tabs" aria-label="B端C端切换">
+                        <span class="terminal-switch-tab active">B端</span>
+                        <a class="terminal-switch-tab" href="aftersale_v5.html">C端</a>
+                    </div>
+                </div>
+                <div class="shell-topbar-tabs">
+                    <span class="shell-topbar-tab">营销应用</span>
+                    <span class="shell-topbar-tab active">小程序订单</span>
+                    <span class="shell-topbar-tab">小程序装修</span>
+                </div>
+                <div style="margin-left:auto;display:flex;align-items:center;">
+                    <div class="account-switch-block">
+                        <span class="account-switch-label">账号切换</span>
+                        <div class="account-switch-tabs" role="tablist" aria-label="账号视角">
+                            <button class="account-switch-tab active" type="button" role="tab" aria-selected="true" data-scope-tab="hq">总部账号</button>
+                            <button class="account-switch-tab" type="button" role="tab" aria-selected="false" data-scope-tab="store">分店账号</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="shell-topbar-tabs">
-                <span class="shell-topbar-tab">营销应用</span>
-                <span class="shell-topbar-tab active">小程序订单</span>
-                <span class="shell-topbar-tab">小程序装修</span>
-            </div>
-            <div style="margin-left:auto;display:flex;align-items:center;">
-                <div class="account-switch-block">
-                    <span class="account-switch-label">账号切换</span>
-                    <div class="account-switch-tabs" role="tablist" aria-label="账号视角">
-                        <button class="account-switch-tab active" type="button" role="tab" aria-selected="true" data-scope-tab="hq">总部账号</button>
-                        <button class="account-switch-tab" type="button" role="tab" aria-selected="false" data-scope-tab="store">分店账号</button>
-                    </div>
+            <div class="business-switch-row">
+                <span class="business-switch-label">切换页面</span>
+                <div class="business-switch-tabs" role="tablist" aria-label="业务模块切换">
+                    <button class="business-switch-tab active" type="button" role="tab" aria-selected="true" data-business-tab="aftersale">售后</button>
+                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="receipt">水单</button>
+                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="commission">分佣</button>
+                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="settlement">分账</button>
+                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="order">订单</button>
+                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="permission">权限</button>
                 </div>
             </div>
         </header>
@@ -4886,6 +4991,7 @@
 
         <!-- 主内容区域 -->
         <main class="shell-content">
+            <section class="business-module active" data-business-module="aftersale">
     <div class="page-shell">
         <section class="workspace-grid">
                 <div class="card">
@@ -4967,6 +5073,132 @@
                 </div>
         </section>
     </div>
+            </section>
+            <section class="business-module" data-business-module="receipt">
+                <div class="page-shell">
+                    <div class="card business-placeholder">
+                        <div class="placeholder-title">水单</div>
+                        <div class="placeholder-desc">承接购买水单、退款水单、资产回退水单与原订单/售后单关联记录。</div>
+                        <div class="business-placeholder-grid">
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">退款水单</div>
+                                <div class="business-placeholder-main">退款成功后生成负向水单</div>
+                                <div class="business-placeholder-desc">记录退款单号、售后单号、原购买水单、退款金额和生成状态。</div>
+                            </div>
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">资产回退</div>
+                                <div class="business-placeholder-main">套餐/次卡/储值资产回写</div>
+                                <div class="business-placeholder-desc">展示资产回退前后数量、金额、关联权益和异常原因。</div>
+                            </div>
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">补偿记录</div>
+                                <div class="business-placeholder-main">水单写入失败留痕</div>
+                                <div class="business-placeholder-desc">用于财务补偿、重试和后续核对。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="business-module" data-business-module="commission">
+                <div class="page-shell">
+                    <div class="card business-placeholder">
+                        <div class="placeholder-title">分佣</div>
+                        <div class="placeholder-desc">承接合伙人佣金回退、钱包扣减和佣金异常记录。</div>
+                        <div class="business-placeholder-grid">
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">佣金回退</div>
+                                <div class="business-placeholder-main">按退款金额计算应回退佣金</div>
+                                <div class="business-placeholder-desc">保留原佣金、本次应回退、实际回退和流水结果。</div>
+                            </div>
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">钱包扣减</div>
+                                <div class="business-placeholder-main">余额不足允许负数扣减</div>
+                                <div class="business-placeholder-desc">记录扣减前余额、扣减后余额、合伙人和原因。</div>
+                            </div>
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">异常追踪</div>
+                                <div class="business-placeholder-main">佣金处理异常独立沉淀</div>
+                                <div class="business-placeholder-desc">不覆盖售后主状态，便于后续财务核对。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="business-module" data-business-module="settlement">
+                <div class="page-shell">
+                    <div class="card business-placeholder">
+                        <div class="placeholder-title">分账</div>
+                        <div class="placeholder-desc">承接分账回退、冲正结果和回退失败数据沉淀。</div>
+                        <div class="business-placeholder-grid">
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">回退明细</div>
+                                <div class="business-placeholder-main">退款成功后触发分账回退</div>
+                                <div class="business-placeholder-desc">记录分账方、原分账金额、应冲正金额和回退流水。</div>
+                            </div>
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">失败记录</div>
+                                <div class="business-placeholder-main">回退失败只做后台记录</div>
+                                <div class="business-placeholder-desc">记录失败金额、失败原因、垫付主体和失败时间。</div>
+                            </div>
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">状态隔离</div>
+                                <div class="business-placeholder-main">不影响 C 端售后完成状态</div>
+                                <div class="business-placeholder-desc">消费者退款结果与分账后台处理分开维护。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="business-module" data-business-module="order">
+                <div class="page-shell">
+                    <div class="card business-placeholder">
+                        <div class="placeholder-title">订单</div>
+                        <div class="placeholder-desc">承接原订单主状态、售后标识、商品行锁定和旺店通重推记录。</div>
+                        <div class="business-placeholder-grid">
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">原订单</div>
+                                <div class="business-placeholder-main">保留履约主状态</div>
+                                <div class="business-placeholder-desc">通过售后中、部分退款、退货退款中、补寄中表达逆向进度。</div>
+                            </div>
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">商品行</div>
+                                <div class="business-placeholder-main">按商品行锁定可售后范围</div>
+                                <div class="business-placeholder-desc">同一商品行售后中时禁止重复申请，完成或关闭后重新计算。</div>
+                            </div>
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">旺店通</div>
+                                <div class="business-placeholder-main">待发货部分退款后重推</div>
+                                <div class="business-placeholder-desc">记录原订单号、最新订单号、推送状态和失败原因。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="business-module" data-business-module="permission">
+                <div class="page-shell">
+                    <div class="card business-placeholder">
+                        <div class="placeholder-title">权限</div>
+                        <div class="placeholder-desc">承接总部/分店账号、角色权限、状态 Tab 可见性和操作按钮权限。</div>
+                        <div class="business-placeholder-grid">
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">账号范围</div>
+                                <div class="business-placeholder-main">总部可跨门店，分店只看本店</div>
+                                <div class="business-placeholder-desc">切换账号后同步刷新门店筛选、状态数量、列表和分页。</div>
+                            </div>
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">Tab 权限</div>
+                                <div class="business-placeholder-main">状态 Tab 可按角色配置</div>
+                                <div class="business-placeholder-desc">无权限不展示，有查看无操作时隐藏或置灰动作按钮。</div>
+                            </div>
+                            <div class="business-placeholder-item">
+                                <div class="business-placeholder-kicker">操作权限</div>
+                                <div class="business-placeholder-main">审核、质检、退款、补寄独立控制</div>
+                                <div class="business-placeholder-desc">关键财务动作必须具备对应角色和门店范围。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div><!-- end .shell -->
 
@@ -12485,6 +12717,19 @@
         }
 
         function bindEvents() {
+            document.querySelectorAll("[data-business-tab]").forEach((button) => {
+                button.addEventListener("click", () => {
+                    const activeKey = button.dataset.businessTab;
+                    document.querySelectorAll("[data-business-tab]").forEach((tab) => {
+                        const isActive = tab.dataset.businessTab === activeKey;
+                        tab.classList.toggle("active", isActive);
+                        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+                    });
+                    document.querySelectorAll("[data-business-module]").forEach((module) => {
+                        module.classList.toggle("active", module.dataset.businessModule === activeKey);
+                    });
+                });
+            });
             document.getElementById("status-tabs").addEventListener("click", (event) => {
                 const button = event.target.closest("[data-status-tab]");
                 if (!button) return;
@@ -13534,7 +13779,7 @@
         }
 
         function decorateRequirementDocEntrypoints() {
-            const topbar = document.querySelector(".shell-topbar");
+            const topbar = document.querySelector(".shell-topbar-main") || document.querySelector(".shell-topbar");
             if (topbar && !topbar.querySelector(":scope > .req-doc-btn")) {
                 topbar.appendChild(createRequirementDocButton("list", "page-level"));
             }
