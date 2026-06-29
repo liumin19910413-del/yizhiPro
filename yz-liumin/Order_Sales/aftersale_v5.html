@@ -472,7 +472,7 @@ const AFTERSALE_LIST=[
   {state:'待商家退款',subState:'客服代发起',group:'processing',type:'仅退款',detailType:'refund',scene:'manual_refund',time:'2026.06.11 15:30',no:'RF2606111530007001',amountLabel:'申请退款',amount:'¥138.00',defaultAmount:'¥128.00',postageAmount:'¥10.00',desc:'客服已根据沟通结果为您发起仅退款，等待商家处理退款',goods:[{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:1,color:'#2e2218',tc:'#c9a97a',label:'保温杯',refundAmount:'¥128.00'}],actions:[{text:'查看详情',style:'primary'}]},
   {state:'待补寄发货',subState:'待发货',group:'processing',type:'补寄',detailType:'reship',scene:'manual_reship',time:'2026.06.11 15:40',no:'RP2606111540007003',amountLabel:'补寄数量',amount:'x1',desc:'已为您安排补寄，补寄商品等待发货',goods:[{title:'胶原蛋白饮品',spec:'14瓶装',qty:1,color:'#55211a',tc:'#f4c8b5',label:'饮品'}],actions:[{text:'查看详情',style:'primary'}]},
   {state:'待商家审批',subState:'退款退货申请',group:'processing',type:'退款退货',detailType:'return',scene:'pending_review',time:'2026.06.10 10:00',no:'RF260610100043702145',amountLabel:'申请退款',amount:'¥187.00',postageAmount:'¥8.00',desc:'退货退款申请已提交，请等待商家处理',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'},{title:'轻源起养生保温杯（500ml）',spec:'哑光白',qty:1,color:'#2e2218',tc:'#c9a97a',label:'保温杯'},{title:'精致礼品袋（标准款）',spec:'标准款',qty:1,color:'#1a1a2e',tc:'#8888cc',label:'礼品袋'}],actions:[{text:'撤销申请',style:'ghost',sheet:'cancelConfirm'},{text:'查看详情',style:'primary'}]},
-  {state:'待客户寄回',group:'mine',type:'退款退货',detailType:'return',scene:'pending_return',time:'2026.06.09 20:15',no:'RF2606092015551623687720',amountLabel:'申请退款',amount:'¥39.00',desc:'商家已同意，请及时寄回商品',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'ghost'},{text:'填写物流',style:'primary',sheet:'returnLogistics'}]},
+  {state:'待客户寄回',group:'mine',type:'退款退货',detailType:'return',scene:'pending_return_self_only',time:'2026.06.09 20:15',no:'RF2606092015551623687720',amountLabel:'申请退款',amount:'¥39.00',desc:'商家已同意，请自行寄回商品并填写物流',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'ghost'},{text:'填写物流',style:'primary',sheet:'returnLogistics'}]},
   {state:'待商家收货',group:'processing',type:'退款退货',detailType:'return',scene:'pending_receive',time:'2026.06.09 20:42',no:'RF2606092042181623687721',amountLabel:'申请退款',amount:'¥39.00',desc:'商品已寄回，等待商家确认收货',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'ghost'},{text:'查看物流',style:'primary',sheet:'returnTrack'}]},
   {state:'待商家退款',group:'processing',type:'退款退货',detailType:'return',scene:'pending_refund',time:'2026.06.10 09:18',no:'RF2606100918001623687722',amountLabel:'申请退款',amount:'¥39.00',desc:'商家已确认收货，等待退款处理',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
   {state:'售后完成',subState:'退款成功',group:'done',type:'退款退货',detailType:'return',scene:'refund_success_full',time:'2026.06.10 11:24',no:'RF2606101124361623687723',amountLabel:'实际退款',amount:'¥39.00',desc:'本次售后已处理完成',goods:[{title:'DF3650 黄精枸杞五黑茶（6g×10袋/盒）',spec:'黑色款',qty:1,color:'#1a3020',tc:'#a8d5b0',label:'五黑茶'}],actions:[{text:'查看详情',style:'primary'}]},
@@ -528,6 +528,9 @@ function applyInitialParams(){
   }
   if(detailScene==='pending_return'){
     returnMethod=sheetMode==='returnLogistics'?'self':'pickup';
+  }else if(detailScene==='pending_return_self_only'){
+    returnMethod='self';
+    pickupBooked=false;
   }
   document.querySelectorAll('.page-tab').forEach(tab=>tab.classList.toggle('on',tab.dataset.page===activePage));
 }
@@ -545,6 +548,9 @@ function openListDetail(index,actionIndex){
   sheetMode=action.sheet||'';
   if(detailScene==='pending_return'){
     returnMethod=sheetMode==='returnLogistics'?'self':'pickup';
+  }else if(detailScene==='pending_return_self_only'){
+    returnMethod='self';
+    pickupBooked=false;
   }
   document.querySelectorAll('.page-tab').forEach(tab=>tab.classList.toggle('on',tab.dataset.page==='detail'));
   renderShell();
@@ -3905,7 +3911,7 @@ const requirementDocs={
     interaction:[
       '顶部状态标签用于筛选全部、处理中、待客户操作、已完成、已关闭等范围；切换标签只改变列表范围，不改变售后单状态。',
       '点击售后卡片或查看详情进入售后详情页；点击卡片内动作按钮不能触发整卡跳转，应优先执行当前动作。',
-      '列表动作按状态展示：待审批可撤销申请；待客户寄回可填写物流或预约取件；已寄回可查看寄回物流；补寄待客户收货可确认收货；关闭和完成态只保留查看类动作。',
+      '列表动作按状态展示：待审批可撤销申请；待客户寄回可填写物流；已寄回可查看寄回物流；补寄待客户收货可确认收货；关闭和完成态只保留查看类动作。',
       '客服代客创建的售后需要显示来源提示，消费者仍可在允许状态内查看详情、填写寄回信息或确认补寄收货。'
     ],
     fields:[
@@ -3917,7 +3923,7 @@ const requirementDocs={
     edge:[
       '空列表要保留状态标签和空状态，不展示无意义操作按钮。',
       '同一订单多个售后单时要按售后创建时间或处理优先级排序，避免开发误把订单维度当成售后维度。',
-      '已关闭记录需要展示明确关闭原因；不允许继续填写物流、预约取件、确认收货或重复撤销。',
+      '已关闭记录需要展示明确关闭原因；不允许继续填写物流、确认收货或重复撤销。',
       '退款失败、财务拒绝、商家拒绝属于不同异常：退款失败可重试或转人工处理，商家拒绝/关闭则直接进入终止态；具体重试入口是否开放为待产品确认。'
     ],
     testing:[
@@ -3972,7 +3978,7 @@ const requirementDocs={
     ],
     interaction:[
       '顶部返回回到售后列表；状态区展示当前节点和提示；进度区展示已完成、当前、未完成节点。',
-      '动作按钮按状态出现：待审核可撤销申请；待寄回可填写物流或预约取件；待收货可查看物流；补寄待客户收货可确认收货；完成/关闭态无推进动作。',
+      '动作按钮按状态出现：待审核可撤销申请；待寄回可填写物流；待收货可查看物流；补寄待客户收货可确认收货；完成/关闭态无推进动作。',
       '处理轨迹按时间展示申请、商家审核、客户寄回、商家收货/质检、退款、补寄发货、关闭等记录；内部备注和消费者可见文案要区分。',
       '点击退款明细、凭证、物流、原订单等入口打开查看面板或弹窗，不应改变售后主状态。'
     ],
@@ -3980,7 +3986,7 @@ const requirementDocs={
       '状态标题来源于售后单主状态；副文案说明下一步责任方，例如请寄回商品、等待商家收货、退款处理中、补寄商品运输中。',
       '退款金额需要区分申请金额、商家同意金额、质检后实际退款金额、支付系统实际到账金额；调额原因应展示给消费者可理解的说明。',
       '商品区域展示售后商品快照、规格、申请数量、通过数量、拒绝数量；退款退货和补寄都需要展示数量差异。',
-      '寄回信息包括寄回方式、退货地址、快递公司、运单号、预约取件时间；补寄信息包括补寄商品、快递公司、运单号和收货地址。',
+      '寄回信息包括退货地址、快递公司、运单号和寄回时间；补寄信息包括补寄商品、快递公司、运单号和收货地址。',
       '处理轨迹中的时间、操作人类型、操作结果、说明来自售后操作日志；客服内部备注如果不对C端可见不能展示。'
     ],
     edge:[
@@ -3999,33 +4005,29 @@ const requirementDocs={
   sheet:{
     title:'C端底部面板/选择器需求说明',
     business:[
-      '底部面板承接轻量信息选择和补充，包括售后类型、申请原因、寄回物流、预约取件、地址、时间、退款明细、凭证和物流轨迹。',
-      '选择类面板只回填主页面字段，不直接提交售后；提交类面板如填写物流、确认预约，成功后才推进业务状态。',
+      '底部面板承接轻量信息选择和补充，包括售后类型、申请原因、寄回物流、退款明细、凭证和物流轨迹。',
+      '选择类面板只回填主页面字段，不直接提交售后；提交类面板如填写物流，成功后才推进业务状态。',
       '面板用于缩短主页面操作路径，但不能让开发把关键规则藏在弹层里；弹层字段和主页面状态必须联动。'
     ],
     interaction:[
       '点击遮罩或关闭按钮关闭面板；选择类型/原因后回填并关闭；返回上一级时保持已选内容。',
       '填写寄回物流需要选择或输入快递公司、运单号，可通过扫码/识别入口辅助录入；提交成功后进入待商家收货。',
-      '预约取件需要选择寄件地址、取件时间、取件商品，确认后生成预约记录，并在详情页展示取件信息。',
       '查看物流、退款明细、凭证预览是只读面板，关闭后不改变任何售后状态。'
     ],
     fields:[
       '售后类型项包含名称、说明和适用条件；不适用的类型应隐藏或禁用并说明原因。',
       '原因项为枚举，提交时保存原因编码和展示文案；后续B端审核和测试断言应使用编码，C端展示使用文案。',
-      '寄回物流字段包含快递公司、运单号、寄回方式、提交时间；运单号需要做空值和基本格式校验。',
-      '预约取件字段包含联系人、手机号、地址、取件时间段、服务商、预计费用；地址新增或编辑后应回填当前预约。',
+      '寄回物流字段包含快递公司、运单号和提交时间；运单号需要做空值和基本格式校验。',
       '退款明细字段展示商品实付、运费、卡金、赠送金、积分、优惠券等分摊结果，和申请页/详情页金额保持一致。'
     ],
     edge:[
-      '自行寄回和上门取件互斥；用户已预约取件后再填写自行寄回应先取消预约或给出确认提示。',
-      '已约满、过期或不可服务的取件时间不可选；地址不在服务范围内时不能提交预约。',
       '物流单号重复、为空或格式明显异常时不能提交；提交失败时保留已填信息。',
-      '面板切换过程中不能丢失上一个面板的重要选择，例如新建地址返回预约面板后仍应选中该地址。'
+      '面板切换过程中不能丢失上一个面板的重要选择，关闭后再次打开应保留已填写但未提交的物流信息。'
     ],
     testing:[
       '测试类型/原因选择、选择后回填、遮罩关闭、关闭按钮、返回上一级、重复打开时状态保留。',
       '测试填写物流成功推进到待商家收货，物流查看只读不推进状态。',
-      '测试预约取件、取消预约、地址新增/编辑、时间不可选、服务范围外和提交失败。',
+      '测试填写物流、物流字段校验和提交失败。',
       '检查 sheetMode 切换后📖说明匹配当前面板，弹窗关闭不影响主页面数据。'
     ]
   },
