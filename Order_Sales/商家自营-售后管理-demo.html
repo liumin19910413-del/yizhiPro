@@ -31,6 +31,25 @@
             margin: 0;
             min-width: 1300px;
         }
+        .demo-control-bar {
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-height: 64px;
+            padding: 10px 18px;
+            border-bottom: 1px solid #dfe6f0;
+            background: #ffffff;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+        }
+        .demo-control-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
         .page-shell {
             min-height: auto;
             padding: 16px;
@@ -3151,6 +3170,85 @@
             max-height: min(72vh, 760px);
             overflow: auto;
         }
+        .member-name-link {
+            appearance: none;
+            border: none;
+            background: transparent;
+            padding: 0;
+            color: #1677ff;
+            font: inherit;
+            font-weight: 800;
+            line-height: 1.35;
+            cursor: pointer;
+            text-align: left;
+            text-decoration: none;
+        }
+        .member-name-link:hover {
+            color: #0b5bd3;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .member-modal {
+            width: min(520px, calc(100vw - 48px));
+            min-width: min(520px, calc(100vw - 48px));
+        }
+        .member-profile-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .member-profile-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #eff6ff;
+            color: #1677ff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .member-profile-name {
+            font-size: 18px;
+            line-height: 1.3;
+            font-weight: 900;
+            color: #101828;
+        }
+        .member-profile-phone {
+            margin-top: 4px;
+            font-size: 13px;
+            color: #667085;
+        }
+        .member-profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .member-profile-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fff;
+        }
+        .member-profile-item.full {
+            grid-column: 1 / -1;
+        }
+        .member-profile-label {
+            display: block;
+            margin-bottom: 6px;
+            color: #667085;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .member-profile-value {
+            color: #101828;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.45;
+        }
         .choice-list {
             display: flex;
             flex-direction: column;
@@ -3399,8 +3497,11 @@
         .shell {
             display: grid;
             grid-template-columns: 76px 136px minmax(1080px, 1fr);
-            grid-template-rows: 104px minmax(0, 1fr);
-            min-height: 100vh;
+            grid-template-rows: 56px minmax(0, 1fr);
+            min-height: calc(100vh - 64px);
+        }
+        .shell.hidden-for-non-aftersale {
+            display: none;
         }
         .shell-primary-nav {
             grid-column: 1;
@@ -3495,7 +3596,6 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            margin-right: 12px;
             padding: 4px 4px 4px 10px;
             border: 1px solid var(--line);
             border-radius: 12px;
@@ -3542,10 +3642,9 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            min-height: 48px;
-            padding: 0 24px;
-            border-top: 1px solid var(--line);
-            background: #f8fbff;
+            min-height: 42px;
+            padding: 0;
+            background: transparent;
         }
         .business-switch-label {
             color: var(--muted);
@@ -4930,6 +5029,30 @@
     </style>
 </head>
 <body>
+    <div class="demo-control-bar">
+        <div class="demo-control-group">
+            <div class="terminal-switch-block">
+                <span class="terminal-switch-label">端切换</span>
+                <div class="terminal-switch-tabs" aria-label="B端C端切换">
+                    <span class="terminal-switch-tab active">B端</span>
+                    <a class="terminal-switch-tab" href="aftersale_v5.html">C端</a>
+                </div>
+            </div>
+        </div>
+        <div class="demo-control-group">
+            <div class="business-switch-row">
+                <span class="business-switch-label">切换页面</span>
+                <div class="business-switch-tabs" role="tablist" aria-label="业务模块切换">
+                    <button class="business-switch-tab active" type="button" role="tab" aria-selected="true" data-business-tab="aftersale">售后</button>
+                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="receipt">水单</button>
+                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="commission">分佣</button>
+                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="settlement">分账</button>
+                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="order">订单</button>
+                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="permission">权限</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="shell">
         <!-- 一级导航 -->
         <aside class="shell-primary-nav">
@@ -4948,13 +5071,6 @@
         <!-- 顶栏 -->
         <header class="shell-topbar">
             <div class="shell-topbar-main">
-                <div class="terminal-switch-block">
-                    <span class="terminal-switch-label">端切换</span>
-                    <div class="terminal-switch-tabs" aria-label="B端C端切换">
-                        <span class="terminal-switch-tab active">B端</span>
-                        <a class="terminal-switch-tab" href="aftersale_v5.html">C端</a>
-                    </div>
-                </div>
                 <div class="shell-topbar-tabs">
                     <span class="shell-topbar-tab">营销应用</span>
                     <span class="shell-topbar-tab active">小程序订单</span>
@@ -4968,17 +5084,6 @@
                             <button class="account-switch-tab" type="button" role="tab" aria-selected="false" data-scope-tab="store">分店账号</button>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="business-switch-row">
-                <span class="business-switch-label">切换页面</span>
-                <div class="business-switch-tabs" role="tablist" aria-label="业务模块切换">
-                    <button class="business-switch-tab active" type="button" role="tab" aria-selected="true" data-business-tab="aftersale">售后</button>
-                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="receipt">水单</button>
-                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="commission">分佣</button>
-                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="settlement">分账</button>
-                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="order">订单</button>
-                    <button class="business-switch-tab" type="button" role="tab" aria-selected="false" data-business-tab="permission">权限</button>
                 </div>
             </div>
         </header>
@@ -5074,131 +5179,11 @@
         </section>
     </div>
             </section>
-            <section class="business-module" data-business-module="receipt">
-                <div class="page-shell">
-                    <div class="card business-placeholder">
-                        <div class="placeholder-title">水单</div>
-                        <div class="placeholder-desc">承接购买水单、退款水单、资产回退水单与原订单/售后单关联记录。</div>
-                        <div class="business-placeholder-grid">
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">退款水单</div>
-                                <div class="business-placeholder-main">退款成功后生成负向水单</div>
-                                <div class="business-placeholder-desc">记录退款单号、售后单号、原购买水单、退款金额和生成状态。</div>
-                            </div>
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">资产回退</div>
-                                <div class="business-placeholder-main">套餐/次卡/储值资产回写</div>
-                                <div class="business-placeholder-desc">展示资产回退前后数量、金额、关联权益和异常原因。</div>
-                            </div>
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">补偿记录</div>
-                                <div class="business-placeholder-main">水单写入失败留痕</div>
-                                <div class="business-placeholder-desc">用于财务补偿、重试和后续核对。</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section class="business-module" data-business-module="commission">
-                <div class="page-shell">
-                    <div class="card business-placeholder">
-                        <div class="placeholder-title">分佣</div>
-                        <div class="placeholder-desc">承接合伙人佣金回退、钱包扣减和佣金异常记录。</div>
-                        <div class="business-placeholder-grid">
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">佣金回退</div>
-                                <div class="business-placeholder-main">按退款金额计算应回退佣金</div>
-                                <div class="business-placeholder-desc">保留原佣金、本次应回退、实际回退和流水结果。</div>
-                            </div>
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">钱包扣减</div>
-                                <div class="business-placeholder-main">余额不足允许负数扣减</div>
-                                <div class="business-placeholder-desc">记录扣减前余额、扣减后余额、合伙人和原因。</div>
-                            </div>
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">异常追踪</div>
-                                <div class="business-placeholder-main">佣金处理异常独立沉淀</div>
-                                <div class="business-placeholder-desc">不覆盖售后主状态，便于后续财务核对。</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section class="business-module" data-business-module="settlement">
-                <div class="page-shell">
-                    <div class="card business-placeholder">
-                        <div class="placeholder-title">分账</div>
-                        <div class="placeholder-desc">承接分账回退、冲正结果和回退失败数据沉淀。</div>
-                        <div class="business-placeholder-grid">
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">回退明细</div>
-                                <div class="business-placeholder-main">退款成功后触发分账回退</div>
-                                <div class="business-placeholder-desc">记录分账方、原分账金额、应冲正金额和回退流水。</div>
-                            </div>
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">失败记录</div>
-                                <div class="business-placeholder-main">回退失败只做后台记录</div>
-                                <div class="business-placeholder-desc">记录失败金额、失败原因、垫付主体和失败时间。</div>
-                            </div>
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">状态隔离</div>
-                                <div class="business-placeholder-main">不影响 C 端售后完成状态</div>
-                                <div class="business-placeholder-desc">消费者退款结果与分账后台处理分开维护。</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section class="business-module" data-business-module="order">
-                <div class="page-shell">
-                    <div class="card business-placeholder">
-                        <div class="placeholder-title">订单</div>
-                        <div class="placeholder-desc">承接原订单主状态、售后标识、商品行锁定和旺店通重推记录。</div>
-                        <div class="business-placeholder-grid">
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">原订单</div>
-                                <div class="business-placeholder-main">保留履约主状态</div>
-                                <div class="business-placeholder-desc">通过售后中、部分退款、退货退款中、补寄中表达逆向进度。</div>
-                            </div>
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">商品行</div>
-                                <div class="business-placeholder-main">按商品行锁定可售后范围</div>
-                                <div class="business-placeholder-desc">同一商品行售后中时禁止重复申请，完成或关闭后重新计算。</div>
-                            </div>
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">旺店通</div>
-                                <div class="business-placeholder-main">待发货部分退款后重推</div>
-                                <div class="business-placeholder-desc">记录原订单号、最新订单号、推送状态和失败原因。</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section class="business-module" data-business-module="permission">
-                <div class="page-shell">
-                    <div class="card business-placeholder">
-                        <div class="placeholder-title">权限</div>
-                        <div class="placeholder-desc">承接总部/分店账号、角色权限、状态 Tab 可见性和操作按钮权限。</div>
-                        <div class="business-placeholder-grid">
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">账号范围</div>
-                                <div class="business-placeholder-main">总部可跨门店，分店只看本店</div>
-                                <div class="business-placeholder-desc">切换账号后同步刷新门店筛选、状态数量、列表和分页。</div>
-                            </div>
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">Tab 权限</div>
-                                <div class="business-placeholder-main">状态 Tab 可按角色配置</div>
-                                <div class="business-placeholder-desc">无权限不展示，有查看无操作时隐藏或置灰动作按钮。</div>
-                            </div>
-                            <div class="business-placeholder-item">
-                                <div class="business-placeholder-kicker">操作权限</div>
-                                <div class="business-placeholder-main">审核、质检、退款、补寄独立控制</div>
-                                <div class="business-placeholder-desc">关键财务动作必须具备对应角色和门店范围。</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <section class="business-module" data-business-module="receipt"></section>
+            <section class="business-module" data-business-module="commission"></section>
+            <section class="business-module" data-business-module="settlement"></section>
+            <section class="business-module" data-business-module="order"></section>
+            <section class="business-module" data-business-module="permission"></section>
         </main>
     </div><!-- end .shell -->
 
@@ -5770,8 +5755,8 @@
                 salesAmount: 328,
                 paymentSummary: "卡金 ¥300.00 / 赠金 ¥28.00",
                 cardAsset: { cardName: "晶钻会员卡", action: "开卡充值", serviceNo: "KH202606080516", cardAmount: 300, giftAmount: 28 },
-                memberAssetSummary: "原销售金额 ¥328.00；其中卡金 ¥300.00，赠金 ¥28.00，当前资产未使用，满足整单回退条件。",
-                discountSummary: "会员卡开卡/充值完成后进入客户资产，本次仅展示原销售金额和资产支付构成，不允许客服手动拆改卡金/赠金。",
+                memberAssetSummary: "原商品金额 ¥328.00；其中卡金 ¥300.00，赠金 ¥28.00，当前资产未使用，满足整单回退条件。",
+                discountSummary: "会员卡开卡/充值完成后进入客户资产，本次仅展示原商品金额和资产支付构成，不允许客服手动拆改卡金/赠金。",
                 refundAllocationNote: "系统按原订单会员资产快照回退卡金和赠金，客服只确认创建售后单。",
                 paymentParts: [
                     { name: "卡金", amount: 300, type: "asset" },
@@ -6695,7 +6680,7 @@
                             <div class="manual-info-item"><span class="manual-info-label">客户</span><span class="manual-info-value">${order.customer} / ${order.phone}</span></div>
                             <div class="manual-info-item"><span class="manual-info-label">交易门店</span><span class="manual-info-value">${order.store}</span></div>
                             <div class="manual-info-item"><span class="manual-info-label">订单金额</span><span class="manual-info-value">${money(getManualOrderAmount(order))}</span></div>
-                            <div class="manual-info-item"><span class="manual-info-label">原销售金额</span><span class="manual-info-value">${money(getManualSalesAmount(order))}</span></div>
+                            <div class="manual-info-item"><span class="manual-info-label">原商品金额</span><span class="manual-info-value">${money(getManualSalesAmount(order))}</span></div>
                             ${Number(order.freight || 0) > 0 ? `<div class="manual-info-item"><span class="manual-info-label">原单运费</span><span class="manual-info-value">${money(order.freight)}</span></div>` : ""}
                             <div class="manual-info-item full"><span class="manual-info-label">支付构成</span><span class="manual-info-value">${order.paymentSummary}</span></div>
                             ${order.cardAsset ? `<div class="manual-info-item full"><span class="manual-info-label">开充卡说明</span><span class="manual-info-value">${order.cardAsset.cardName}${order.cardAsset.action}；客服号 ${order.cardAsset.serviceNo}；卡金 ${money(order.cardAsset.cardAmount)}；赠送金 ${money(order.cardAsset.giftAmount)}</span></div>` : ""}
@@ -8118,10 +8103,9 @@
                 const productSubs = ``;
                 const userSubs = `<div class="cell-sub">${record.phone}</div>`;
                 const applicationSource = getApplicationSourceMeta(record);
-                const statusSubText = getReshipPendingSubStatus(record)
-                    || (["rejected", "cancelled"].includes(record.statusKey)
+                const statusSubText = ["rejected", "cancelled"].includes(record.statusKey)
                         ? getClosureMeta(record).subStatus
-                        : "");
+                        : "";
                 const orderTypeSubs = `
                     <div class="mini-tags compact">
                         <span class="mini-tag ${getOrderSceneTagTone(record.orderScene)}">${getOrderSubType(record)}</span>
@@ -8130,10 +8114,13 @@
                 const freightSuffix = record.amounts.freightRefund > 0 ? `（含运费 ${money(record.amounts.freightRefund)}）` : "";
                 const isCompleted = record.statusKey === "completed";
                 const isAdjustedAmount = Math.abs(Number(record.amounts.approved || 0) - Number(record.amounts.applied || 0)) > 0.001 || Boolean(record.manualAdjustedReason);
-                const amountMain = `申请 ${money(record.amounts.applied)}${freightSuffix}`;
-                const amountSubs = isCompleted
-                    ? `<div class="cell-sub">实退 ${money(record.amounts.actual)}${freightSuffix}</div>`
-                    : (isAdjustedAmount ? `<div class="cell-sub">审批后实退 ${money(record.amounts.approved)} · 已调价</div>` : ``);
+                const shouldShowAmountSummary = record.statusKey !== "reship_pending";
+                const amountMain = shouldShowAmountSummary ? `申请 ${money(record.amounts.applied)}${freightSuffix}` : "";
+                const amountSubs = !shouldShowAmountSummary
+                    ? ""
+                    : (isCompleted
+                        ? `<div class="cell-sub">实退 ${money(record.amounts.actual)}${freightSuffix}</div>`
+                        : (isAdjustedAmount ? `<div class="cell-sub">审批后实退 ${money(record.amounts.approved)} · 已调价</div>` : ``));
                 const isDeposit = isDepositOrder(record);
                 const listProductPriceLine = isDeposit ? "" : `<div class="product-price-line">${money(mainItem.unitPrice)} × ${mainItem.qty}</div>`;
 
@@ -8175,7 +8162,7 @@
                             ${amountSubs}
                         </div>
                         <div class="cell-stack">
-                            <div class="cell-title">${record.customer}</div>
+                            <button class="member-name-link" type="button" data-member-id="${record.id}">${record.customer}</button>
                             ${userSubs}
                         </div>
                         <div class="cell-stack">
@@ -8330,6 +8317,22 @@
             if (record.statusKey === "reship_pending") return "待仓库发货";
             if (record.statusKey === "received") return "操作退款";
             return statusConfigs[record.statusKey].primaryAction;
+        }
+
+        function openMemberDetailModal(record) {
+            actionModalOverlay.innerHTML = `
+                <div class="center-modal member-modal">
+                    <div class="center-modal-header">
+                        <div class="center-modal-title">详情页面</div>
+                        <button class="center-modal-close" type="button" data-close-action-modal>×</button>
+                    </div>
+                    <div class="center-modal-body">
+                        <div class="member-profile-value">这个就是系统的详情弹窗</div>
+                    </div>
+                </div>
+            `;
+            actionModalOverlay.classList.add("show");
+            bindActionModalEvents("member_detail", record);
         }
 
         function mapTone(statusKey) {
@@ -9666,7 +9669,7 @@
             const freightText = originalFreight > 0 ? `（含运费${money(originalFreight)}）` : "";
             return `
                 <div class="manual-info-item"><span class="manual-info-label">原订单金额</span><span class="manual-info-value">${money(orderAmount)}${freightText}</span></div>
-                <div class="manual-info-item"><span class="manual-info-label">原销售金额</span><span class="manual-info-value">${money(salesAmount)}</span></div>
+                <div class="manual-info-item"><span class="manual-info-label">原商品金额</span><span class="manual-info-value">${money(salesAmount)}</span></div>
                 ${record.paymentSummary ? `<div class="manual-info-item full"><span class="manual-info-label">支付构成</span><span class="manual-info-value">${record.paymentSummary}</span></div>` : ""}
                 ${record.memberAssetSummary ? `<div class="manual-info-item full"><span class="manual-info-label">会员资产快照</span><span class="manual-info-value">${record.memberAssetSummary}</span></div>` : ""}
             `;
@@ -10181,6 +10184,7 @@
                                 <div class="approval-record-item full"><span class="approval-record-label">退款说明</span><span class="approval-record-value">${refundNote}</span></div>
                                 ${financeAdjustment ? `
                                     <div class="approval-record-item full"><span class="approval-record-label">二审退款调额记录</span><span class="approval-record-value">一审确认 ${money(financeAdjustment.before)}，最终实退 <span class="amount-danger">${money(financeAdjustment.after)}</span>，差额 ${money(financeAdjustment.delta)}</span></div>
+                                    ${financeAdjustment.proofCount ? `<div class="approval-record-item full"><span class="approval-record-label">二审调额凭证</span><span class="approval-record-value">已上传 ${financeAdjustment.proofCount} 张金额确认/异常处理凭证</span></div>` : ""}
                                 ` : ""}
                             </div>
                             <div class="manual-inline-block" style="margin-top:14px;">
@@ -10868,7 +10872,7 @@
             showToast(isRefundOnly ? "已同意申请，售后单已进入退款中" : "已同意申请，售后单已进入待客户寄回");
         }
 
-        function applyRefundProcessingTransition(record, amount, isRetry, refundNote = "") {
+        function applyRefundProcessingTransition(record, amount, isRetry, refundNote = "", proofCount = 0) {
             const previousApprovedAmount = Number(record.amounts.approved || record.amounts.applied || 0);
             const maxRefundAmount = Math.min(Number(record.amounts.maxRefund || previousApprovedAmount), Number(record.amounts.applied || previousApprovedAmount));
             const safeAmount = Math.max(0, Math.min(Number(amount) || previousApprovedAmount, maxRefundAmount));
@@ -10881,7 +10885,8 @@
                     after: safeAmount,
                     delta: Number((previousApprovedAmount - safeAmount).toFixed(2)),
                     qualityResult: shouldShowReturnAndQualityModules(record) ? record.qualityResult : "",
-                    reason: record.refundNote
+                    reason: record.refundNote,
+                    proofCount
                 };
             }
             record.refundOperator = record.refundOperator || "商家客服王静";
@@ -10893,9 +10898,12 @@
             record.countdown = chooseCountdown("refunding", 1);
             record.availableActions = resolveAvailableActions(record);
             record.issueTag = isRetry ? "已重新发起退款" : record.issueTag;
+            const proofLogText = proofCount
+                ? (previousApprovedAmount - safeAmount > 0.001 ? `，已上传二审调额凭证 ${proofCount} 张` : `，已上传二审补充凭证 ${proofCount} 张`)
+                : "";
             record.logs.unshift({
                 time: record.refundOperateAt,
-                text: `${isRetry ? "商家客服重新发起退款" : "商家客服确认操作退款"}，最终实退金额 ${money(safeAmount)}。`
+                text: `${isRetry ? "商家客服重新发起退款" : "商家客服确认操作退款"}，最终实退金额 ${money(safeAmount)}${proofLogText}。`
             });
             renderStatusTabs();
             renderTable();
@@ -11516,6 +11524,20 @@
                         </div>
 
                         <div class="action-form-grid" style="margin-top:14px;">
+                            ${hasQualityException ? `
+                                <div class="field full" data-refund-adjust-proof-field>
+                                    <label data-refund-adjust-proof-label>二审调额凭证（选填）</label>
+                                    <label class="manual-upload-tile">
+                                        <input data-refund-adjust-proof type="file" accept="image/*" multiple>
+                                        <span class="manual-upload-icon">+</span>
+                                        <span>
+                                            <span class="manual-upload-title">上传凭证</span>
+                                            <span class="manual-upload-desc" data-refund-adjust-proof-desc>二审退款金额未变更时可不上传；如调整退款金额，必须上传金额确认或异常处理凭证。</span>
+                                        </span>
+                                    </label>
+                                    <div class="upload-helper" data-refund-adjust-proof-count>暂未上传凭证</div>
+                                </div>
+                            ` : ""}
                             <div class="field full multiline">
                                 <label>${isRetry ? "重试说明" : "退款说明"}</label>
                                 <textarea class="refund-note-textarea" data-refund-note>${isRetry ? "本次为退款失败后的重新触发，请关注渠道回执。" : (isFixedFullRefund ? "确认退款后将按申请金额全额原路退回，请留意到账结果。" : "确认退款后将按调整后金额发起退款，请留意到账结果")}</textarea>
@@ -11556,6 +11578,36 @@
             const breakdownContent = refundModalOverlay.querySelector("[data-refund-breakdown-content]");
             const footerTotal = refundModalOverlay.querySelector("[data-refund-footer-total]");
             const footerSub = refundModalOverlay.querySelector("[data-refund-footer-sub]");
+            const proofInput = refundModalOverlay.querySelector("[data-refund-adjust-proof]");
+            const proofLabel = refundModalOverlay.querySelector("[data-refund-adjust-proof-label]");
+            const proofDesc = refundModalOverlay.querySelector("[data-refund-adjust-proof-desc]");
+            const proofCountView = refundModalOverlay.querySelector("[data-refund-adjust-proof-count]");
+
+            function isSecondAuditAmountChanged() {
+                return Array.from(refundModalOverlay.querySelectorAll("[data-default-refund]")).some((input) => {
+                    return Math.abs((Number(input.value) || 0) - getRefundInputDefault(input)) > 0.001;
+                });
+            }
+
+            function getRefundAdjustProofCount() {
+                return proofInput?.files?.length || 0;
+            }
+
+            function updateRefundProofState() {
+                if (!proofInput) return;
+                const changed = isSecondAuditAmountChanged();
+                const count = getRefundAdjustProofCount();
+                if (proofLabel) proofLabel.textContent = changed ? "二审调额凭证（必填）" : "二审调额凭证（选填）";
+                if (proofDesc) {
+                    proofDesc.textContent = changed
+                        ? "已变更二审退款金额，提交前必须上传金额确认、异常处理或财务复核凭证。"
+                        : "二审退款金额未变更时可不上传；如调整退款金额，必须上传金额确认或异常处理凭证。";
+                }
+                if (proofCountView) {
+                    proofCountView.textContent = count ? `已上传 ${count} 张凭证` : (changed ? "金额已变更，请上传凭证" : "暂未上传凭证");
+                    proofCountView.style.color = changed && !count ? "#dc2626" : "#98a2b3";
+                }
+            }
 
             function recalcTotal() {
                 let goodsSum = 0;
@@ -11606,6 +11658,7 @@
                     breakdownContent.innerHTML = parts.join("　｜　");
                 }
 
+                updateRefundProofState();
                 return sum;
             }
 
@@ -11618,6 +11671,7 @@
                 const freightInp = refundModalOverlay.querySelector("[data-refund-freight-amount]");
                 if (freightInp) freightInp.addEventListener("input", recalcTotal);
             }
+            if (proofInput) proofInput.addEventListener("change", updateRefundProofState);
 
             // Initial calculation
             recalcTotal();
@@ -11638,11 +11692,19 @@
                         showToast(`二审确认退款金额 ${money(amount)} 不能高于一审退款金额 ${money(fixedRefundTotal)}`);
                         return;
                     }
+                    const amountChanged = isSecondAuditAmountChanged();
+                    const proofCount = getRefundAdjustProofCount();
+                    if (amountChanged && !proofCount) {
+                        showToast("二审调整退款金额后，请上传调额凭证");
+                        proofInput?.focus();
+                        updateRefundProofState();
+                        return;
+                    }
                     const isRetry = confirmButton.dataset.confirmRefundModal === "retry_refund";
                     const noteInput = refundModalOverlay.querySelector("[data-refund-note]");
                     const refundNote = noteInput ? noteInput.value.trim() : "";
                     closeRefundModal();
-                    applyRefundProcessingTransition(record, amount, isRetry, refundNote);
+                    applyRefundProcessingTransition(record, amount, isRetry, refundNote, proofCount);
                 });
             }
         }
@@ -12720,6 +12782,7 @@
             document.querySelectorAll("[data-business-tab]").forEach((button) => {
                 button.addEventListener("click", () => {
                     const activeKey = button.dataset.businessTab;
+                    document.querySelector(".shell")?.classList.toggle("hidden-for-non-aftersale", activeKey !== "aftersale");
                     document.querySelectorAll("[data-business-tab]").forEach((tab) => {
                         const isActive = tab.dataset.businessTab === activeKey;
                         tab.classList.toggle("active", isActive);
@@ -12748,6 +12811,13 @@
             });
 
             const tableClickHandler = (event) => {
+                const memberButton = event.target.closest("[data-member-id]");
+                if (memberButton) {
+                    event.stopPropagation();
+                    const record = mockRecords.find(item => item.id === memberButton.dataset.memberId);
+                    if (record) openMemberDetailModal(record);
+                    return;
+                }
                 const target = event.target.closest("[data-open-id]");
                 if (!target) return;
                 const record = mockRecords.find(item => item.id === target.dataset.openId);
@@ -13467,7 +13537,7 @@
                     "提交时系统按当前售后类型创建对应售后单：仅退款/退款退货需要退款金额和说明；退款退货还关注责任方、寄回邮费责任和预支邮费；补寄关注补寄商品、数量、责任方和履约方式。"
                 ],
                 fields: [
-                    "搜索区：订单号、客户手机号、客户姓名用于定位原订单；订单卡片需展示订单金额、原销售金额、运费、支付构成、交易门店和业务标签，帮助客服判断是不是客户要处理的订单。",
+                    "搜索区：订单号、客户手机号、客户姓名用于定位原订单；订单卡片需展示订单金额、原商品金额、运费、支付构成、交易门店和业务标签，帮助客服判断是不是客户要处理的订单。",
                     "01 原订单信息：订单号可作为原订单详情入口；订单类型展示微商城/拼团等来源；业务标签展示商品发货、商品自提、套餐次卡、储值卡、预定金等子类型；订单状态决定售后类型和后续流向。",
                     "支付构成：需要展示微信/卡金/积分/优惠券等支付拆分，因为退款不是简单退商品金额，后续要按实际支付方式和资产账户分别退回。",
                     "02 申请信息：售后类型、售后/补寄原因、申请详细说明为核心字段；退款退货还要维护退货责任方、寄回邮费责任方、是否预支邮费和预支邮费金额；补寄还要维护补寄责任方和补寄履约方式。",
@@ -13597,7 +13667,7 @@
                 ],
                 interaction: [
                     "打开弹窗时默认调整后退款金额等于当前可退金额。",
-                    "允许下调，不允许上调；下调需要填写退款说明或调额依据。",
+                    "允许下调，不允许上调；二审退款金额未变更时凭证可选，发生下调时必须上传调额凭证并填写退款说明或调额依据。",
                     "确认退款后写入退款金额、退款渠道、操作人、操作时间、分账回退动作，并刷新状态。",
                     "退款失败节点点击重新退款时，沿用上一轮可退金额上限，不允许突破上次确认金额。"
                 ],
@@ -13605,10 +13675,11 @@
                     "当前退款金额来自审批金额或质检后建议金额，调整后退款金额为本次实际发起退款金额。",
                     "退款渠道包括原路退款、资产账户退回、积分/优惠券处理等展示口径。",
                     "分账回退状态用于说明合伙人/门店/平台分账是否已回退，不能和消费者到账状态混淆。",
-                    "退款说明、失败原因、重试说明用于财务追踪和客服解释。"
+                    "退款说明、失败原因、重试说明和二审调额凭证用于财务追踪和客服解释。"
                 ],
                 edge: [
                     "金额为空、负数、非数字或高于当前可退金额时不能提交。",
+                    "收货异常且二审金额低于一审金额时，未上传凭证不能确认退款。",
                     "分账回退失败不等于消费者退款失败，需要独立展示财务异常。",
                     "拒绝退款发生在退款复核节点，不等同于审核阶段拒绝申请。",
                     "重复点击确认退款不能生成多笔退款单。"
@@ -13670,6 +13741,34 @@
                 testing: [
                     "测试多图切换、单图禁用、遮罩关闭和 Esc 关闭。",
                     "检查不同凭证入口打开的是对应图片集合。"
+                ]
+            },
+            member_detail: {
+                title: "列表用户详情弹窗需求说明",
+                business: [
+                    "本弹窗由列表用户列触发，用于表达点击用户姓名后进入系统侧详情查看能力。",
+                    "弹窗本体不展开具体会员类型、会员等级或业务标签，避免把演示误解成某一种会员详情页。",
+                    "该入口的重点是验证用户列可点击、弹窗可打开、上下文不丢失，并与售后单详情抽屉区分。"
+                ],
+                interaction: [
+                    "列表用户姓名必须高亮为可点击状态，手机号保留为辅助识别信息。",
+                    "点击用户姓名只打开系统详情弹窗，不触发行点击，也不打开售后服务单详情抽屉。",
+                    "弹窗支持右上角关闭和遮罩关闭，关闭后仍停留在当前列表筛选、当前状态 tab 和当前分页。"
+                ],
+                fields: [
+                    "用户列展示客户姓名和手机号；姓名作为详情入口，手机号用于客服快速识别客户。",
+                    "系统详情弹窗标题展示为详情页面，正文展示为这个就是系统的详情弹窗。",
+                    "该弹窗不展示具体会员类型、会员等级、消费数据、售后统计等业务细节。"
+                ],
+                edge: [
+                    "点击用户姓名不能冒泡到整行点击，否则会误开售后单详情抽屉。",
+                    "当前行数据刷新、筛选或分页后，用户入口仍需绑定到对应行。",
+                    "如果用户姓名为空，应仍保证手机号可辅助定位，但当前 demo mock 数据默认有姓名。"
+                ],
+                testing: [
+                    "测试每个状态列表中的用户姓名是否高亮可点。",
+                    "点击用户姓名后检查只出现系统详情弹窗，售后详情抽屉不应打开。",
+                    "关闭弹窗后检查状态 tab、筛选条件、分页和列表滚动位置不被重置。"
                 ]
             },
             fallback: {
@@ -13764,6 +13863,7 @@
             if (title.includes("质检") || title.includes("签收")) return "quality";
             if (title.includes("退款")) return "refund";
             if (title.includes("补寄") || title.includes("物流")) return "reship";
+            if (title.includes("详情页面")) return "member_detail";
             return "list";
         }
 
