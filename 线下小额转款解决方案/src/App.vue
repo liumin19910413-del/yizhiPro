@@ -104,7 +104,7 @@
                       end-placeholder="结束日期"
                       size="default"
                     />
-                    <el-select v-model="statsFilters.store" placeholder="门店" clearable :disabled="!isHeadquarters">
+                    <el-select v-if="isHeadquarters" v-model="statsFilters.store" placeholder="门店" clearable>
                       <el-option v-for="store in storeOptions" :key="store" :label="store" :value="store" />
                     </el-select>
                     <el-button>导出</el-button>
@@ -127,7 +127,7 @@
                 <template v-else>
                   <div class="filter-row wide">
                     <el-date-picker v-model="dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" />
-                    <el-select v-model="detailFilters.store" placeholder="门店" clearable :disabled="!isHeadquarters">
+                    <el-select v-if="isHeadquarters" v-model="detailFilters.store" placeholder="门店" clearable>
                       <el-option v-for="store in storeOptions" :key="store" :label="store" :value="store" />
                     </el-select>
                     <el-select v-model="detailFilters.status" placeholder="状态" clearable>
@@ -144,6 +144,7 @@
                   </div>
                   <el-table :data="visiblePayoutDetails" border>
                     <el-table-column prop="paidAt" label="打款时间" min-width="150" />
+                    <el-table-column prop="id" label="单据号" min-width="130" />
                     <el-table-column prop="store" label="门店" min-width="110" />
                     <el-table-column prop="accountType" label="账户类型" min-width="110" />
                     <el-table-column prop="account" label="出款账户" min-width="140" />
@@ -167,7 +168,6 @@
                     </el-table-column>
                     <el-table-column label="操作" width="150" fixed="right">
                       <template #default="{ row }">
-                        <el-button link type="primary" @click="openDetailDrawer(row)">查看</el-button>
                         <el-button v-if="row.status === '失败'" link type="primary" @click="retryPayout(row)">重新打款</el-button>
                       </template>
                     </el-table-column>
@@ -221,7 +221,7 @@
             <section v-if="activeMenu === 'config'" class="page-stack">
               <div v-if="currentView.readonlyConfig" class="readonly-banner">
                 <strong>当前门店已适用总部配置</strong>
-                <span>配置来源：总部统一配置，生效时间：2026-07-01 17:26。门店不可修改商户号、证书和转账场景。</span>
+                <span>配置来源：总部统一配置，生效时间：2026-07-01 17:26。门店不可修改商户号、证书等配置。</span>
               </div>
 
               <section class="content-panel">
@@ -232,8 +232,9 @@
 
                 <div v-if="!currentView.readonlyConfig" class="config-notice">
                   <span class="notice-icon">i</span>
-                  <span>请先在微信商户平台完成商户号申请、商家转账开通和接口安全 IP 配置，再在本页填写系统配置并启用通道。</span>
-                  <el-button link type="primary" class="notice-guide-link" @click="openGuideDoc">查看操作指引</el-button>
+                  <span>
+                    请参考<button type="button" class="notice-doc-link" @click="openGuideDoc">开通说明文档</button>，先在微信商户平台完成商户号申请、商家转账开通和接口安全 IP 配置，再在本页填写系统配置并保存设置。
+                  </span>
                 </div>
 
                 <section class="config-section">
@@ -268,18 +269,6 @@
                       <el-input v-model="configForm.publicKeyId" :disabled="currentView.readonlyConfig">
                         <template #append><HelpPopover field="微信支付公钥ID" /></template>
                       </el-input>
-                    </el-form-item>
-                    <el-form-item label="转账场景ID">
-                      <el-input v-model="configForm.sceneId" :disabled="currentView.readonlyConfig">
-                        <template #append><HelpPopover field="转账场景ID" /></template>
-                      </el-input>
-                    </el-form-item>
-                    <el-form-item label="转账场景名称">
-                      <el-select v-model="configForm.sceneName" style="width: 100%" :disabled="currentView.readonlyConfig">
-                        <el-option label="现金营销" value="现金营销" />
-                        <el-option label="佣金报酬" value="佣金报酬" />
-                        <el-option label="企业赔付" value="企业赔付" />
-                      </el-select>
                     </el-form-item>
                   </el-form>
                 </section>
@@ -525,7 +514,7 @@ const FEISHU_HELP_URL = 'https://www.feishu.cn/docx/PLACEHOLDER_WECHAT_TRANSFER_
 const globalNav = ['小红书', '连锁架构', '门店配置', '公域获客', '私域运营', 'AI 智能体', '营销中心', '数据报表', '库存管理'];
 const menuOptions: { key: MenuKey; label: string }[] = [
   { key: 'overview', label: '数据总览' },
-  { key: 'payout', label: '授权打款' },
+  { key: 'payout', label: '授权列表' },
   { key: 'config', label: '打款配置' }
 ];
 
@@ -554,11 +543,6 @@ const fieldGuides: Record<string, FieldGuide> = {
     desc: '微信支付公钥的标识，用于按公钥验签。',
     path: '微信支付商户平台 > 账户中心 > API 安全 > 微信支付公钥',
     note: '如商户后台展示多个公钥，请选择正在使用的公钥 ID。'
-  },
-  转账场景ID: {
-    desc: '商家转账产品中已开通场景对应的 ID。',
-    path: '微信支付商户平台 > 产品中心 > 商家转账 > 转账场景',
-    note: '本期一个商户号只配置一个转账场景。'
   }
 };
 
@@ -732,9 +716,7 @@ const configForm = ref({
   apiKey: '************',
   certNo: '6B729D43********8F20',
   privateKey: '-----BEGIN PRIVATE KEY-----\n********\n-----END PRIVATE KEY-----',
-  publicKeyId: 'PUB_KEY_ID_011423',
-  sceneId: '1005',
-  sceneName: '佣金报酬'
+  publicKeyId: 'PUB_KEY_ID_011423'
 });
 
 const currentView = computed(() => views.value.find((view) => view.key === activeViewKey.value) ?? views.value[0]);
@@ -905,9 +887,7 @@ function validateRequiredConfig() {
     ['API v3 密钥', configForm.value.apiKey],
     ['商户证书序列号', configForm.value.certNo],
     ['商户私钥', configForm.value.privateKey],
-    ['微信支付公钥ID', configForm.value.publicKeyId],
-    ['转账场景ID', configForm.value.sceneId],
-    ['转账场景名称', configForm.value.sceneName]
+    ['微信支付公钥ID', configForm.value.publicKeyId]
   ];
   const missingField = requiredFields.find(([, value]) => !String(value).trim());
   return missingField ? `请先填写${missingField[0]}，再保存设置` : '';
