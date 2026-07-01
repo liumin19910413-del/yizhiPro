@@ -762,6 +762,12 @@ button {
   background: #202631;
 }
 
+.qr-tip {
+  color: #303743;
+  font-weight: 600;
+  margin: 4px 0 6px;
+}
+
 .payee-summary {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

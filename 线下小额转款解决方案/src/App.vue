@@ -180,7 +180,6 @@
               <section class="content-panel">
                 <div class="panel-title-row">
                   <h2>授权用户</h2>
-                  <el-button type="primary" @click="authDialogVisible = true">添加授权</el-button>
                 </div>
                 <div class="filter-row">
                   <el-select v-model="authFilters.store" placeholder="所属门店" clearable>
@@ -193,6 +192,7 @@
                   </el-select>
                   <el-input v-model="authFilters.keyword" placeholder="收款人姓名/手机号搜索" clearable />
                   <el-button>查询</el-button>
+                  <el-button v-if="!isHeadquarters" type="primary" @click="qrDialogVisible = true">生成授权码</el-button>
                 </div>
                 <el-table :data="visibleAuthUsers" border>
                   <el-table-column prop="name" label="收款人" width="110" />
@@ -323,35 +323,19 @@
       </template>
     </main>
 
-    <el-dialog v-model="authDialogVisible" title="添加授权用户" width="520px">
-      <el-form label-width="110px">
-        <el-form-item label="所属门店">
-          <el-select v-model="authForm.store" style="width: 100%" :disabled="!isHeadquarters">
-            <el-option v-for="store in storeOptions" :key="store" :label="store" :value="store" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="收款人姓名"><el-input v-model="authForm.name" /></el-form-item>
-        <el-form-item label="手机号"><el-input v-model="authForm.phone" /></el-form-item>
-        <el-form-item label="用户展示名称"><el-input v-model="authForm.displayName" /></el-form-item>
-        <el-form-item label="备注"><el-input v-model="authForm.remark" type="textarea" /></el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="authDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="showQrFromAuth">生成授权二维码</el-button>
-      </template>
-    </el-dialog>
-
-    <el-dialog v-model="qrDialogVisible" title="请让用户扫码完成收款授权" width="420px">
+    <el-dialog v-model="qrDialogVisible" title="收款授权码" width="420px">
       <div class="qr-box">
         <div class="qr-code">
           <span v-for="cell in 81" :key="cell" :class="{ dark: cell % 2 === 0 || cell % 7 === 0 || cell % 11 === 0 }"></span>
         </div>
+        <p class="qr-tip">使用微信扫码做收款授权确认</p>
         <p>授权场景：{{ currentView.scene }}</p>
         <p>授权有效期：24小时</p>
         <p>配置来源：{{ currentView.accountSource }}</p>
       </div>
       <template #footer>
-        <el-button>复制授权链接</el-button>
+        <el-button @click="copyQrImage">复制图片</el-button>
+        <el-button @click="saveQrImage">保存图片</el-button>
         <el-button type="primary" @click="qrDialogVisible = false">关闭</el-button>
       </template>
     </el-dialog>
@@ -687,7 +671,6 @@ const activeViewKey = ref<ViewKey>('hq');
 const overviewTableTab = ref<'打款统计' | '打款明细'>('打款统计');
 const dateRange = ref<[Date, Date] | ''>('');
 
-const authDialogVisible = ref(false);
 const qrDialogVisible = ref(false);
 const payoutDialogVisible = ref(false);
 const storeDrawerVisible = ref(false);
@@ -708,7 +691,6 @@ const statsFilters = ref<{ dateRange: [Date, Date] | ''; store: string }>({
   dateRange: [new Date('2026-07-01'), new Date('2026-07-31')],
   store: ''
 });
-const authForm = ref({ store: '首款门店', name: '', phone: '', displayName: '', remark: '' });
 const payoutForm = ref({ amount: 200, business: '分销合伙人提现', source: '分销合伙人', sourceNo: 'TX20260701005', remark: '7月分销佣金' });
 const configForm = ref({
   mchid: '1900********1109',
@@ -823,9 +805,24 @@ function submitPayout() {
   ElMessage.success('打款单已提交');
 }
 
-function showQrFromAuth() {
-  authDialogVisible.value = false;
-  qrDialogVisible.value = true;
+function copyQrImage() {
+  ElMessage.success('已复制授权码图片');
+}
+
+function saveQrImage() {
+  const cells = Array.from({ length: 81 }, (_, index) => {
+    const cell = index + 1;
+    if (!(cell % 2 === 0 || cell % 7 === 0 || cell % 11 === 0)) return '';
+    const x = (index % 9) * 20;
+    const y = Math.floor(index / 9) * 20;
+    return `<rect x="${x}" y="${y}" width="20" height="20" fill="#202631" />`;
+  }).join('');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect width="180" height="180" fill="#fff" />${cells}</svg>`;
+  const link = document.createElement('a');
+  link.href = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  link.download = '收款授权码.svg';
+  link.click();
+  ElMessage.success('已保存授权码图片');
 }
 
 function toggleStore(store: string) {
