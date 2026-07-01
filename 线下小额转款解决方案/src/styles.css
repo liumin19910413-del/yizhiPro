@@ -655,6 +655,38 @@ button {
   max-width: 860px;
 }
 
+.store-link-row {
+  margin-bottom: 8px;
+}
+
+.store-link-row .el-button {
+  padding: 0;
+  font-size: 14px;
+}
+
+.store-scope-desc {
+  margin: 0 0 12px;
+  max-width: 1040px;
+  color: #9aa1ad;
+  line-height: 1.8;
+}
+
+.selected-store-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.selected-store-tags .el-tag {
+  height: 32px;
+  border: 0;
+  border-radius: 4px;
+  background: #f0f1f3;
+  color: #4f5868;
+  padding: 0 10px 0 12px;
+  font-size: 14px;
+}
+
 .selected-stores {
   display: flex;
   flex-wrap: wrap;

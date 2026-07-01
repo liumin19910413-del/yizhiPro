@@ -289,19 +289,24 @@
                   <div class="config-section-title">
                     <h3>适用门店</h3>
                   </div>
-                  <div class="selected-stores">
-                    <div class="selected-store-list">
-                      <span>已适用门店：{{ selectedStores.length }} 家</span>
-                      <el-tag v-for="store in selectedStores" :key="store" type="info">{{ store }}</el-tag>
-                    </div>
-                    <el-button :disabled="currentView.readonlyConfig" @click="storeDrawerVisible = true">选择门店</el-button>
+                  <div class="store-link-row">
+                    <el-button link type="primary" :disabled="currentView.readonlyConfig" @click="storeDrawerVisible = true">选择门店</el-button>
                   </div>
-                  <el-alert
-                    title="被设置为适用门店的分店将使用总部当前配置；若分店此前已独立配置，保存后将被总部配置覆盖。"
-                    type="warning"
-                    show-icon
-                    :closable="false"
-                  />
+                  <p class="store-scope-desc">
+                    所选门店已有该服务，如门店为连锁配置则连锁配置更改，门店自动覆盖，如门店为门店自主，则门店改动部分覆盖，通用不可改部分按连锁配置的覆盖
+                  </p>
+                  <div class="selected-store-tags">
+                    <el-tag
+                      v-for="store in selectedStores"
+                      :key="store"
+                      type="info"
+                      closable
+                      :disable-transitions="true"
+                      @close="removeStore(store)"
+                    >
+                      {{ store }}
+                    </el-tag>
+                  </div>
                 </section>
 
                 <section class="config-section impact-section">
@@ -685,6 +690,11 @@ const payoutDetails = ref<PayoutDetail[]>([
 ]);
 
 const selectableStores = [
+  { name: '热浪（白云店）', code: 'R001', area: '华东', status: '未启用' },
+  { name: '热浪（机场店）', code: 'R002', area: '华南', status: '未启用' },
+  { name: '热浪蔷薇（泰禾）', code: 'R003', area: '华南', status: '适用总部配置' },
+  { name: '热浪林和西（第一国际）', code: 'R004', area: '华南', status: '独立配置' },
+  { name: '热浪测试1（卓越中寰）', code: 'R005', area: '华东', status: '未启用' },
   { name: '首款门店', code: 'S001', area: '华东', status: '未启用' },
   { name: '三号门店', code: 'S003', area: '华南', status: '独立配置' },
   { name: '二号门店', code: 'S002', area: '华北', status: '独立配置' },
@@ -708,7 +718,7 @@ const selectedDetail = ref<PayoutDetail | null>(null);
 const savingConfig = ref(false);
 const configValidationError = ref('');
 
-const selectedStores = ref(['首款门店', '三号门店']);
+const selectedStores = ref(['热浪（白云店）', '热浪（机场店）', '热浪蔷薇（泰禾）', '热浪林和西（第一国际）', '热浪测试1（卓越中寰）']);
 const storeSearch = ref('');
 const storeArea = ref('');
 const storeStatus = ref('');
@@ -843,6 +853,10 @@ function toggleStore(store: string) {
   selectedStores.value = selectedStores.value.includes(store)
     ? selectedStores.value.filter((item) => item !== store)
     : [...selectedStores.value, store];
+}
+
+function removeStore(store: string) {
+  selectedStores.value = selectedStores.value.filter((item) => item !== store);
 }
 
 function openDetailDrawer(detail: PayoutDetail) {
