@@ -313,7 +313,6 @@
                     <h3>打款处理规则</h3>
                   </div>
                   <p>保存打款设置后，幸运转盘、零元抽奖、刮刮乐中的现金奖励发放到微信零钱，以及合伙人提现中的“提现到微信零钱”，将统一使用微信小额打款方案处理。</p>
-                  <p class="muted">支付宝提现、空中分账等其他方式不受影响。</p>
                 </section>
 
                 <el-alert
@@ -400,44 +399,38 @@
       </template>
     </el-dialog>
 
-    <el-drawer v-model="storeDrawerVisible" title="选择适用门店" size="720px">
-      <div class="filter-row">
-        <el-input v-model="storeSearch" placeholder="门店名称/编号" clearable />
-        <el-select v-model="storeArea" placeholder="区域" clearable>
-          <el-option label="华东" value="华东" />
-          <el-option label="华南" value="华南" />
-          <el-option label="华北" value="华北" />
-        </el-select>
-        <el-select v-model="storeStatus" placeholder="配置状态" clearable>
-          <el-option label="未启用" value="未启用" />
-          <el-option label="独立配置" value="独立配置" />
-          <el-option label="适用总部配置" value="适用总部配置" />
-        </el-select>
+    <el-dialog v-model="storeDrawerVisible" title="选择门店" width="760px" class="store-picker-dialog">
+      <div class="store-picker-panel">
+        <div class="store-picker-filters">
+          <el-select v-model="storeTag" placeholder="全部门店标签" clearable>
+            <el-option label="全部门店标签" value="" />
+            <el-option label="广州门店" value="广州" />
+            <el-option label="上海门店" value="上海" />
+            <el-option label="测试门店" value="测试" />
+          </el-select>
+          <el-input v-model="storeSearch" placeholder="多个关键词用顿号或空格分隔" clearable class="store-search-input">
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+        </div>
+        <div class="store-check-all">
+          <el-checkbox :model-value="selectedStores.length > 0" :indeterminate="selectedStores.length > 0 && selectedStores.length < totalStoreCount" @change="toggleAllStores" />
+          <strong>全部（{{ selectedStores.length }} / {{ totalStoreCount }}）</strong>
+        </div>
+        <div class="store-option-list">
+          <label v-for="store in filteredSelectableStores" :key="store.name" class="store-option-row">
+            <el-checkbox :model-value="selectedStores.includes(store.name)" @change="toggleStore(store.name)" />
+            <span class="store-option-name">{{ store.name }}</span>
+            <span class="store-option-city">{{ store.city }}</span>
+          </label>
+        </div>
       </div>
-      <div class="drawer-summary">已选择：{{ selectedStores.length }} 家</div>
-      <el-table :data="filteredSelectableStores" border>
-        <el-table-column prop="name" label="门店名称" />
-        <el-table-column prop="code" label="门店编号" width="110" />
-        <el-table-column prop="area" label="区域" width="90" />
-        <el-table-column prop="status" label="当前配置状态" width="130" />
-        <el-table-column label="覆盖提示" min-width="150">
-          <template #default="{ row }">
-            <span class="risk-text">{{ row.status === '独立配置' ? '选择后将覆盖原配置' : '-' }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="110">
-          <template #default="{ row }">
-            <el-button link type="primary" @click="toggleStore(row.name)">
-              {{ selectedStores.includes(row.name) ? '取消选择' : '选择' }}
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
       <template #footer>
         <el-button @click="storeDrawerVisible = false">取消</el-button>
-        <el-button type="primary" @click="storeDrawerVisible = false">确认选择</el-button>
+        <el-button type="primary" @click="storeDrawerVisible = false">确定</el-button>
       </template>
-    </el-drawer>
+    </el-dialog>
 
     <el-drawer v-model="detailDrawerVisible" title="打款详情" size="520px">
       <el-descriptions v-if="selectedDetail" :column="1" border>
@@ -461,6 +454,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, h, ref } from 'vue';
 import { ElButton, ElMessage, ElPopover } from 'element-plus';
+import { Search } from '@element-plus/icons-vue';
 type MenuKey = 'overview' | 'payout' | 'config';
 type ViewKey = 'hq' | 'branchInherited' | 'branchIndependent';
 
@@ -689,16 +683,18 @@ const payoutDetails = ref<PayoutDetail[]>([
 ]);
 
 const selectableStores = [
-  { name: '热浪（白云店）', code: 'R001', area: '华东', status: '未启用' },
-  { name: '热浪（机场店）', code: 'R002', area: '华南', status: '未启用' },
-  { name: '热浪蔷薇（泰禾）', code: 'R003', area: '华南', status: '适用总部配置' },
-  { name: '热浪林和西（第一国际）', code: 'R004', area: '华南', status: '独立配置' },
-  { name: '热浪测试1（卓越中寰）', code: 'R005', area: '华东', status: '未启用' },
-  { name: '首款门店', code: 'S001', area: '华东', status: '未启用' },
-  { name: '三号门店', code: 'S003', area: '华南', status: '独立配置' },
-  { name: '二号门店', code: 'S002', area: '华北', status: '独立配置' },
-  { name: '湖滨门店', code: 'S018', area: '华东', status: '未启用' },
-  { name: '星河门店', code: 'S026', area: '华南', status: '适用总部配置' }
+  { name: '热浪华穗（万达soho）', code: 'R000', city: '上海市', tag: '上海' },
+  { name: '热浪林和西（第一国际）', code: 'R004', city: '广州市', tag: '广州' },
+  { name: '热浪嘉禾（厚街）', code: 'R006', city: '清远市', tag: '广州' },
+  { name: '热浪（白云店）', code: 'R001', city: '广州市', tag: '广州' },
+  { name: '热浪（东山口店）', code: 'R007', city: '广州市', tag: '广州' },
+  { name: '热浪（荔湾湖店）', code: 'R008', city: '广州市', tag: '广州' },
+  { name: '热浪中山（虎门万达）', code: 'R009', city: '广州市', tag: '广州' },
+  { name: '1区自动化测试自主店', code: 'T001', city: '市辖区', tag: '测试' },
+  { name: '热浪（太古仓店）', code: 'R010', city: '广州市', tag: '广州' },
+  { name: '热浪（机场店）', code: 'R002', city: '阳江市', tag: '广州' },
+  { name: '热浪蔷薇（泰禾）', code: 'R003', city: '广州市', tag: '广州' },
+  { name: '热浪测试1（卓越中寰）', code: 'R005', city: '广州市', tag: '测试' }
 ];
 
 const inSolution = ref(false);
@@ -719,8 +715,8 @@ const configValidationError = ref('');
 
 const selectedStores = ref(['热浪（白云店）', '热浪（机场店）', '热浪蔷薇（泰禾）', '热浪林和西（第一国际）', '热浪测试1（卓越中寰）']);
 const storeSearch = ref('');
-const storeArea = ref('');
-const storeStatus = ref('');
+const storeTag = ref('');
+const totalStoreCount = 33;
 
 const authFilters = ref({ store: '', status: '', keyword: '' });
 const detailFilters = ref({ store: '', status: '', business: '', keyword: '' });
@@ -786,9 +782,11 @@ const visiblePayoutDetails = computed(() => payoutDetails.value.filter((detail) 
 }));
 
 const filteredSelectableStores = computed(() => selectableStores.filter((store) => {
-  if (storeSearch.value && !`${store.name}${store.code}`.includes(storeSearch.value)) return false;
-  if (storeArea.value && store.area !== storeArea.value) return false;
-  if (storeStatus.value && store.status !== storeStatus.value) return false;
+  if (storeTag.value && store.tag !== storeTag.value) return false;
+  if (storeSearch.value) {
+    const keywords = storeSearch.value.split(/[、\s]+/).filter(Boolean);
+    if (keywords.length && !keywords.some((keyword) => `${store.name}${store.code}${store.city}`.includes(keyword))) return false;
+  }
   return true;
 }));
 
@@ -852,6 +850,10 @@ function toggleStore(store: string) {
   selectedStores.value = selectedStores.value.includes(store)
     ? selectedStores.value.filter((item) => item !== store)
     : [...selectedStores.value, store];
+}
+
+function toggleAllStores(checked: string | number | boolean) {
+  selectedStores.value = checked ? selectableStores.slice(0, 5).map((store) => store.name) : [];
 }
 
 function removeStore(store: string) {
