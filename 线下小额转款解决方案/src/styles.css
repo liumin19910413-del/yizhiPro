@@ -367,6 +367,92 @@ button {
   top: 3px;
 }
 
+.title-with-help {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.config-alert {
+  margin-bottom: 14px;
+}
+
+.config-section {
+  border: 1px solid #edf0f5;
+  border-radius: 4px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.config-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.config-section-title h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.config-section-title span,
+.section-desc {
+  color: #7b8494;
+}
+
+.section-desc {
+  margin: 0 0 10px;
+}
+
+.ip-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.inline-help {
+  min-width: 64px;
+}
+
+.field-help {
+  display: grid;
+  gap: 8px;
+  color: #4f5868;
+  line-height: 1.6;
+}
+
+.field-help strong {
+  color: #202631;
+}
+
+.field-help p {
+  margin: 0;
+}
+
+.help-path {
+  background: #f6f8fb;
+  border: 1px solid #edf0f5;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.help-image-placeholder {
+  height: 92px;
+  border: 1px dashed #c8d2e2;
+  border-radius: 4px;
+  background: #f8fafc;
+  color: #8b93a3;
+  display: grid;
+  place-items: center;
+}
+
+.help-note {
+  color: #7b8494;
+}
+
 .table-actions,
 .filter-row {
   display: flex;
