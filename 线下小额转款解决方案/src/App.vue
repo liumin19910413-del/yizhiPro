@@ -221,41 +221,20 @@
             <section v-if="activeMenu === 'config'" class="page-stack">
               <div v-if="currentView.readonlyConfig" class="readonly-banner">
                 <strong>当前门店已适用总部配置</strong>
-                <span>配置来源：总部统一配置，生效时间：2026-07-01 17:26。门店不可修改商户号、证书、转账场景和接口安全 IP。</span>
+                <span>配置来源：总部统一配置，生效时间：2026-07-01 17:26。门店不可修改商户号、证书和转账场景。</span>
               </div>
 
               <section class="content-panel">
                 <div class="panel-title-row">
-                  <div class="title-with-help">
-                    <h2>打款配置</h2>
-                    <el-button link type="primary" @click="openGuideDoc">? 查看操作指引</el-button>
-                  </div>
+                  <h2>打款配置</h2>
                   <el-tag :type="currentView.configStatus === '未开通' ? 'info' : 'success'">{{ currentView.configStatus }}</el-tag>
                 </div>
 
-                <el-alert
-                  v-if="!currentView.readonlyConfig"
-                  title="请先在微信商户平台完成商户号申请、商家转账开通和接口安全 IP 配置，再在本页填写系统配置并启用通道。"
-                  type="info"
-                  show-icon
-                  :closable="false"
-                  class="config-alert"
-                />
-
-                <section class="config-section">
-                  <div class="config-section-title">
-                    <h3>接口安全 IP</h3>
-                    <HelpPopover field="接口安全 IP" />
-                  </div>
-                  <p class="section-desc">复制系统提供的 IP 到微信支付商户平台配置，请完成后勾选确认。</p>
-                  <div class="ip-list">
-                    <div v-for="ip in safeIps" :key="ip" class="copy-line">
-                      <code>{{ ip }}</code>
-                      <el-button size="small" :disabled="currentView.readonlyConfig" @click="copyText(ip)">复制</el-button>
-                    </div>
-                  </div>
-                  <el-checkbox v-model="ipConfirmed" :disabled="currentView.readonlyConfig">我已在微信商户平台完成接口安全 IP 配置</el-checkbox>
-                </section>
+                <div v-if="!currentView.readonlyConfig" class="config-notice">
+                  <span class="notice-icon">i</span>
+                  <span>请先在微信商户平台完成商户号申请、商家转账开通和接口安全 IP 配置，再在本页填写系统配置并启用通道。</span>
+                  <el-button link type="primary" class="notice-guide-link" @click="openGuideDoc">查看操作指引</el-button>
+                </div>
 
                 <section class="config-section">
                   <div class="config-section-title">
@@ -309,14 +288,13 @@
                 <section v-if="isHeadquarters" class="config-section">
                   <div class="config-section-title">
                     <h3>适用门店</h3>
-                    <div>
-                      <el-button :disabled="currentView.readonlyConfig" @click="storeDrawerVisible = true">选择门店</el-button>
-                      <el-button>查看覆盖记录</el-button>
-                    </div>
                   </div>
                   <div class="selected-stores">
-                    <span>已适用门店：{{ selectedStores.length }} 家</span>
-                    <el-tag v-for="store in selectedStores" :key="store" type="info">{{ store }}</el-tag>
+                    <div class="selected-store-list">
+                      <span>已适用门店：{{ selectedStores.length }} 家</span>
+                      <el-tag v-for="store in selectedStores" :key="store" type="info">{{ store }}</el-tag>
+                    </div>
+                    <el-button :disabled="currentView.readonlyConfig" @click="storeDrawerVisible = true">选择门店</el-button>
                   </div>
                   <el-alert
                     title="被设置为适用门店的分店将使用总部当前配置；若分店此前已独立配置，保存后将被总部配置覆盖。"
@@ -326,10 +304,25 @@
                   />
                 </section>
 
+                <section class="config-section impact-section">
+                  <div class="config-section-title">
+                    <h3>启用影响范围</h3>
+                  </div>
+                  <p>启用后，幸运转盘、零元抽奖、刮刮乐中的现金奖励发放到微信零钱，以及合伙人提现中的“提现到微信零钱”，将统一使用微信小额打款方案处理。</p>
+                  <p class="muted">支付宝提现、空中分账等其他方式不受影响。</p>
+                </section>
+
+                <el-alert
+                  v-if="configValidationError"
+                  :title="configValidationError"
+                  type="error"
+                  show-icon
+                  :closable="false"
+                  class="config-validation-alert"
+                />
+
                 <div v-if="!currentView.readonlyConfig" class="wizard-actions">
-                  <el-button @click="saveConfig">保存配置</el-button>
-                  <el-button @click="validateConfig">校验配置</el-button>
-                  <el-button type="primary" @click="enableDialogVisible = true">完成并启用</el-button>
+                  <el-button type="primary" :loading="savingConfig" @click="saveSettings">保存设置</el-button>
                 </div>
               </section>
             </section>
@@ -458,16 +451,6 @@
       </el-descriptions>
     </el-drawer>
 
-    <el-dialog v-model="enableDialogVisible" title="确认启用微信小额打款通道？" width="560px">
-      <p class="confirm-copy">
-        启用后，幸运转盘、零元抽奖、刮刮乐中的现金奖励发放到微信零钱，以及合伙人提现中的“提现到微信零钱”，将统一使用微信小额打款方案处理。
-      </p>
-      <p class="confirm-copy muted">支付宝提现、空中分账等其他方式不受影响。</p>
-      <template #footer>
-        <el-button @click="enableDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="confirmEnable">确认启用</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -549,11 +532,6 @@ const menuOptions: { key: MenuKey; label: string }[] = [
 ];
 
 const fieldGuides: Record<string, FieldGuide> = {
-  '接口安全 IP': {
-    desc: '系统提供可用于微信接口请求的出口 IP，商家需要复制后到微信商户平台配置。',
-    path: '微信支付商户平台 > 产品中心 > 商家转账 > 产品设置 > 接口安全 IP',
-    note: '配置后再回到本页勾选确认；余额暂不在系统内读取。'
-  },
   '商户号 mchid': {
     desc: '微信支付商户号，用于标识实际出款主体。',
     path: '微信支付商户平台 > 账户中心 > 商户信息',
@@ -725,16 +703,15 @@ const qrDialogVisible = ref(false);
 const payoutDialogVisible = ref(false);
 const storeDrawerVisible = ref(false);
 const detailDrawerVisible = ref(false);
-const enableDialogVisible = ref(false);
 const selectedUser = ref<AuthUser | null>(null);
 const selectedDetail = ref<PayoutDetail | null>(null);
+const savingConfig = ref(false);
+const configValidationError = ref('');
 
 const selectedStores = ref(['首款门店', '三号门店']);
 const storeSearch = ref('');
 const storeArea = ref('');
 const storeStatus = ref('');
-const safeIps = ['121.43.88.126', '47.98.21.205'];
-const ipConfirmed = ref(true);
 
 const authFilters = ref({ store: '', status: '', keyword: '' });
 const detailFilters = ref({ store: '', status: '', business: '', keyword: '' });
@@ -877,31 +854,58 @@ function retryPayout(detail: PayoutDetail) {
   ElMessage.success(`已重新提交 ${detail.receiver} 的打款`);
 }
 
-async function copyText(text: string) {
-  await navigator.clipboard?.writeText(text);
-  ElMessage.success('已复制');
-}
-
 function openGuideDoc() {
   window.open(FEISHU_HELP_URL, '_blank', 'noopener');
 }
 
-function saveConfig() {
-  ElMessage.success('配置已保存');
-}
-
-function validateConfig() {
-  ElMessage.success('配置校验通过');
-}
-
-function confirmEnable() {
-  const target = views.value.find((view) => view.key === activeViewKey.value);
-  if (target) {
-    target.configStatus = '已启用';
+async function saveSettings() {
+  configValidationError.value = '';
+  const localError = validateRequiredConfig();
+  if (localError) {
+    configValidationError.value = localError;
+    ElMessage.error(localError);
+    return;
   }
-  enableDialogVisible.value = false;
-  activeMenu.value = 'overview';
-  ElMessage.success('微信小额打款通道已启用');
+
+  savingConfig.value = true;
+  try {
+    await mockValidateWechatConfig();
+    const target = views.value.find((view) => view.key === activeViewKey.value);
+    if (target) {
+      target.configStatus = '已启用';
+    }
+    ElMessage.success('配置校验通过，设置已保存');
+  } catch (error) {
+    configValidationError.value = error instanceof Error ? error.message : '配置校验失败，请检查微信商户平台配置';
+    ElMessage.error(configValidationError.value);
+  } finally {
+    savingConfig.value = false;
+  }
+}
+
+function validateRequiredConfig() {
+  const requiredFields = [
+    ['商户号 mchid', configForm.value.mchid],
+    ['AppID', configForm.value.appid],
+    ['API v3 密钥', configForm.value.apiKey],
+    ['商户证书序列号', configForm.value.certNo],
+    ['商户私钥', configForm.value.privateKey],
+    ['微信支付公钥ID', configForm.value.publicKeyId],
+    ['转账场景ID', configForm.value.sceneId],
+    ['转账场景名称', configForm.value.sceneName]
+  ];
+  const missingField = requiredFields.find(([, value]) => !String(value).trim());
+  return missingField ? `请先填写${missingField[0]}，再保存设置` : '';
+}
+
+async function mockValidateWechatConfig() {
+  await new Promise((resolve) => window.setTimeout(resolve, 500));
+  if (configForm.value.mchid.includes('0000')) {
+    throw new Error('微信配置校验失败：商户号与 AppID 未完成绑定，请按操作指引到微信商户平台检查。');
+  }
+  if (!configForm.value.privateKey.includes('BEGIN PRIVATE KEY')) {
+    throw new Error('微信配置校验失败：商户私钥格式不正确，请重新粘贴完整私钥。');
+  }
 }
 
 function authTagType(status: string) {

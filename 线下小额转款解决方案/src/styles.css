@@ -367,21 +367,42 @@ button {
   top: 3px;
 }
 
-.title-with-help {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.config-alert {
-  margin-bottom: 14px;
-}
-
 .config-section {
   border: 1px solid #edf0f5;
   border-radius: 4px;
   padding: 14px;
   margin-bottom: 14px;
+}
+
+.config-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  border-radius: 4px;
+  background: #f4f4f6;
+  color: #8b93a3;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.notice-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex: 0 0 18px;
+  background: #a8afbb;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.notice-guide-link {
+  flex: 0 0 auto;
 }
 
 .config-section-title {
@@ -405,12 +426,6 @@ button {
 
 .section-desc {
   margin: 0 0 10px;
-}
-
-.ip-list {
-  display: grid;
-  gap: 8px;
-  margin-bottom: 10px;
 }
 
 .inline-help {
@@ -644,8 +659,33 @@ button {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   margin-bottom: 12px;
+}
+
+.selected-store-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.impact-section {
+  color: #4f5868;
+  line-height: 1.8;
+}
+
+.impact-section p {
+  margin: 0 0 8px;
+}
+
+.impact-section .muted {
+  color: #7b8494;
+}
+
+.config-validation-alert {
+  margin-bottom: 14px;
 }
 
 .wizard-actions {
@@ -701,15 +741,6 @@ button {
 .help-content {
   line-height: 1.8;
   color: #4f5868;
-}
-
-.confirm-copy {
-  line-height: 1.8;
-  margin: 0 0 10px;
-}
-
-.confirm-copy.muted {
-  color: #7b8494;
 }
 
 @media (max-width: 1180px) {
