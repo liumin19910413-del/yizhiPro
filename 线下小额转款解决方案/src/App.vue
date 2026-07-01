@@ -239,7 +239,6 @@
                 <section class="config-section">
                   <div class="config-section-title">
                     <h3>系统配置</h3>
-                    <span>本期仅支持一个商户号配置一个转账场景</span>
                   </div>
                   <el-form :model="configForm" label-width="150px" class="config-form">
                     <el-form-item label="商户号 mchid">
@@ -293,7 +292,7 @@
                     <el-button link type="primary" :disabled="currentView.readonlyConfig" @click="storeDrawerVisible = true">选择门店</el-button>
                   </div>
                   <p class="store-scope-desc">
-                    所选门店已有该服务，如门店为连锁配置则连锁配置更改，门店自动覆盖，如门店为门店自主，则门店改动部分覆盖，通用不可改部分按连锁配置的覆盖
+                    分发到门店后门店配置将被覆盖，且门店不可更改只能查看
                   </p>
                   <div class="selected-store-tags">
                     <el-tag
