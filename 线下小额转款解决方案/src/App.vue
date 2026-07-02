@@ -468,23 +468,23 @@
     <section v-else class="consumer-landing-gallery">
       <div class="landing-preview-card">
         <h2>商家生成授权码，客户扫码后进入授权</h2>
-        <img src="/c端落地页/授权码扫码授权流程.png" alt="商家生成授权码客户扫码授权流程" />
+        <img :src="publicAsset('c端落地页/授权码扫码授权流程.png')" alt="商家生成授权码客户扫码授权流程" />
       </div>
       <div class="landing-preview-card">
         <h2>抽奖红包领取收款流程</h2>
-        <img src="/c端落地页/抽奖红包收款流程.png" alt="抽奖红包领取收款流程" />
+        <img :src="publicAsset('c端落地页/抽奖红包收款流程.png')" alt="抽奖红包领取收款流程" />
       </div>
       <div class="landing-preview-card">
         <h2>合伙人提现入口授权流程</h2>
-        <img src="/c端落地页/合伙人提现授权流程.png" alt="合伙人提现入口授权流程" />
+        <img :src="publicAsset('c端落地页/合伙人提现授权流程.png')" alt="合伙人提现入口授权流程" />
       </div>
       <div class="landing-preview-card">
         <h2>B端合伙人结算打款设置</h2>
-        <img src="/c端落地页/B端合伙人结算打款设置.png" alt="B端合伙人结算打款设置" />
+        <img :src="publicAsset('c端落地页/B端合伙人结算打款设置.png')" alt="B端合伙人结算打款设置" />
       </div>
       <div class="landing-preview-card">
         <h2>B端抽奖余额管理</h2>
-        <img src="/c端落地页/B端抽奖余额管理.png" alt="B端抽奖余额管理" />
+        <img :src="publicAsset('c端落地页/B端抽奖余额管理.png')" alt="B端抽奖余额管理" />
       </div>
     </section>
   </div>
@@ -902,6 +902,11 @@ function retryPayout(detail: PayoutDetail) {
 
 function openGuideDoc() {
   window.open(FEISHU_HELP_URL, '_blank', 'noopener');
+}
+
+function publicAsset(path: string) {
+  const assetBase = (globalThis as { __PUBLIC_ASSET_BASE__?: string }).__PUBLIC_ASSET_BASE__ ?? './';
+  return `${assetBase}${path}`;
 }
 
 async function saveSettings() {
