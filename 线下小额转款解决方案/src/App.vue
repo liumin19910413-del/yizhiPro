@@ -96,17 +96,23 @@
             <div class="solution-workspace">
               <div class="solution-main">
             <section v-if="activeMenu === 'overview'" class="page-stack">
-              <div class="metric-grid">
-                <div v-for="metric in overviewMetrics" :key="metric.label" class="metric-panel">
-                  <span class="metric-title">{{ metric.label }}</span>
-                  <div class="metric-amounts">
-                    <div>
-                      <small>累计</small>
-                      <strong>{{ metric.total }}</strong>
-                    </div>
-                    <div>
-                      <small>本月</small>
-                      <strong>{{ metric.month }}</strong>
+              <div class="overview-summary">
+                <div class="merchant-badge">
+                  <span>商户号：{{ currentMerchantNo }}</span>
+                  <el-button link type="primary" @click="openMerchantPortal">前往商户后台查看余额</el-button>
+                </div>
+                <div class="metric-grid">
+                  <div v-for="metric in overviewMetrics" :key="metric.label" class="metric-panel">
+                    <span class="metric-title">{{ metric.label }}</span>
+                    <div class="metric-amounts">
+                      <div>
+                        <small>累计</small>
+                        <strong>{{ metric.total }}</strong>
+                      </div>
+                      <div>
+                        <small>本月</small>
+                        <strong>{{ metric.month }}</strong>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -486,6 +492,10 @@
         <h2>B端抽奖余额管理</h2>
         <img :src="publicAsset('c端落地页/B端抽奖余额管理.png')" alt="B端抽奖余额管理" />
       </div>
+      <div class="landing-preview-card">
+        <h2>权限增加</h2>
+        <img :src="publicAsset('c端落地页/权限增加.png')" alt="权限增加" />
+      </div>
     </section>
   </div>
 </template>
@@ -562,6 +572,7 @@ interface AppGroup {
 }
 
 const FEISHU_HELP_URL = 'https://www.feishu.cn/docx/PLACEHOLDER_WECHAT_TRANSFER_GUIDE';
+const WECHAT_MERCHANT_PORTAL_URL = 'https://pay.weixin.qq.com/';
 const globalNav = ['小红书', '连锁架构', '门店配置', '公域获客', '私域运营', 'AI 智能体', '营销中心', '数据报表', '库存管理'];
 const terminalOptions: TerminalKey[] = ['B端', 'C端'];
 const menuOptions: { key: MenuKey; label: string }[] = [
@@ -766,6 +777,7 @@ const subMenus = menuOptions;
 const isHeadquarters = computed(() => activeViewKey.value === 'hq');
 const storeOptions = computed(() => isHeadquarters.value ? ['首款门店', '二号门店', '三号门店'] : [currentView.value.store ?? '当前门店']);
 const currentAccountName = computed(() => currentView.value.accountSource === '门店自有账户' ? '二号门店(2208)' : '总部商户号(1109)');
+const currentMerchantNo = computed(() => currentView.value.accountSource === '门店自有账户' ? '2208' : '1900********1109');
 
 const visibleStoreStats = computed(() => {
   const scopedRows = isHeadquarters.value
@@ -902,6 +914,10 @@ function retryPayout(detail: PayoutDetail) {
 
 function openGuideDoc() {
   window.open(FEISHU_HELP_URL, '_blank', 'noopener');
+}
+
+function openMerchantPortal() {
+  window.open(WECHAT_MERCHANT_PORTAL_URL, '_blank', 'noopener');
 }
 
 function publicAsset(path: string) {

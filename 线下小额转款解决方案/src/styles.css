@@ -1289,6 +1289,38 @@ body {
   gap: 10px;
 }
 
+.overview-summary {
+  position: relative;
+}
+
+.merchant-badge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid #cfe2ff;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #607086;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(42, 123, 246, 0.08);
+}
+
+.merchant-badge span {
+  white-space: nowrap;
+}
+
+.merchant-badge .el-button {
+  height: 24px;
+  padding: 0;
+  font-size: 12px;
+}
+
 .metric-grid {
   gap: 0;
   min-height: 82px;
