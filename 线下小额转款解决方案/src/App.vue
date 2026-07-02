@@ -1,5 +1,23 @@
 <template>
-  <div class="app-shell">
+  <div class="prototype-root">
+    <header class="terminal-topbar">
+      <el-segmented
+        v-model="activeTerminal"
+        :options="terminalOptions"
+        class="terminal-switch"
+      />
+      <div v-if="inSolution && activeTerminal === 'B端'" class="view-switch">
+        <span>当前视角</span>
+        <el-segmented
+          v-model="activeViewKey"
+          :options="viewSwitchOptions"
+          class="view-segmented"
+          @change="syncDefaultMenu"
+        />
+      </div>
+    </header>
+
+    <div v-if="activeTerminal === 'B端'" class="app-shell with-terminal">
     <aside class="global-nav">
       <div class="brand-mark">伊</div>
       <button
@@ -15,19 +33,10 @@
 
     <main class="main-frame">
       <header class="topbar">
-        <div class="breadcrumb">{{ inSolution ? '营销应用 / 微信小额打款解决方案' : '营销应用' }}</div>
+        <div class="topbar-left">
+          <div class="breadcrumb">{{ inSolution ? '营销应用 / 微信小额打款解决方案' : '营销应用' }}</div>
+        </div>
         <div class="topbar-actions">
-          <div v-if="inSolution" class="view-switch">
-            <span>当前视角</span>
-            <el-select v-model="activeViewKey" size="default" style="width: 220px" @change="syncDefaultMenu">
-              <el-option
-                v-for="view in views"
-                :key="view.key"
-                :label="view.label"
-                :value="view.key"
-              />
-            </el-select>
-          </div>
           <el-button>分发日志</el-button>
           <el-button>下载中心</el-button>
         </div>
@@ -69,7 +78,7 @@
         </section>
       </template>
 
-      <template v-else>
+      <template v-else-if="activeTerminal === 'B端'">
         <section class="solution-layout">
           <aside class="sub-nav">
             <button
@@ -187,16 +196,29 @@
                   </el-select>
                   <el-select v-model="authFilters.status" placeholder="授权状态" clearable>
                     <el-option label="已授权" value="已授权" />
-                    <el-option label="待授权" value="待授权" />
                     <el-option label="已关闭" value="已关闭" />
                   </el-select>
-                  <el-input v-model="authFilters.keyword" placeholder="收款人姓名/手机号搜索" clearable />
+                  <el-input v-model="authFilters.keyword" placeholder="微信昵称/会员姓名/手机号/openID搜索" clearable />
                   <el-button>查询</el-button>
                   <el-button v-if="!isHeadquarters" type="primary" @click="qrDialogVisible = true">生成授权码</el-button>
                 </div>
                 <el-table :data="visibleAuthUsers" border>
-                  <el-table-column prop="name" label="收款人" width="110" />
-                  <el-table-column prop="phone" label="手机号" width="140" />
+                  <el-table-column label="微信用户" min-width="170">
+                    <template #default="{ row }">
+                      <div class="receiver-cell">
+                        <strong>{{ row.nickname }}</strong>
+                        <span>{{ row.openid }}</span>
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="会员信息" min-width="150">
+                    <template #default="{ row }">
+                      <div class="receiver-cell">
+                        <strong>{{ row.name }}</strong>
+                        <span>{{ row.phone || '-' }}</span>
+                      </div>
+                    </template>
+                  </el-table-column>
                   <el-table-column prop="store" label="所属门店" width="130" />
                   <el-table-column prop="status" label="授权状态" width="110">
                     <template #default="{ row }">
@@ -209,7 +231,6 @@
                   <el-table-column label="操作" min-width="170" fixed="right">
                     <template #default="{ row }">
                       <el-button v-if="row.status === '已授权'" link type="primary" @click="openPayout(row)">发起打款</el-button>
-                      <el-button v-if="row.status === '待授权'" link type="primary" @click="qrDialogVisible = true">查看二维码</el-button>
                       <el-button v-if="row.status === '已关闭'" link type="primary" @click="qrDialogVisible = true">重新授权</el-button>
                       <el-button link type="primary" @click="focusDetail(row)">明细</el-button>
                     </template>
@@ -244,22 +265,22 @@
                   <el-form :model="configForm" label-width="150px" class="config-form">
                     <el-form-item label="商户号 mchid">
                       <el-input v-model="configForm.mchid" :disabled="currentView.readonlyConfig">
-                        <template #append><HelpPopover field="商户号 mchid" /></template>
+                        <template #append><GuideLink /></template>
                       </el-input>
                     </el-form-item>
                     <el-form-item label="AppID">
                       <el-input v-model="configForm.appid" :disabled="currentView.readonlyConfig">
-                        <template #append><HelpPopover field="AppID" /></template>
+                        <template #append><GuideLink /></template>
                       </el-input>
                     </el-form-item>
                     <el-form-item label="API v3 密钥">
                       <el-input v-model="configForm.apiKey" show-password :disabled="currentView.readonlyConfig">
-                        <template #append><HelpPopover field="API v3 密钥" /></template>
+                        <template #append><GuideLink /></template>
                       </el-input>
                     </el-form-item>
                     <el-form-item label="商户证书序列号">
                       <el-input v-model="configForm.certNo" :disabled="currentView.readonlyConfig">
-                        <template #append><HelpPopover field="商户证书序列号" /></template>
+                        <template #append><GuideLink /></template>
                       </el-input>
                     </el-form-item>
                     <el-form-item label="商户私钥">
@@ -267,8 +288,11 @@
                     </el-form-item>
                     <el-form-item label="微信支付公钥ID">
                       <el-input v-model="configForm.publicKeyId" :disabled="currentView.readonlyConfig">
-                        <template #append><HelpPopover field="微信支付公钥ID" /></template>
+                        <template #append><GuideLink /></template>
                       </el-input>
+                    </el-form-item>
+                    <el-form-item label="平台证书">
+                      <el-input v-model="configForm.platformCert" type="textarea" :rows="3" :disabled="currentView.readonlyConfig" />
                     </el-form-item>
                   </el-form>
                 </section>
@@ -321,17 +345,25 @@
           </section>
         </section>
       </template>
+
     </main>
 
     <el-dialog v-model="qrDialogVisible" title="收款授权码" width="420px">
       <div class="qr-box">
-        <div class="qr-code">
-          <span v-for="cell in 81" :key="cell" :class="{ dark: cell % 2 === 0 || cell % 7 === 0 || cell % 11 === 0 }"></span>
-        </div>
+        <svg class="qr-code" viewBox="0 0 180 180" role="img" aria-label="收款授权码">
+          <rect width="180" height="180" fill="#fff" />
+          <rect x="14" y="14" width="42" height="42" fill="#202631" />
+          <rect x="22" y="22" width="26" height="26" fill="#fff" />
+          <rect x="30" y="30" width="10" height="10" fill="#202631" />
+          <rect x="124" y="14" width="42" height="42" fill="#202631" />
+          <rect x="132" y="22" width="26" height="26" fill="#fff" />
+          <rect x="140" y="30" width="10" height="10" fill="#202631" />
+          <rect x="14" y="124" width="42" height="42" fill="#202631" />
+          <rect x="22" y="132" width="26" height="26" fill="#fff" />
+          <rect x="30" y="140" width="10" height="10" fill="#202631" />
+          <path d="M72 18h10v10H72zM92 18h18v10H92zM72 38h28v10H72zM112 38h10v10h-10zM70 70h12v12H70zM92 70h10v10H92zM112 70h28v10h-28zM150 70h10v20h-10zM70 92h30v10H70zM112 92h10v10h-10zM132 92h28v10h-28zM82 112h10v28H82zM102 112h28v10h-28zM140 112h20v10h-20zM70 150h20v10H70zM102 142h10v20h-10zM122 132h38v10h-38zM132 152h10v10h-10zM152 152h10v10h-10z" fill="#202631" />
+        </svg>
         <p class="qr-tip">使用微信扫码做收款授权确认</p>
-        <p>授权场景：{{ currentView.scene }}</p>
-        <p>授权有效期：24小时</p>
-        <p>配置来源：{{ currentView.accountSource }}</p>
       </div>
       <template #footer>
         <el-button @click="copyQrImage">复制图片</el-button>
@@ -342,7 +374,9 @@
 
     <el-dialog v-model="payoutDialogVisible" title="发起打款" width="560px">
       <div v-if="selectedUser" class="payee-summary">
-        <span>收款人：{{ selectedUser.name }} {{ selectedUser.phone }}</span>
+        <span>微信用户：{{ selectedUser.nickname }}</span>
+        <span>OpenID：{{ selectedUser.openid }}</span>
+        <span>会员信息：{{ selectedUser.name }}{{ selectedUser.phone ? ` ${selectedUser.phone}` : '' }}</span>
         <span>所属门店：{{ selectedUser.store }}</span>
         <span>出款账户：{{ currentAccountName }}</span>
       </div>
@@ -355,15 +389,6 @@
             <el-option label="邮费补贴" value="邮费补贴" />
           </el-select>
         </el-form-item>
-        <el-form-item label="来源工具">
-          <el-select v-model="payoutForm.source" style="width: 100%">
-            <el-option label="幸运转盘" value="幸运转盘" />
-            <el-option label="零元抽奖" value="零元抽奖" />
-            <el-option label="刮刮乐" value="刮刮乐" />
-            <el-option label="分销合伙人" value="分销合伙人" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="来源业务单号"><el-input v-model="payoutForm.sourceNo" /></el-form-item>
         <el-form-item label="转账备注"><el-input v-model="payoutForm.remark" maxlength="32" show-word-limit /></el-form-item>
       </el-form>
       <template #footer>
@@ -421,14 +446,18 @@
       </el-descriptions>
     </el-drawer>
 
+    </div>
+
+    <section v-else class="consumer-blank"></section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, defineComponent, h, ref } from 'vue';
-import { ElButton, ElMessage, ElPopover } from 'element-plus';
+import { ElButton, ElMessage } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 type MenuKey = 'overview' | 'payout' | 'config';
+type TerminalKey = 'B端' | 'C端';
 type ViewKey = 'hq' | 'branchInherited' | 'branchIndependent';
 
 interface ViewProfile {
@@ -451,10 +480,12 @@ interface StoreStat {
 }
 
 interface AuthUser {
+  nickname: string;
   name: string;
-  phone: string;
+  phone?: string;
+  openid: string;
   store: string;
-  status: '已授权' | '待授权' | '已关闭';
+  status: '已授权' | '已关闭';
   scene: string;
   total: string;
   lastPaidAt: string;
@@ -488,75 +519,23 @@ interface AppGroup {
   cards: AppCard[];
 }
 
-interface FieldGuide {
-  desc: string;
-  path: string;
-  note: string;
-}
-
 const FEISHU_HELP_URL = 'https://www.feishu.cn/docx/PLACEHOLDER_WECHAT_TRANSFER_GUIDE';
 const globalNav = ['小红书', '连锁架构', '门店配置', '公域获客', '私域运营', 'AI 智能体', '营销中心', '数据报表', '库存管理'];
+const terminalOptions: TerminalKey[] = ['B端', 'C端'];
 const menuOptions: { key: MenuKey; label: string }[] = [
   { key: 'overview', label: '数据总览' },
   { key: 'payout', label: '授权列表' },
   { key: 'config', label: '打款配置' }
 ];
 
-const fieldGuides: Record<string, FieldGuide> = {
-  '商户号 mchid': {
-    desc: '微信支付商户号，用于标识实际出款主体。',
-    path: '微信支付商户平台 > 账户中心 > 商户信息',
-    note: '请确认该商户号已开通商家转账能力。'
-  },
-  AppID: {
-    desc: '与微信支付商户号绑定的应用 AppID。',
-    path: '微信支付商户平台 > 产品中心 > AppID 账号管理',
-    note: 'AppID 主体需和商户号绑定关系一致。'
-  },
-  'API v3 密钥': {
-    desc: '用于回调解密和接口安全校验的 API v3 密钥。',
-    path: '微信支付商户平台 > 账户中心 > API 安全 > API v3 密钥',
-    note: '密钥属于敏感信息，保存后系统侧应加密存储。'
-  },
-  商户证书序列号: {
-    desc: '商户 API 证书对应的序列号。',
-    path: '微信支付商户平台 > 账户中心 > API 安全 > API 证书',
-    note: '请使用当前有效证书的序列号。'
-  },
-  微信支付公钥ID: {
-    desc: '微信支付公钥的标识，用于按公钥验签。',
-    path: '微信支付商户平台 > 账户中心 > API 安全 > 微信支付公钥',
-    note: '如商户后台展示多个公钥，请选择正在使用的公钥 ID。'
-  }
-};
-
-const HelpPopover = defineComponent({
-  name: 'HelpPopover',
-  props: {
-    field: { type: String, required: true }
-  },
-  setup(props) {
-    return () => {
-      const guide = fieldGuides[props.field] ?? {
-        desc: '请登录微信支付商户平台查看对应信息。',
-        path: '微信支付商户平台 > 对应产品或账户设置页面',
-        note: '填写前请确认主体和已开通能力一致。'
-      };
-      return h(
-        ElPopover,
-        { placement: 'right', width: 300, trigger: 'click', popperClass: 'field-help-popover' },
-        {
-          reference: () => h(ElButton, { link: true, type: 'primary', class: 'inline-help' }, () => '如何获取'),
-          default: () => h('div', { class: 'field-help' }, [
-            h('strong', props.field),
-            h('p', guide.desc),
-            h('div', { class: 'help-path' }, guide.path),
-            h('div', { class: 'help-image-placeholder' }, '示意图占位'),
-            h('p', { class: 'help-note' }, guide.note)
-          ])
-        }
-      );
-    };
+const GuideLink = defineComponent({
+  name: 'GuideLink',
+  setup() {
+    return () => h(
+      ElButton,
+      { link: true, type: 'primary', class: 'inline-help', onClick: openGuideDoc },
+      () => '如何获取'
+    );
   }
 });
 
@@ -611,7 +590,7 @@ const views = ref<ViewProfile[]>([
   },
   {
     key: 'branchInherited',
-    label: '分店A-适用总部配置',
+    label: '分店(连锁配置)',
     store: '首款门店',
     configStatus: '已适用总部配置',
     scene: '佣金报酬',
@@ -620,7 +599,7 @@ const views = ref<ViewProfile[]>([
   },
   {
     key: 'branchIndependent',
-    label: '分店B-独立配置',
+    label: '分店（自主配置）',
     store: '二号门店',
     configStatus: '已启用',
     scene: '现金营销',
@@ -637,10 +616,9 @@ const storeStats: StoreStat[] = [
 ];
 
 const authUsers = ref<AuthUser[]>([
-  { name: '张三', phone: '138****0001', store: '首款门店', status: '已授权', scene: '佣金报酬', total: '¥800.00', lastPaidAt: '2026-07-01' },
-  { name: '李四', phone: '139****0002', store: '二号门店', status: '待授权', scene: '现金营销', total: '¥0.00', lastPaidAt: '-' },
-  { name: '王五', phone: '137****0003', store: '三号门店', status: '已关闭', scene: '佣金报酬', total: '¥300.00', lastPaidAt: '2026-06-20' },
-  { name: '赵六', phone: '136****0004', store: '首款门店', status: '已授权', scene: '佣金报酬', total: '¥50.00', lastPaidAt: '2026-07-01' }
+  { nickname: '云朵', name: '张三', phone: '138****0001', openid: 'oYz***a01', store: '首款门店', status: '已授权', scene: '佣金报酬', total: '¥800.00', lastPaidAt: '2026-07-01' },
+  { nickname: '星河', name: '王五', openid: 'oYz***c03', store: '三号门店', status: '已关闭', scene: '佣金报酬', total: '¥300.00', lastPaidAt: '2026-06-20' },
+  { nickname: '小赵', name: '赵六', phone: '136****0004', openid: 'oYz***d04', store: '首款门店', status: '已授权', scene: '佣金报酬', total: '¥50.00', lastPaidAt: '2026-07-01' }
 ]);
 
 const payoutDetails = ref<PayoutDetail[]>([
@@ -666,6 +644,7 @@ const selectableStores = [
 ];
 
 const inSolution = ref(false);
+const activeTerminal = ref<TerminalKey>('B端');
 const activeMenu = ref<MenuKey>('overview');
 const activeViewKey = ref<ViewKey>('hq');
 const overviewTableTab = ref<'打款统计' | '打款明细'>('打款统计');
@@ -691,17 +670,19 @@ const statsFilters = ref<{ dateRange: [Date, Date] | ''; store: string }>({
   dateRange: [new Date('2026-07-01'), new Date('2026-07-31')],
   store: ''
 });
-const payoutForm = ref({ amount: 200, business: '分销合伙人提现', source: '分销合伙人', sourceNo: 'TX20260701005', remark: '7月分销佣金' });
+const payoutForm = ref({ amount: 200, business: '分销合伙人提现', remark: '7月分销佣金' });
 const configForm = ref({
   mchid: '1900********1109',
   appid: 'wx************4356',
   apiKey: '************',
   certNo: '6B729D43********8F20',
   privateKey: '-----BEGIN PRIVATE KEY-----\n********\n-----END PRIVATE KEY-----',
-  publicKeyId: 'PUB_KEY_ID_011423'
+  publicKeyId: 'PUB_KEY_ID_011423',
+  platformCert: '-----BEGIN CERTIFICATE-----\n********\n-----END CERTIFICATE-----'
 });
 
 const currentView = computed(() => views.value.find((view) => view.key === activeViewKey.value) ?? views.value[0]);
+const viewSwitchOptions = computed(() => views.value.map((view) => ({ label: view.label, value: view.key })));
 const isConfigured = computed(() => currentView.value.configStatus !== '未开通');
 const subMenus = computed(() => isConfigured.value ? menuOptions : menuOptions.filter((item) => item.key === 'config'));
 const isHeadquarters = computed(() => activeViewKey.value === 'hq');
@@ -732,7 +713,7 @@ const visibleAuthUsers = computed(() => authUsers.value.filter((user) => {
   if (!isHeadquarters.value && user.store !== currentView.value.store) return false;
   if (authFilters.value.store && user.store !== authFilters.value.store) return false;
   if (authFilters.value.status && user.status !== authFilters.value.status) return false;
-  if (authFilters.value.keyword && !`${user.name}${user.phone}`.includes(authFilters.value.keyword)) return false;
+  if (authFilters.value.keyword && !`${user.nickname}${user.name}${user.phone ?? ''}${user.openid}`.includes(authFilters.value.keyword)) return false;
   return true;
 }));
 
@@ -793,8 +774,8 @@ function submitPayout() {
     accountType: currentView.value.accountSource === '门店自有账户' ? '门店自有账户' : '总部账户',
     account: currentAccountName.value,
     receiver: selectedUser.value.name,
-    phone: selectedUser.value.phone,
-    openid: 'oYz***new',
+    phone: selectedUser.value.phone ?? '-',
+    openid: selectedUser.value.openid,
     business: payoutForm.value.business,
     paidAt: '2026-07-01 18:00',
     amount: formatCurrency(payoutForm.value.amount),
@@ -810,14 +791,7 @@ function copyQrImage() {
 }
 
 function saveQrImage() {
-  const cells = Array.from({ length: 81 }, (_, index) => {
-    const cell = index + 1;
-    if (!(cell % 2 === 0 || cell % 7 === 0 || cell % 11 === 0)) return '';
-    const x = (index % 9) * 20;
-    const y = Math.floor(index / 9) * 20;
-    return `<rect x="${x}" y="${y}" width="20" height="20" fill="#202631" />`;
-  }).join('');
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect width="180" height="180" fill="#fff" />${cells}</svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect width="180" height="180" fill="#fff"/><rect x="14" y="14" width="42" height="42" fill="#202631"/><rect x="22" y="22" width="26" height="26" fill="#fff"/><rect x="30" y="30" width="10" height="10" fill="#202631"/><rect x="124" y="14" width="42" height="42" fill="#202631"/><rect x="132" y="22" width="26" height="26" fill="#fff"/><rect x="140" y="30" width="10" height="10" fill="#202631"/><rect x="14" y="124" width="42" height="42" fill="#202631"/><rect x="22" y="132" width="26" height="26" fill="#fff"/><rect x="30" y="140" width="10" height="10" fill="#202631"/><path d="M72 18h10v10H72zM92 18h18v10H92zM72 38h28v10H72zM112 38h10v10h-10zM70 70h12v12H70zM92 70h10v10H92zM112 70h28v10h-28zM150 70h10v20h-10zM70 92h30v10H70zM112 92h10v10h-10zM132 92h28v10h-28zM82 112h10v28H82zM102 112h28v10h-28zM140 112h20v10h-20zM70 150h20v10H70zM102 142h10v20h-10zM122 132h38v10h-38zM132 152h10v10h-10zM152 152h10v10h-10z" fill="#202631"/></svg>`;
   const link = document.createElement('a');
   link.href = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   link.download = '收款授权码.svg';
@@ -884,7 +858,8 @@ function validateRequiredConfig() {
     ['API v3 密钥', configForm.value.apiKey],
     ['商户证书序列号', configForm.value.certNo],
     ['商户私钥', configForm.value.privateKey],
-    ['微信支付公钥ID', configForm.value.publicKeyId]
+    ['微信支付公钥ID', configForm.value.publicKeyId],
+    ['平台证书', configForm.value.platformCert]
   ];
   const missingField = requiredFields.find(([, value]) => !String(value).trim());
   return missingField ? `请先填写${missingField[0]}，再保存设置` : '';
@@ -898,11 +873,13 @@ async function mockValidateWechatConfig() {
   if (!configForm.value.privateKey.includes('BEGIN PRIVATE KEY')) {
     throw new Error('微信配置校验失败：商户私钥格式不正确，请重新粘贴完整私钥。');
   }
+  if (!configForm.value.platformCert.includes('BEGIN CERTIFICATE')) {
+    throw new Error('微信配置校验失败：平台证书格式不正确，请重新粘贴完整证书。');
+  }
 }
 
 function authTagType(status: string) {
   if (status === '已授权') return 'success';
-  if (status === '待授权') return 'warning';
   return 'info';
 }
 
