@@ -306,6 +306,11 @@
                         <template #append><GuideLink /></template>
                       </el-input>
                     </el-form-item>
+                    <el-form-item label="转账场景ID">
+                      <el-input v-model="configForm.transferSceneId" :disabled="currentView.readonlyConfig">
+                        <template #append><GuideLink /></template>
+                      </el-input>
+                    </el-form-item>
                     <el-form-item label="平台证书">
                       <el-input v-model="configForm.platformCert" type="textarea" :rows="3" :disabled="currentView.readonlyConfig" />
                     </el-form-item>
@@ -767,6 +772,7 @@ const configForm = ref({
   certNo: '6B729D43********8F20',
   privateKey: '-----BEGIN PRIVATE KEY-----\n********\n-----END PRIVATE KEY-----',
   publicKeyId: 'PUB_KEY_ID_011423',
+  transferSceneId: '1005',
   platformCert: '-----BEGIN CERTIFICATE-----\n********\n-----END CERTIFICATE-----'
 });
 
@@ -958,6 +964,7 @@ function validateRequiredConfig() {
     ['商户证书序列号', configForm.value.certNo],
     ['商户私钥', configForm.value.privateKey],
     ['微信支付公钥ID', configForm.value.publicKeyId],
+    ['转账场景ID', configForm.value.transferSceneId],
     ['平台证书', configForm.value.platformCert]
   ];
   const missingField = requiredFields.find(([, value]) => !String(value).trim());
