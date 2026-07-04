@@ -60,6 +60,7 @@ const expandedItemGroups = ref<string[]>([])
 const hasAuthorizedServiceAccount = ref(false)
 const showServiceAccountQr = ref(true)
 const showMemoryMiningToast = ref(false)
+const memoryScreenshotUrl = './dist/user-memory-page.png'
 
 const primaryMenus: PrimaryMenu[] = [
   { key: 'work', label: '工作', icon: 'work' },
@@ -923,7 +924,7 @@ onBeforeUnmount(() => {
       <button class="demo-reset-button" type="button" @click="resetDemoInit">重新初始化</button>
       <div class="assistant-avatar" aria-hidden="true"></div>
       <div class="memory-screenshot-cover" aria-hidden="true">
-        <img src="/user-memory-page.png" alt="" />
+        <img :src="memoryScreenshotUrl" alt="" />
       </div>
       <div v-if="showMemoryMiningToast" class="memory-mining-toast" role="status" aria-live="polite">
         <i></i>
