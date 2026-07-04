@@ -5519,6 +5519,71 @@ body:has(.memory-dashboard) {
   white-space: nowrap;
 }
 
+.workspace > .primary-sidebar .account-popover {
+  position: absolute;
+  left: 4px;
+  bottom: 36px;
+  z-index: 8;
+  width: 122px;
+  overflow: hidden;
+  border: 1px solid #e6ebf2;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(31, 41, 55, 0.08);
+}
+
+.workspace > .primary-sidebar .account-popover button {
+  width: 100%;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 9px;
+  border: 0;
+  color: #4b5563;
+  background: #fff;
+  font-size: 11px;
+  text-align: left;
+}
+
+.workspace > .primary-sidebar .account-popover button:hover {
+  background: #f7f9fc;
+}
+
+.workspace > .primary-sidebar .account-popover button + button {
+  border-top: 1px solid #f0f3f7;
+}
+
+.workspace > .primary-sidebar .account-popover i {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+  border: 1px solid #a8b1bf;
+  border-radius: 50%;
+}
+
+.workspace > .primary-sidebar .account-popover .logout {
+  color: #ff4d5f;
+}
+
+.workspace > .primary-sidebar .account-popover .logout i {
+  border-color: #ff4d5f;
+  border-radius: 2px;
+}
+
+.workspace > .primary-sidebar .account-popover .logout i::after {
+  position: absolute;
+  top: 3px;
+  right: -4px;
+  width: 6px;
+  height: 4px;
+  border-top: 1px solid #ff4d5f;
+  border-right: 1px solid #ff4d5f;
+  content: "";
+  transform: rotate(45deg);
+}
+
 .workspace > .secondary-sidebar .menu-group {
   margin: 0 0 13px;
   padding-bottom: 9px;
