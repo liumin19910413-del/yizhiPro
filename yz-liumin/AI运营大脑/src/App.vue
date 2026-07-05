@@ -60,6 +60,7 @@ const expandedItemGroups = ref<string[]>([])
 const hasAuthorizedServiceAccount = ref(false)
 const showServiceAccountQr = ref(true)
 const showMemoryMiningToast = ref(false)
+const memoryScreenshotUrl = './dist/user-memory-page.png'
 
 const primaryMenus: PrimaryMenu[] = [
   { key: 'work', label: '工作', icon: 'work' },
@@ -642,6 +643,20 @@ function resetDemoInit() {
   activeStepIndex.value = 0
 }
 
+function handleLogout() {
+  stopInitProgress()
+  clearAuthAutoTimer()
+  clearAuthTransitionTimer()
+  clearMemoryMiningTimer()
+  showInitModal.value = false
+  showMemoryMiningToast.value = false
+  showServiceAccountQr.value = true
+  hasAuthorizedServiceAccount.value = false
+  isLoggedIn.value = false
+  activePrimary.value = 'private'
+  activePrivateMenu.value = '用户记忆'
+}
+
 function selectIndustry(industry: string) {
   if (selectedIndustries.value.includes(industry)) {
     if (selectedIndustries.value.length > 1) {
@@ -883,6 +898,11 @@ onBeforeUnmount(() => {
         <span>{{ menu.label }}</span>
       </button>
       <button class="sidebar-search" type="button">搜索(ctrl+Q)</button>
+      <section class="account-popover" aria-label="账号操作">
+        <button type="button"><i></i>开启高对比度模式</button>
+        <button type="button"><i></i>版本更新日志</button>
+        <button class="logout" type="button" @click="handleLogout"><i></i>退出登录</button>
+      </section>
     </aside>
 
     <aside class="secondary-sidebar">
@@ -904,7 +924,7 @@ onBeforeUnmount(() => {
       <button class="demo-reset-button" type="button" @click="resetDemoInit">重新初始化</button>
       <div class="assistant-avatar" aria-hidden="true"></div>
       <div class="memory-screenshot-cover" aria-hidden="true">
-        <img src="/user-memory-page.png" alt="" />
+        <img :src="memoryScreenshotUrl" alt="" />
       </div>
       <div v-if="showMemoryMiningToast" class="memory-mining-toast" role="status" aria-live="polite">
         <i></i>

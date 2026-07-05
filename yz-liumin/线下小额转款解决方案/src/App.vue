@@ -93,12 +93,28 @@
           </aside>
 
           <section class="solution-content">
+            <div class="solution-workspace">
+              <div class="solution-main">
             <section v-if="activeMenu === 'overview'" class="page-stack">
-              <div class="metric-grid">
-                <div v-for="metric in overviewMetrics" :key="metric.label" class="metric-panel">
-                  <span>{{ metric.label }}</span>
-                  <strong>{{ metric.value }}</strong>
-                  <small>{{ metric.note }}</small>
+              <div class="overview-summary">
+                <div class="merchant-badge">
+                  <span>商户号：{{ currentMerchantNo }}</span>
+                  <el-button link type="primary" @click="openMerchantPortal">前往商户后台查看余额</el-button>
+                </div>
+                <div class="metric-grid">
+                  <div v-for="metric in overviewMetrics" :key="metric.label" class="metric-panel">
+                    <span class="metric-title">{{ metric.label }}</span>
+                    <div class="metric-amounts">
+                      <div>
+                        <small>累计</small>
+                        <strong>{{ metric.total }}</strong>
+                      </div>
+                      <div>
+                        <small>本月</small>
+                        <strong>{{ metric.month }}</strong>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -116,16 +132,15 @@
                     <el-select v-if="isHeadquarters" v-model="statsFilters.store" placeholder="门店" clearable>
                       <el-option v-for="store in storeOptions" :key="store" :label="store" :value="store" />
                     </el-select>
+                    <el-button>查询</el-button>
                     <el-button>导出</el-button>
                   </div>
-                  <el-button v-else>导出</el-button>
                 </div>
                 <el-table v-if="overviewTableTab === '打款统计'" :data="visibleStoreStats" border>
                   <el-table-column prop="store" label="门店名称" min-width="120" />
                   <el-table-column prop="accountType" label="账户类型" min-width="120" />
                   <el-table-column prop="account" label="出款账户" min-width="150" />
                   <el-table-column prop="successAmount" label="成功金额" min-width="120" align="right" />
-                  <el-table-column prop="count" label="打款笔数" min-width="100" align="right" />
                   <el-table-column prop="failedAmount" label="失败金额" min-width="120" align="right" />
                   <el-table-column label="操作" width="110" fixed="right">
                     <template #default="{ row }">
@@ -145,11 +160,11 @@
                       <el-option label="待处理" value="待处理" />
                     </el-select>
                     <el-select v-model="detailFilters.business" placeholder="业务场景" clearable>
-                      <el-option label="抽奖奖励" value="抽奖奖励" />
-                      <el-option label="分销合伙人提现" value="分销合伙人提现" />
+                      <el-option v-for="item in businessOptions" :key="item" :label="item" :value="item" />
                     </el-select>
                     <el-input v-model="detailFilters.keyword" placeholder="收款人/手机号/openid/单号" clearable />
                     <el-button>查询</el-button>
+                    <el-button>导出</el-button>
                   </div>
                   <el-table :data="visiblePayoutDetails" border>
                     <el-table-column prop="paidAt" label="打款时间" min-width="150" />
@@ -291,6 +306,11 @@
                         <template #append><GuideLink /></template>
                       </el-input>
                     </el-form-item>
+                    <el-form-item label="转账场景ID">
+                      <el-input v-model="configForm.transferSceneId" :disabled="currentView.readonlyConfig">
+                        <template #append><GuideLink /></template>
+                      </el-input>
+                    </el-form-item>
                     <el-form-item label="平台证书">
                       <el-input v-model="configForm.platformCert" type="textarea" :rows="3" :disabled="currentView.readonlyConfig" />
                     </el-form-item>
@@ -325,7 +345,7 @@
                   <div class="config-section-title">
                     <h3>打款处理规则</h3>
                   </div>
-                  <p>保存打款设置后，幸运转盘、零元抽奖、刮刮乐中的现金奖励发放到微信零钱，以及合伙人提现中的“提现到微信零钱”，将统一使用微信小额打款方案处理。</p>
+                  <p>保存打款设置后，幸运转盘、0元抽奖、刮刮卡中的现金奖励发放到微信零钱，以及合伙人佣金提现，将统一使用微信小额打款方案处理。</p>
                 </section>
 
                 <el-alert
@@ -342,13 +362,22 @@
                 </div>
               </section>
             </section>
+              </div>
+              <aside class="requirement-notes">
+                <h3>需求备注</h3>
+                <p>{{ activeRequirementNote.title }}</p>
+                <ul>
+                  <li v-for="item in activeRequirementNote.items" :key="item">{{ item }}</li>
+                </ul>
+              </aside>
+            </div>
           </section>
         </section>
       </template>
 
     </main>
 
-    <el-dialog v-model="qrDialogVisible" title="收款授权码" width="420px">
+    <el-dialog v-model="qrDialogVisible" title="收款授权码" width="420px" :show-close="false" class="qr-auth-dialog">
       <div class="qr-box">
         <svg class="qr-code" viewBox="0 0 180 180" role="img" aria-label="收款授权码">
           <rect width="180" height="180" fill="#fff" />
@@ -366,9 +395,10 @@
         <p class="qr-tip">使用微信扫码做收款授权确认</p>
       </div>
       <template #footer>
-        <el-button @click="copyQrImage">复制图片</el-button>
-        <el-button @click="saveQrImage">保存图片</el-button>
-        <el-button type="primary" @click="qrDialogVisible = false">关闭</el-button>
+        <div class="qr-dialog-actions">
+          <el-button type="primary" @click="copyQrImage">复制图片</el-button>
+          <el-button @click="saveQrImage">保存图片</el-button>
+        </div>
       </template>
     </el-dialog>
 
@@ -384,9 +414,7 @@
         <el-form-item label="打款金额"><el-input-number v-model="payoutForm.amount" :min="1" :precision="2" style="width: 180px" /> 元</el-form-item>
         <el-form-item label="业务场景">
           <el-select v-model="payoutForm.business" style="width: 100%">
-            <el-option label="抽奖奖励" value="抽奖奖励" />
-            <el-option label="分销合伙人提现" value="分销合伙人提现" />
-            <el-option label="邮费补贴" value="邮费补贴" />
+            <el-option v-for="item in businessOptions" :key="item" :label="item" :value="item" />
           </el-select>
         </el-form-item>
         <el-form-item label="转账备注"><el-input v-model="payoutForm.remark" maxlength="32" show-word-limit /></el-form-item>
@@ -448,7 +476,32 @@
 
     </div>
 
-    <section v-else class="consumer-blank"></section>
+    <section v-else class="consumer-landing-gallery">
+      <div class="landing-preview-card">
+        <h2>商家生成授权码，客户扫码后进入授权</h2>
+        <img :src="publicAsset('c端落地页/授权码扫码授权流程.png')" alt="商家生成授权码客户扫码授权流程" />
+      </div>
+      <div class="landing-preview-card">
+        <h2>抽奖红包领取收款流程</h2>
+        <img :src="publicAsset('c端落地页/抽奖红包收款流程.png')" alt="抽奖红包领取收款流程" />
+      </div>
+      <div class="landing-preview-card">
+        <h2>合伙人提现入口授权流程</h2>
+        <img :src="publicAsset('c端落地页/合伙人提现授权流程.png')" alt="合伙人提现入口授权流程" />
+      </div>
+      <div class="landing-preview-card">
+        <h2>B端合伙人结算打款设置</h2>
+        <img :src="publicAsset('c端落地页/B端合伙人结算打款设置.png')" alt="B端合伙人结算打款设置" />
+      </div>
+      <div class="landing-preview-card">
+        <h2>B端抽奖余额管理</h2>
+        <img :src="publicAsset('c端落地页/B端抽奖余额管理.png')" alt="B端抽奖余额管理" />
+      </div>
+      <div class="landing-preview-card">
+        <h2>权限增加</h2>
+        <img :src="publicAsset('c端落地页/权限增加.png')" alt="权限增加" />
+      </div>
+    </section>
   </div>
 </template>
 
@@ -475,7 +528,6 @@ interface StoreStat {
   accountType: string;
   account: string;
   successAmount: string;
-  count: number;
   failedAmount: string;
 }
 
@@ -506,6 +558,11 @@ interface PayoutDetail {
   wechatNo: string;
 }
 
+interface RequirementNote {
+  title: string;
+  items: string[];
+}
+
 interface AppCard {
   title: string;
   icon: string;
@@ -520,6 +577,7 @@ interface AppGroup {
 }
 
 const FEISHU_HELP_URL = 'https://www.feishu.cn/docx/PLACEHOLDER_WECHAT_TRANSFER_GUIDE';
+const WECHAT_MERCHANT_PORTAL_URL = 'https://pay.weixin.qq.com/';
 const globalNav = ['小红书', '连锁架构', '门店配置', '公域获客', '私域运营', 'AI 智能体', '营销中心', '数据报表', '库存管理'];
 const terminalOptions: TerminalKey[] = ['B端', 'C端'];
 const menuOptions: { key: MenuKey; label: string }[] = [
@@ -527,6 +585,42 @@ const menuOptions: { key: MenuKey; label: string }[] = [
   { key: 'payout', label: '授权列表' },
   { key: 'config', label: '打款配置' }
 ];
+const businessOptions = ['幸运转盘', '0元抽奖', '刮刮卡', '合伙人佣金提现'];
+const requirementNotes: Record<MenuKey, RequirementNote> = {
+  overview: {
+    title: '数据总览用于核对打款结果和财务统计。',
+    items: [
+      '顶部只展示成功打款金额和失败金额，每项区分累计与本月。',
+      '总部可按门店筛选；分店视角固定查看本店，不展示门店筛选。',
+      '打款统计按门店和出款账户拆行；同一门店多个账户都有出款时，需要展示多条记录。',
+      '表格在打款统计和打款明细间切换，导出按钮跟随查询按钮。',
+      '打款明细展示 OpenID、手机号、单据号、业务场景和实际出款账户。',
+      '只有失败记录提供重新打款操作。'
+    ]
+  },
+  payout: {
+    title: '授权列表用于管理可收款用户并发起打款。',
+    items: [
+      '列表只展示已产生授权记录的用户，不展示待授权用户。',
+      '微信用户信息展示昵称和 OpenID，真实打款以 OpenID 识别收款人。',
+      '会员信息展示姓名和手机号，手机号可为空。',
+      '总部只查看和发起打款；分店在查询后可生成授权码。',
+      '已授权用户可发起打款，已关闭用户只能重新授权。'
+    ]
+  },
+  config: {
+    title: '打款配置用于保存微信商家转账接入参数。',
+    items: [
+      '总部和分店首次开通规则一致：未开通前默认进入打款配置，且只显示打款配置菜单。',
+      '保存并开通后才展示数据总览和授权列表，再次进入默认展示数据总览。',
+      '配置前需先参考开通说明文档完成微信商户号、商家转账和接口安全 IP。',
+      '保存设置时校验必填项并模拟调用配置校验接口，失败时在页面内提示原因。',
+      '总部可选择适用门店，分发后门店原配置会被覆盖且只能查看。',
+      '分店连锁配置为只读；分店自主配置可维护本店参数。',
+      '保存后，四个业务场景统一走微信小额打款方案处理。'
+    ]
+  }
+};
 
 const GuideLink = defineComponent({
   name: 'GuideLink',
@@ -609,10 +703,10 @@ const views = ref<ViewProfile[]>([
 ]);
 
 const storeStats: StoreStat[] = [
-  { store: '首款门店', accountType: '总部账户', account: '总部商户号(1109)', successAmount: '¥3,200.00', count: 32, failedAmount: '¥0.00' },
-  { store: '二号门店', accountType: '门店自有账户', account: '二号门店(2208)', successAmount: '¥5,100.00', count: 51, failedAmount: '¥120.00' },
-  { store: '三号门店', accountType: '总部账户', account: '总部商户号(1109)', successAmount: '¥4,280.00', count: 45, failedAmount: '¥200.00' },
-  { store: '三号门店', accountType: '门店自有账户', account: '三号门店(3306)', successAmount: '¥680.00', count: 8, failedAmount: '¥0.00' }
+  { store: '首款门店', accountType: '总部账户', account: '总部商户号(1109)', successAmount: '¥3,200.00', failedAmount: '¥0.00' },
+  { store: '二号门店', accountType: '门店自有账户', account: '二号门店(2208)', successAmount: '¥5,100.00', failedAmount: '¥120.00' },
+  { store: '三号门店', accountType: '总部账户', account: '总部商户号(1109)', successAmount: '¥4,280.00', failedAmount: '¥200.00' },
+  { store: '三号门店', accountType: '门店自有账户', account: '三号门店(3306)', successAmount: '¥680.00', failedAmount: '¥0.00' }
 ];
 
 const authUsers = ref<AuthUser[]>([
@@ -622,10 +716,10 @@ const authUsers = ref<AuthUser[]>([
 ]);
 
 const payoutDetails = ref<PayoutDetail[]>([
-  { id: 'P20260701001', paidAt: '2026-07-01 10:20', store: '首款门店', accountType: '总部账户', account: '总部商户号(1109)', receiver: '张三', phone: '138****0001', openid: 'oYz***a01', business: '分销合伙人提现', amount: '¥200.00', status: '成功', wechatNo: 'WX20260701099001' },
-  { id: 'P20260701002', paidAt: '2026-07-01 11:05', store: '三号门店', accountType: '总部账户', account: '总部商户号(1109)', receiver: '王五', phone: '137****0003', openid: 'oYz***c03', business: '抽奖奖励', amount: '¥120.00', status: '失败', wechatNo: '-' },
-  { id: 'P20260701003', paidAt: '2026-07-01 14:18', store: '首款门店', accountType: '总部账户', account: '总部商户号(1109)', receiver: '赵六', phone: '136****0004', openid: 'oYz***d04', business: '抽奖奖励', amount: '¥50.00', status: '成功', wechatNo: 'WX20260701099003' },
-  { id: 'P20260701004', paidAt: '2026-07-01 16:32', store: '二号门店', accountType: '门店自有账户', account: '二号门店(2208)', receiver: '钱七', phone: '135****0007', openid: 'oYz***g07', business: '抽奖奖励', amount: '¥80.00', status: '成功', wechatNo: 'WX20260701099004' }
+  { id: 'P20260701001', paidAt: '2026-07-01 10:20', store: '首款门店', accountType: '总部账户', account: '总部商户号(1109)', receiver: '张三', phone: '138****0001', openid: 'oYz***a01', business: '合伙人佣金提现', amount: '¥200.00', status: '成功', wechatNo: 'WX20260701099001' },
+  { id: 'P20260701002', paidAt: '2026-07-01 11:05', store: '三号门店', accountType: '总部账户', account: '总部商户号(1109)', receiver: '王五', phone: '137****0003', openid: 'oYz***c03', business: '幸运转盘', amount: '¥120.00', status: '失败', wechatNo: '-' },
+  { id: 'P20260701003', paidAt: '2026-07-01 14:18', store: '首款门店', accountType: '总部账户', account: '总部商户号(1109)', receiver: '赵六', phone: '136****0004', openid: 'oYz***d04', business: '0元抽奖', amount: '¥50.00', status: '成功', wechatNo: 'WX20260701099003' },
+  { id: 'P20260701004', paidAt: '2026-07-01 16:32', store: '二号门店', accountType: '门店自有账户', account: '二号门店(2208)', receiver: '钱七', phone: '135****0007', openid: 'oYz***g07', business: '刮刮卡', amount: '¥80.00', status: '成功', wechatNo: 'WX20260701099004' }
 ]);
 
 const selectableStores = [
@@ -670,7 +764,7 @@ const statsFilters = ref<{ dateRange: [Date, Date] | ''; store: string }>({
   dateRange: [new Date('2026-07-01'), new Date('2026-07-31')],
   store: ''
 });
-const payoutForm = ref({ amount: 200, business: '分销合伙人提现', remark: '7月分销佣金' });
+const payoutForm = ref({ amount: 200, business: '合伙人佣金提现', remark: '7月分销佣金' });
 const configForm = ref({
   mchid: '1900********1109',
   appid: 'wx************4356',
@@ -678,16 +772,18 @@ const configForm = ref({
   certNo: '6B729D43********8F20',
   privateKey: '-----BEGIN PRIVATE KEY-----\n********\n-----END PRIVATE KEY-----',
   publicKeyId: 'PUB_KEY_ID_011423',
+  transferSceneId: '1005',
   platformCert: '-----BEGIN CERTIFICATE-----\n********\n-----END CERTIFICATE-----'
 });
 
 const currentView = computed(() => views.value.find((view) => view.key === activeViewKey.value) ?? views.value[0]);
 const viewSwitchOptions = computed(() => views.value.map((view) => ({ label: view.label, value: view.key })));
-const isConfigured = computed(() => currentView.value.configStatus !== '未开通');
-const subMenus = computed(() => isConfigured.value ? menuOptions : menuOptions.filter((item) => item.key === 'config'));
+const activeRequirementNote = computed(() => requirementNotes[activeMenu.value]);
+const subMenus = menuOptions;
 const isHeadquarters = computed(() => activeViewKey.value === 'hq');
 const storeOptions = computed(() => isHeadquarters.value ? ['首款门店', '二号门店', '三号门店'] : [currentView.value.store ?? '当前门店']);
 const currentAccountName = computed(() => currentView.value.accountSource === '门店自有账户' ? '二号门店(2208)' : '总部商户号(1109)');
+const currentMerchantNo = computed(() => currentView.value.accountSource === '门店自有账户' ? '2208' : '1900********1109');
 
 const visibleStoreStats = computed(() => {
   const scopedRows = isHeadquarters.value
@@ -701,11 +797,11 @@ const overviewMetrics = computed(() => {
   const rows = visibleStoreStats.value;
   const amount = rows.reduce((sum, row) => sum + currencyToNumber(row.successAmount), 0);
   const failed = rows.reduce((sum, row) => sum + currencyToNumber(row.failedAmount), 0);
-  const count = rows.reduce((sum, row) => sum + row.count, 0);
+  const successTotal = amount + (isHeadquarters.value ? 86240 : 12800);
+  const failedTotal = failed + (isHeadquarters.value ? 1480 : 260);
   return [
-    { label: '本月成功打款金额', value: formatCurrency(amount), note: isHeadquarters.value ? '全部门店' : '当前门店' },
-    { label: '本月打款笔数', value: String(count), note: '成功打款' },
-    { label: '失败金额', value: formatCurrency(failed), note: '不计入成功金额' }
+    { label: '成功打款金额', total: formatCurrency(successTotal), month: formatCurrency(amount) },
+    { label: '失败金额', total: formatCurrency(failedTotal), month: formatCurrency(failed) }
   ];
 });
 
@@ -741,7 +837,7 @@ function enterSolution() {
 }
 
 function syncDefaultMenu() {
-  activeMenu.value = currentView.value.configStatus === '未开通' ? 'config' : 'overview';
+  activeMenu.value = 'overview';
   overviewTableTab.value = '打款统计';
   authFilters.value.store = '';
   detailFilters.value.store = isHeadquarters.value ? '' : currentView.value.store ?? '';
@@ -826,6 +922,15 @@ function openGuideDoc() {
   window.open(FEISHU_HELP_URL, '_blank', 'noopener');
 }
 
+function openMerchantPortal() {
+  window.open(WECHAT_MERCHANT_PORTAL_URL, '_blank', 'noopener');
+}
+
+function publicAsset(path: string) {
+  const assetBase = (globalThis as { __PUBLIC_ASSET_BASE__?: string }).__PUBLIC_ASSET_BASE__ ?? './';
+  return `${assetBase}${path}`;
+}
+
 async function saveSettings() {
   configValidationError.value = '';
   const localError = validateRequiredConfig();
@@ -859,6 +964,7 @@ function validateRequiredConfig() {
     ['商户证书序列号', configForm.value.certNo],
     ['商户私钥', configForm.value.privateKey],
     ['微信支付公钥ID', configForm.value.publicKeyId],
+    ['转账场景ID', configForm.value.transferSceneId],
     ['平台证书', configForm.value.platformCert]
   ];
   const missingField = requiredFields.find(([, value]) => !String(value).trim());
