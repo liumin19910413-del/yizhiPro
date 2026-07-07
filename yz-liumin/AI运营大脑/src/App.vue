@@ -46,11 +46,34 @@ interface ItemStrategyItem {
 }
 
 type CleanStatus = 'pending' | 'active' | 'done'
+type InitVersion = 'scheme1' | 'scheme2'
+type Scheme2Step = 'industry' | 'auth' | 'initializing' | 'result'
+type Scheme2TaskStatus = 'done' | 'active' | 'pending'
+
+interface Scheme2Industry {
+  name: string
+  profileKey: string
+  icon: string
+  tags: string[]
+}
+
+interface Scheme2Task {
+  title: string
+  desc: string
+  status: Scheme2TaskStatus
+}
+
+interface Scheme2Metric {
+  label: string
+  value: string
+  icon: string
+}
 
 const account = ref(DEFAULT_ACCOUNT)
 const password = ref(DEFAULT_PASSWORD)
 const isLoggedIn = ref(false)
 const showInitModal = ref(false)
+const activeInitVersion = ref<InitVersion>('scheme1')
 const activePrimary = ref<PrimaryMenuKey>('private')
 const activePrivateMenu = ref('用户记忆')
 const activeStepIndex = ref(0)
@@ -60,6 +83,10 @@ const expandedItemGroups = ref<string[]>([])
 const hasAuthorizedServiceAccount = ref(false)
 const showServiceAccountQr = ref(true)
 const showMemoryMiningToast = ref(false)
+const scheme2Step = ref<Scheme2Step>('industry')
+const scheme2SelectedIndustry = ref('')
+const scheme2Authorized = ref(false)
+const scheme2TaskProgress = ref(0)
 const memoryScreenshotUrl = './dist/user-memory-page.png'
 
 const primaryMenus: PrimaryMenu[] = [
@@ -93,6 +120,8 @@ let progressTimer: ReturnType<typeof setInterval> | undefined
 let authAutoTimer: ReturnType<typeof setTimeout> | undefined
 let authTransitionTimer: ReturnType<typeof setTimeout> | undefined
 let memoryMiningTimer: ReturnType<typeof setTimeout> | undefined
+let scheme2AuthTimer: ReturnType<typeof setTimeout> | undefined
+let scheme2TaskTimer: ReturnType<typeof setInterval> | undefined
 
 const initPanels: InitPanel[] = [
   {
@@ -124,6 +153,47 @@ const serviceAuthPoints = [
 ]
 
 const serviceAuthTrustBadges = ['仅用于本次 AI 运营体验', '当前仅同步通讯录建档', '后续授权后可接入聊天和朋友圈触点']
+
+const scheme2Industries: Scheme2Industry[] = [
+  { name: '面部美容', profileKey: '美容', icon: '💆', tags: ['面部护理', '皮肤管理', '补水修护', '抗衰'] },
+  { name: '美甲美睫', profileKey: '美甲', icon: '💅', tags: ['美甲', '美睫', '手足护理', '款式升级'] },
+  { name: '医疗美容', profileKey: '医美', icon: '🏥', tags: ['皮肤管理', '光电项目', '抗衰', '术后修复'] },
+  { name: '健康养生', profileKey: '养生SPA', icon: '🌿', tags: ['经络理疗', '艾灸调理', '肩颈养护', '睡眠调理'] },
+]
+
+const scheme2ResultMetricsByIndustry: Record<string, Scheme2Metric[]> = {
+  医疗美容: [
+    { label: '预计今日成交客户', value: '9', icon: 'user' },
+    { label: '预计新增营业额', value: '¥12,800', icon: 'coin' },
+    { label: '预计激活沉睡客户', value: '16', icon: 'clock' },
+    { label: '预计复购机会', value: '7', icon: 'trend' },
+  ],
+  面部美容: [
+    { label: '预计今日成交客户', value: '12', icon: 'user' },
+    { label: '预计新增营业额', value: '¥9,600', icon: 'coin' },
+    { label: '预计激活沉睡客户', value: '23', icon: 'clock' },
+    { label: '预计复购机会', value: '11', icon: 'trend' },
+  ],
+  美甲美睫: [
+    { label: '预计今日成交客户', value: '18', icon: 'user' },
+    { label: '预计新增营业额', value: '¥5,200', icon: 'coin' },
+    { label: '预计激活沉睡客户', value: '28', icon: 'clock' },
+    { label: '预计复购机会', value: '19', icon: 'trend' },
+  ],
+  健康养生: [
+    { label: '预计今日成交客户', value: '10', icon: 'user' },
+    { label: '预计新增营业额', value: '¥8,900', icon: 'coin' },
+    { label: '预计激活沉睡客户', value: '21', icon: 'clock' },
+    { label: '预计复购机会', value: '12', icon: 'trend' },
+  ],
+}
+
+const scheme2DefaultMetrics: Scheme2Metric[] = [
+  { label: '预计今日成交客户', value: '11', icon: 'user' },
+  { label: '预计新增营业额', value: '¥8,800', icon: 'coin' },
+  { label: '预计激活沉睡客户', value: '19', icon: 'clock' },
+  { label: '预计复购机会', value: '10', icon: 'trend' },
+]
 
 const lifecycleSegments = [
   { stage: '新客体验', count: '138', signal: '首次到店 / 体验项目', motion: '建档回访' },
@@ -488,6 +558,66 @@ const currentExperienceCards = computed(() => {
     '客户资产沉淀',
   ]
 })
+const scheme2SelectedIndustryCard = computed(() => {
+  return scheme2Industries.find((item) => item.name === scheme2SelectedIndustry.value) ?? scheme2Industries[2]
+})
+const scheme2IndustryName = computed(() => scheme2SelectedIndustry.value || scheme2SelectedIndustryCard.value.name)
+const scheme2ResultMetrics = computed(() => scheme2ResultMetricsByIndustry[scheme2IndustryName.value] ?? scheme2DefaultMetrics)
+const scheme2InitReady = computed(() => scheme2Step.value === 'initializing' && scheme2TaskProgress.value >= 100)
+const scheme2PowerLeft = computed(() => {
+  if (scheme2Step.value === 'industry') {
+    return 50
+  }
+  if (scheme2Step.value === 'auth') {
+    return 42
+  }
+  if (scheme2Step.value === 'initializing') {
+    return Math.max(8, 42 - Math.round(scheme2TaskProgress.value * 0.34))
+  }
+  return 0
+})
+const scheme2Tasks = computed<Scheme2Task[]>(() => {
+  const taskTitles = [
+    '已选择行业',
+    '匹配行业模型',
+    '初始化行业主营品项',
+    '初始化会员旅程',
+    '初始化客户分层',
+    '初始化行业经营模型',
+  ]
+  const taskDescriptions = [
+    scheme2IndustryName.value,
+    scheme2IndustryName.value,
+    scheme2SelectedIndustryCard.value.tags.join(' / '),
+    '新客体验 / 首次成交 / 复购 / 召回',
+    '高意向 / 可复购 / 沉睡 / 流失预警',
+    `${scheme2IndustryName.value}经营动作生成中`,
+  ]
+
+  return taskTitles.map((title, index) => {
+    let status: Scheme2TaskStatus = 'pending'
+    if (scheme2Step.value === 'result') {
+      status = 'done'
+    } else if (scheme2Step.value === 'initializing') {
+      if (index < 2) {
+        status = 'done'
+      } else {
+        const start = (index - 2) * 25
+        status = scheme2TaskProgress.value >= start + 25 ? 'done' : scheme2TaskProgress.value >= start ? 'active' : 'pending'
+      }
+    } else if (scheme2Step.value === 'auth') {
+      status = index === 0 ? 'done' : index === 1 && scheme2Authorized.value ? 'done' : index === 1 ? 'active' : 'pending'
+    } else {
+      status = index === 0 && scheme2SelectedIndustry.value ? 'done' : index === 0 ? 'active' : 'pending'
+    }
+
+    return {
+      title,
+      desc: taskDescriptions[index],
+      status,
+    }
+  })
+})
 function mergeUnique(items: string[]) {
   return Array.from(new Set(items))
 }
@@ -588,13 +718,15 @@ const nextInitLabel = computed(() => {
 
 function handleLogin() {
   isLoggedIn.value = true
-  activePrimary.value = 'private'
+  activePrimary.value = 'work'
   activePrivateMenu.value = '用户记忆'
   localStorage.removeItem(INIT_KEY)
   localStorage.removeItem(INDUSTRY_KEY)
   selectedIndustries.value = []
   resetInitProgress()
-  showInitModal.value = true
+  resetScheme2Flow()
+  activeInitVersion.value = 'scheme2'
+  showInitModal.value = false
   activeStepIndex.value = 0
 }
 
@@ -631,6 +763,7 @@ function selectPrimary(key: PrimaryMenuKey) {
   activePrimary.value = key
   if (key === 'private') {
     activePrivateMenu.value = '用户记忆'
+    openInitModal('scheme2')
   }
 }
 
@@ -638,9 +771,7 @@ function resetDemoInit() {
   localStorage.removeItem(INIT_KEY)
   localStorage.removeItem(INDUSTRY_KEY)
   selectedIndustries.value = []
-  resetInitProgress()
-  showInitModal.value = true
-  activeStepIndex.value = 0
+  openInitModal('scheme2')
 }
 
 function handleLogout() {
@@ -648,10 +779,13 @@ function handleLogout() {
   clearAuthAutoTimer()
   clearAuthTransitionTimer()
   clearMemoryMiningTimer()
+  clearScheme2AuthTimer()
+  stopScheme2TaskProgress()
   showInitModal.value = false
   showMemoryMiningToast.value = false
   showServiceAccountQr.value = true
   hasAuthorizedServiceAccount.value = false
+  scheme2Authorized.value = false
   isLoggedIn.value = false
   activePrimary.value = 'private'
   activePrivateMenu.value = '用户记忆'
@@ -666,6 +800,31 @@ function selectIndustry(industry: string) {
     selectedIndustries.value = [...selectedIndustries.value, industry]
   }
   localStorage.setItem(INDUSTRY_KEY, JSON.stringify(selectedIndustries.value))
+}
+
+function switchInitVersion(version: InitVersion) {
+  if (activeInitVersion.value === version) {
+    return
+  }
+  activeInitVersion.value = version
+  if (version === 'scheme1') {
+    resetScheme2Flow()
+    resetInitProgress()
+    activeStepIndex.value = 0
+    startInitProgress()
+    return
+  }
+  stopInitProgress()
+  clearAuthAutoTimer()
+  clearAuthTransitionTimer()
+  resetScheme2Flow()
+}
+
+function selectScheme2Industry(industry: Scheme2Industry) {
+  scheme2SelectedIndustry.value = industry.name
+  selectedIndustries.value = [industry.profileKey]
+  localStorage.setItem(INDUSTRY_KEY, JSON.stringify(selectedIndustries.value))
+  scheme2Step.value = 'auth'
 }
 
 function resetInitProgress() {
@@ -707,6 +866,40 @@ function clearMemoryMiningTimer() {
   }
 }
 
+function clearScheme2AuthTimer() {
+  if (scheme2AuthTimer) {
+    clearTimeout(scheme2AuthTimer)
+    scheme2AuthTimer = undefined
+  }
+}
+
+function stopScheme2TaskProgress() {
+  if (scheme2TaskTimer) {
+    clearInterval(scheme2TaskTimer)
+    scheme2TaskTimer = undefined
+  }
+}
+
+function resetScheme2Flow() {
+  clearScheme2AuthTimer()
+  stopScheme2TaskProgress()
+  scheme2Step.value = 'industry'
+  scheme2SelectedIndustry.value = ''
+  scheme2Authorized.value = false
+  scheme2TaskProgress.value = 0
+}
+
+function openInitModal(version: InitVersion = 'scheme2') {
+  resetInitProgress()
+  resetScheme2Flow()
+  activeStepIndex.value = 0
+  activeInitVersion.value = version
+  showInitModal.value = true
+  if (version === 'scheme1') {
+    startInitProgress()
+  }
+}
+
 function showMemoryMiningHint() {
   clearMemoryMiningTimer()
   showMemoryMiningToast.value = true
@@ -725,6 +918,59 @@ function scheduleServiceAccountAuth() {
   authAutoTimer = setTimeout(() => {
     authorizeServiceAccount()
   }, 3000)
+}
+
+function authorizeScheme2ServiceAccount() {
+  if (activeInitVersion.value !== 'scheme2' || scheme2Step.value !== 'auth' || scheme2Authorized.value) {
+    return
+  }
+  clearScheme2AuthTimer()
+  scheme2Authorized.value = true
+  scheme2AuthTimer = setTimeout(() => {
+    if (!showInitModal.value || activeInitVersion.value !== 'scheme2') {
+      return
+    }
+    scheme2Step.value = 'initializing'
+    startScheme2TaskProgress()
+  }, 600)
+}
+
+function startScheme2TaskProgress() {
+  stopScheme2TaskProgress()
+  if (scheme2TaskProgress.value >= 100) {
+    return
+  }
+  if (scheme2TaskProgress.value < 4) {
+    scheme2TaskProgress.value = 4
+  }
+  scheme2TaskTimer = setInterval(() => {
+    const current = scheme2TaskProgress.value
+    const increment = current < 44 ? 7 : current < 82 ? 5 : 3
+    const next = Math.min(100, current + increment)
+    scheme2TaskProgress.value = next
+    if (next >= 100) {
+      stopScheme2TaskProgress()
+    }
+  }, 340)
+}
+
+function viewScheme2Result() {
+  if (!scheme2InitReady.value) {
+    return
+  }
+  scheme2Step.value = 'result'
+}
+
+function finishScheme2Init() {
+  clearScheme2AuthTimer()
+  stopScheme2TaskProgress()
+  selectedIndustries.value = [scheme2SelectedIndustryCard.value.profileKey]
+  localStorage.setItem(INIT_KEY, 'true')
+  localStorage.setItem(INDUSTRY_KEY, JSON.stringify(selectedIndustries.value))
+  showInitModal.value = false
+  activePrimary.value = 'private'
+  activePrivateMenu.value = '用户记忆'
+  showMemoryMiningHint()
 }
 
 function startInitProgress() {
@@ -795,6 +1041,12 @@ function toggleItemGroup(label: string) {
 }
 
 watch([showInitModal, activeStepIndex], () => {
+  if (activeInitVersion.value !== 'scheme1') {
+    stopInitProgress()
+    clearAuthAutoTimer()
+    clearAuthTransitionTimer()
+    return
+  }
   if (currentInitPanel.value.kind !== 'consumption') {
     clearAuthAutoTimer()
     clearAuthTransitionTimer()
@@ -811,11 +1063,24 @@ watch([showInitModal, activeStepIndex], () => {
   }
 })
 
+watch([showInitModal, activeInitVersion, scheme2Step], () => {
+  if (!showInitModal.value || activeInitVersion.value !== 'scheme2') {
+    clearScheme2AuthTimer()
+    stopScheme2TaskProgress()
+    return
+  }
+  if (scheme2Step.value === 'initializing') {
+    startScheme2TaskProgress()
+  }
+})
+
 onBeforeUnmount(() => {
   clearAuthAutoTimer()
   clearAuthTransitionTimer()
   clearMemoryMiningTimer()
+  clearScheme2AuthTimer()
   stopInitProgress()
+  stopScheme2TaskProgress()
 })
 
 </script>
@@ -905,8 +1170,8 @@ onBeforeUnmount(() => {
       </section>
     </aside>
 
-    <aside class="secondary-sidebar">
-      <section v-for="group in secondaryMenuGroups" :key="group.title" class="menu-group">
+    <aside class="secondary-sidebar" :class="{ empty: activePrimary !== 'private' }">
+      <section v-for="group in activePrimary === 'private' ? secondaryMenuGroups : []" :key="group.title" class="menu-group">
         <h3>{{ group.title }}</h3>
         <button
           v-for="item in group.items"
@@ -920,7 +1185,7 @@ onBeforeUnmount(() => {
       </section>
     </aside>
 
-    <section class="content-shell memory-dashboard" :class="{ 'memory-live': !showInitModal }">
+    <section v-if="activePrimary === 'private'" class="content-shell memory-dashboard" :class="{ 'memory-live': !showInitModal }">
       <button class="demo-reset-button" type="button" @click="resetDemoInit">重新初始化</button>
       <div class="assistant-avatar" aria-hidden="true"></div>
       <div class="memory-screenshot-cover" aria-hidden="true">
@@ -931,9 +1196,15 @@ onBeforeUnmount(() => {
         <strong>运营机会挖掘完成，任务生成中！</strong>
       </div>
     </section>
+    <section v-else class="content-shell blank-workbench" aria-label="开单内容区"></section>
 
     <div v-if="showInitModal" class="modal-mask" role="dialog" aria-modal="true" aria-labelledby="init-title">
-      <section class="init-modal">
+      <section class="init-modal" :class="{ 'scheme2-modal': activeInitVersion === 'scheme2' }">
+        <nav class="init-version-tabs modal-version-tabs" aria-label="初始化方案选择">
+          <button type="button" :class="{ active: activeInitVersion === 'scheme1' }" @click="switchInitVersion('scheme1')">方案1</button>
+          <button type="button" :class="{ active: activeInitVersion === 'scheme2' }" @click="switchInitVersion('scheme2')">方案2</button>
+        </nav>
+        <template v-if="activeInitVersion === 'scheme1'">
         <aside class="init-step-sidebar">
           <h2>初始化步骤</h2>
           <button
@@ -1118,6 +1389,114 @@ onBeforeUnmount(() => {
               <button class="primary-button small init-next-button" type="button" :disabled="!isCurrentStepComplete" @click="advanceInit">{{ nextInitLabel }}</button>
             </div>
           </footer>
+        </section>
+        </template>
+
+        <section v-else class="scheme2-workbench">
+          <section v-if="scheme2Step === 'industry'" class="scheme2-industry-stage">
+            <aside class="scheme2-welcome-panel">
+              <span>50 AI算力已到账</span>
+              <h3>欢迎体验<br />AI运营大脑</h3>
+              <p>60 秒，为你的门店生成专属 AI 经营方案。</p>
+              <div class="scheme2-power-card">
+                <small>本次体验免费使用</small>
+                <strong>50 AI算力</strong>
+                <i></i>
+              </div>
+            </aside>
+            <div class="scheme2-industry-panel">
+              <header>
+                <span>请选择你的行业</span>
+                <strong>AI 将初始化对应行业经营模型</strong>
+              </header>
+              <div class="scheme2-industry-grid">
+                <button
+                  v-for="industry in scheme2Industries"
+                  :key="industry.name"
+                  type="button"
+                  :class="{ selected: scheme2SelectedIndustry === industry.name }"
+                  @click="selectScheme2Industry(industry)"
+                >
+                  <i>{{ industry.icon }}</i>
+                  <strong>{{ industry.name }}</strong>
+                  <em></em>
+                  <span>
+                    <small v-for="tag in industry.tags" :key="`${industry.name}-${tag}`">{{ tag }}</small>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section v-else-if="scheme2Step === 'auth'" class="scheme2-auth-stage">
+            <div class="scheme2-auth-copy">
+              <span>等待授权</span>
+              <strong>让 AI 替你判断<br />今天该找谁</strong>
+              <p>授权后，AI 会识别客户机会，直接生成跟进名单、理由和策略。</p>
+              <div class="scheme2-auth-mini-result">
+                <b>马上生成</b>
+                <small>客户名单 / 跟进理由 / 预计收益</small>
+              </div>
+              <div class="scheme2-trust-line">不会自动群发 · 不会修改客户资料 · 可随时解除</div>
+            </div>
+            <div class="scheme2-qr-card" :class="{ authorized: scheme2Authorized }" aria-label="门店客服号授权二维码">
+              <div class="mock-qr" aria-hidden="true">
+                <i v-for="index in 25" :key="index"></i>
+              </div>
+              <strong>门店客服号授权</strong>
+              <span>{{ scheme2Authorized ? '扫码授权成功，AI 正在准备初始化' : '请使用企微扫码授权门店客服号' }}</span>
+              <p>扫码后约 60 秒，AI 会告诉你今天该找谁、怎么跟进、预计能多赚多少钱。</p>
+              <button type="button" :disabled="scheme2Authorized" @click="authorizeScheme2ServiceAccount">
+                {{ scheme2Authorized ? '已扫码授权' : '已扫码授权' }}
+              </button>
+            </div>
+          </section>
+
+          <section v-else-if="scheme2Step === 'initializing'" class="scheme2-init-layout">
+            <div class="scheme2-initializing-stage">
+              <aside class="scheme2-init-hero">
+                <span>{{ scheme2InitReady ? '识别完成' : 'AI 正在工作' }}</span>
+                <h3>AI 正在读取<br />你的客户资产</h3>
+                <p>建档、分层、找机会，生成今天的经营任务。</p>
+                <div class="scheme2-power-meter">
+                  <strong>{{ scheme2PowerLeft }}</strong>
+                  <small>剩余 AI算力</small>
+                  <b><i :style="{ width: `${Math.max(0, 100 - scheme2TaskProgress)}%` }"></i></b>
+                </div>
+              </aside>
+              <div class="scheme2-task-list">
+                <article v-for="task in scheme2Tasks" :key="task.title" :class="task.status">
+                  <i></i>
+                  <div>
+                    <strong>{{ task.title }}</strong>
+                    <span>{{ task.desc }}</span>
+                  </div>
+                  <em>{{ task.status === 'done' ? '完成' : task.status === 'active' ? '处理中' : '待处理' }}</em>
+                </article>
+              </div>
+            </div>
+            <div v-if="scheme2InitReady" class="scheme2-ready-panel">
+              <span>AI 已识别出今日客户机会，并测算了预计收益。</span>
+              <button type="button" @click="viewScheme2Result">查看 AI 经营结果</button>
+            </div>
+          </section>
+
+          <section v-else class="scheme2-result-stage">
+            <span class="scheme2-complete-pill">✓ {{ scheme2IndustryName }}行业模型初始化完成</span>
+            <h3>AI 已经理解你的门店</h3>
+            <div class="scheme2-metric-grid">
+              <article v-for="metric in scheme2ResultMetrics" :key="metric.label">
+                <i :class="metric.icon"></i>
+                <span>{{ metric.label }}</span>
+                <strong>{{ metric.value }}</strong>
+              </article>
+            </div>
+            <div class="scheme2-plan-banner">AI 已生成今日运营策略和任务编排，审批通过后将自动执行。</div>
+            <button class="scheme2-profit-button" type="button" @click="finishScheme2Init">
+              <span>前往审批今日策略</span>
+              <i aria-hidden="true"></i>
+            </button>
+          </section>
         </section>
       </section>
     </div>
